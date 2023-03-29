@@ -1,9 +1,8 @@
 ﻿using System;
 
-namespace Thoth
+namespace Thoth.MongoDB
 {
     public class Class1
     {
-
     }
 }
