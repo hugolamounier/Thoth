@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <TargetFramework>net6.0</TargetFramework>
-        <LangVersion>11</LangVersion>
+        <LangVersion>10.0</LangVersion>
     </PropertyGroup>
 
     <ItemGroup>
@@ -11,7 +11,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Thoth\Thoth.csproj" />
+      <ProjectReference Include="..\Thoth.Core\Thoth.Core.csproj" />
     </ItemGroup>
 
 </Project>

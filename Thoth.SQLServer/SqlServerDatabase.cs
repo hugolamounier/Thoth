@@ -5,8 +5,8 @@ using System.Threading.Tasks;
 using Dapper;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Options;
-using Thoth.Interfaces;
-using Thoth.Models;
+using Thoth.Core.Interfaces;
+using Thoth.Core.Models;
 
 namespace Thoth.SQLServer;
 

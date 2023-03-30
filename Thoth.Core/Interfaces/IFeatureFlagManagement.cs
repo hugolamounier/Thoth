@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
-using Thoth.Models;
+using Thoth.Core.Models;
 
-namespace Thoth.Interfaces;
+namespace Thoth.Core.Interfaces;
 
 public interface IFeatureFlagManagement
 {

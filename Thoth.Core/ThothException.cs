@@ -1,6 +1,6 @@
 using System;
 
-namespace Thoth;
+namespace Thoth.Core;
 
 public class ThothException: Exception
 {

@@ -2,13 +2,15 @@
 
     <PropertyGroup>
         <TargetFramework>net6.0</TargetFramework>
-        <LangVersion>11</LangVersion>
+        <LangVersion>10.0</LangVersion>
         <Title>Thoth</Title>
         <Authors>Hugo Lamounier</Authors>
         <PackageProjectUrl>https://github.com/hugolamounier/Thoth</PackageProjectUrl>
         <RepositoryUrl>https://github.com/hugolamounier/Thoth</RepositoryUrl>
         <RepositoryType>Git</RepositoryType>
         <Company />
+        <AssemblyName>Thoth.Core</AssemblyName>
+        <RootNamespace>Thoth.Core</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>

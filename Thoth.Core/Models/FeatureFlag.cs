@@ -1,6 +1,6 @@
 using System;
 
-namespace Thoth.Models;
+namespace Thoth.Core.Models;
 
 public class FeatureFlag
 {

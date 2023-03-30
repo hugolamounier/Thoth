@@ -2,8 +2,9 @@
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Thoth.Interfaces;
-using Thoth.Models;
+using Thoth.Core;
+using Thoth.Core.Interfaces;
+using Thoth.Core.Models;
 using Thoth.SQLServer;
 
 namespace Thoth.DependencyInjection;

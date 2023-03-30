@@ -12,7 +12,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Thoth.SQLServer\Thoth.SQLServer.csproj" />
-      <ProjectReference Include="..\Thoth\Thoth.csproj" />
+      <ProjectReference Include="..\Thoth.Core\Thoth.Core.csproj" />
     </ItemGroup>
 
 </Project>

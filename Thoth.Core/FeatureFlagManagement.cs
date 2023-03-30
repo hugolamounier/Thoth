@@ -1,13 +1,10 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Threading.Tasks;
-using System.Threading.Tasks.Dataflow;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
-using Thoth.Interfaces;
-using Thoth.Models;
+using Thoth.Core.Interfaces;
+using Thoth.Core.Models;
 
-namespace Thoth;
+namespace Thoth.Core;
 
 public class FeatureFlagManagement: IFeatureFlagManagement
 {

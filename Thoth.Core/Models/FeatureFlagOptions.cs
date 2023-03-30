@@ -1,7 +1,7 @@
 using System;
 using Microsoft.Extensions.Options;
 
-namespace Thoth.Models;
+namespace Thoth.Core.Models;
 
 public class FeatureFlagOptions: IOptions<FeatureFlagOptions>
 {
