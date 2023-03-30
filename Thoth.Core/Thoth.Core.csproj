@@ -18,4 +18,12 @@
       <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="7.0.0" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="wwwroot" />
+    </ItemGroup>
+
+    <Target Name="Dashboard" BeforeTargets="Build">
+        <Exec WorkingDirectory="../Thoth.Dashboard/" Command="npm run build" />
+    </Target>
+
 </Project>
