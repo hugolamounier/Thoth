@@ -22,15 +22,14 @@ public class FeatureFlagManagement: IFeatureFlagManagement
         _logger = logger;
     }
 
-    public async Task<bool> IsEnabledAsync(string name) =>
-        (await GetAsync(name)).Value;
+    public async Task<bool> IsEnabledAsync(string name) => (await GetAsync(name)).Value;
 
     public async Task<FeatureFlag> GetAsync(string name)
     {
         if (!await CheckIfExists(name))
             throw new ThothException(string.Format(Messages.ERROR_FEATURE_FLAG_ALREADY_EXISTS, name));
 
-        return await _cacheManager.GetOrCreate(name, () => _dbContext.GetAsync(name));
+        return await _cacheManager.GetOrCreateAsync(name, () => _dbContext.GetAsync(name));
     }
 
     public async Task<bool> AddAsync(FeatureFlag featureFlag)
@@ -41,19 +40,15 @@ public class FeatureFlagManagement: IFeatureFlagManagement
         if (featureFlag.Type == FeatureFlagsTypes.Boolean && !string.IsNullOrWhiteSpace(featureFlag.FilterValue))
             throw new ThothException(Messages.ERROR_BOOLEAN_FEATURE_FLAGS_CANT_HAVE_FILTER_VALUE);
 
-        featureFlag = new FeatureFlag
-        {
-            Name = featureFlag.Name,
-            Value = featureFlag.Value,
-            FilterValue = featureFlag.FilterValue
-        };
-
         try
         {
             _logger.LogInformation("{Message}",
                 string.Format(Messages.INFO_ADDED_FEATURE_FLAG, featureFlag.Name, featureFlag.Value.ToString(), featureFlag.FilterValue));
 
-            var insertResult = await _cacheManager.GetOrCreate(featureFlag.Name, () => _dbContext.AddAsync(featureFlag));
+            var insertResult = await _dbContext.AddAsync(featureFlag);
+
+            if(insertResult)
+                await _cacheManager.GetOrCreateAsync(featureFlag.Name, () => Task.FromResult(featureFlag));
 
             return insertResult;
         }
@@ -73,13 +68,6 @@ public class FeatureFlagManagement: IFeatureFlagManagement
         if (featureFlag.Type == FeatureFlagsTypes.Boolean && !string.IsNullOrWhiteSpace(featureFlag.FilterValue))
             throw new ThothException(Messages.ERROR_BOOLEAN_FEATURE_FLAGS_CANT_HAVE_FILTER_VALUE);
 
-        featureFlag = new FeatureFlag
-        {
-            Name = featureFlag.Name,
-            Value = featureFlag.Value,
-            FilterValue = featureFlag.FilterValue
-        };
-
         try
         {
             _logger.LogInformation("{Message}",
@@ -88,7 +76,7 @@ public class FeatureFlagManagement: IFeatureFlagManagement
             var updateResult = await _dbContext.UpdateAsync(featureFlag);
 
             if (updateResult)
-                await _cacheManager.Update(featureFlag.Name, featureFlag);
+                await _cacheManager.UpdateAsync(featureFlag.Name, featureFlag);
 
             return updateResult;
         }
@@ -113,5 +101,12 @@ public class FeatureFlagManagement: IFeatureFlagManagement
         return deleteResult;
     }
 
-    private Task<bool> CheckIfExists(string name) => _dbContext.ExistsAsync(name);
+    private async Task<bool> CheckIfExists(string name)
+    {
+        var cachedValue = await _cacheManager.GetIfExistsAsync(name);
+        if (cachedValue != null)
+            return true;
+
+        return await _dbContext.ExistsAsync(name);
+    }
 }
