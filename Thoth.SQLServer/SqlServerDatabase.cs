@@ -44,7 +44,7 @@ public class SqlServerDatabase : IDatabase
         }) > 0;
 
     public async Task<bool> DeleteAsync(string featureFlagName) =>
-        await _dbConnection.ExecuteAsync(string.Format(Queries.DeleteFeatureFlagQuery, new { Name = featureFlagName })) > 0;
+        await _dbConnection.ExecuteAsync(string.Format(Queries.DeleteFeatureFlagQuery, SchemaName), new { Name = featureFlagName }) > 0;
 
     public async Task<bool> ExistsAsync(string featureFlagName) =>
         await _dbConnection.QueryFirstOrDefaultAsync<bool?>(string.Format(Queries.IsEnabledQuery, SchemaName),
@@ -60,6 +60,7 @@ public class SqlServerDatabase : IDatabase
 
     public void Dispose()
     {
+       _dbConnection.Close();
        _dbConnection.Dispose();
        GC.SuppressFinalize(this);
     }
