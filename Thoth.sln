@@ -11,7 +11,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Thoth.SQLServer", "Thoth.SQ
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Thoth.MongoDB", "Thoth.MongoDB\Thoth.MongoDB.csproj", "{25B814F4-43CD-4491-A472-058EBD3F6CFD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Extensions.DependencyInjection", "Microsoft.Extensions.DependencyInjection\Microsoft.Extensions.DependencyInjection.csproj", "{E9405954-4C72-4F60-B4E0-EEF29FCAEA4C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Thoth.DependencyInjection", "Thoth.DependencyInjection\Thoth.DependencyInjection.csproj", "{E9405954-4C72-4F60-B4E0-EEF29FCAEA4C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

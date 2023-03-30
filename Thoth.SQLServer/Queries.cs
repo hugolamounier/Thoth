@@ -41,15 +41,18 @@ public static class Queries
     """;
 
    public const string CreateFeatureFlagTableQuery = """
-        CREATE TABLE IF NOT EXISTS
-        {0}.FeatureFlag (
-            Name VARCHAR(100) NOT NULL PRIMARY KEY,
-            Type TINYINT NOT NULL,
-            Value BIT NOT NULL,
-            FilterValue VARCHAR(100) NULL,
-            CreatedAt DATETIME NOT NULL,
-            UpdatedAt DATETIME NULL
-        );
+        IF NOT EXISTS (SELECT * FROM sys.objects
+            WHERE object_id = OBJECT_ID(N'[{0}].[FeatureFlag]') AND type in (N'U'))
+        BEGIN
+            CREATE TABLE [{0}].[FeatureFlag] (
+                Name VARCHAR(100) NOT NULL PRIMARY KEY,
+                Type TINYINT NOT NULL,
+                Value BIT NOT NULL,
+                FilterValue VARCHAR(100) NULL,
+                CreatedAt DATETIME NOT NULL,
+                UpdatedAt DATETIME NULL
+            );
+        END
     """;
 
 }

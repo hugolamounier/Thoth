@@ -103,7 +103,7 @@ public class FeatureFlagManagement: IFeatureFlagManagement
 
     private async Task<bool> CheckIfExists(string name)
     {
-        var cachedValue = await _cacheManager.GetIfExistsAsync(name);
+        var cachedValue = _cacheManager.GetIfExistsAsync(name);
         if (cachedValue != null)
             return true;
 

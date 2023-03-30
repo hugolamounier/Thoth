@@ -31,14 +31,14 @@ public class CacheManager
         });
     }
 
-    public Task<FeatureFlag> GetIfExistsAsync(string cacheKey)
+    public FeatureFlag GetIfExistsAsync(string cacheKey)
     {
         if (_options.EnableCaching is false)
             return null;
 
         var cacheKeyExists = _memoryCache.TryGetValue(cacheKey, out FeatureFlag cachedValue);
 
-        return cacheKeyExists ? Task.FromResult(cachedValue) : null;
+        return cacheKeyExists ? cachedValue : null;
     }
 
     public async Task UpdateAsync(string cacheKey, FeatureFlag featureFlag)
@@ -46,7 +46,7 @@ public class CacheManager
         if (_options.EnableCaching is false)
             return;
 
-        var cachedValue = await GetIfExistsAsync(cacheKey);
+        var cachedValue = GetIfExistsAsync(cacheKey);
 
         if (cachedValue == null)
         {
