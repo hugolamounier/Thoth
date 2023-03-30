@@ -4,6 +4,7 @@ using System.Data;
 using System.Threading.Tasks;
 using Dapper;
 using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Options;
 using Thoth.Interfaces;
 using Thoth.Models;
 
@@ -14,9 +15,9 @@ public class SqlServerDatabase : IDatabase
     private readonly IDbConnection _dbConnection;
     private const string SchemaName = "thoth";
 
-    public SqlServerDatabase(string sqlConnectionString)
+    public SqlServerDatabase(IOptions<FeatureFlagOptions> options)
     {
-        _dbConnection = new SqlConnection(sqlConnectionString);
+        _dbConnection = new SqlConnection(options.Value.SqlServerConnectionString);
         Init();
     }
 

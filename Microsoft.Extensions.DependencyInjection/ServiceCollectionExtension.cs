@@ -27,12 +27,22 @@ public static class ServiceCollectionExtension
         services.TryAddSingleton<IMemoryCache, MemoryCache>();
         services.TryAddSingleton<CacheManager>();
 
-        if (options.UseDatabase == DatabaseTypes.SqlServer)
-            services.TryAddScoped<IDatabase, SqlServerDatabase>();
+        switch (options.UseDatabase)
+        {
+            case DatabaseTypes.SqlServer:
+
+                if (options.SqlServerConnectionString is null)
+                    throw new ThothException(Messages.ERROR_SQL_SERVER_IS_REQUIRED);
+                services.TryAddScoped<IDatabase, SqlServerDatabase>();
+
+                break;
+            case DatabaseTypes.MongoDb:
+                throw new NotImplementedException();
+            default:
+                throw new ArgumentOutOfRangeException();
+        }
 
         services.TryAddSingleton<IFeatureFlagManagement, FeatureFlagManagement>();
-
-
 
         return services;
     }

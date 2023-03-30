@@ -6,15 +6,19 @@ namespace Thoth.Models;
 public class FeatureFlagOptions: IOptions<FeatureFlagOptions>
 {
     /// <summary>
-    /// Whether feature flags should be cached
+    /// Whether feature flags should be cached, enabled by default
     /// </summary>
     public bool EnableCaching { get; set; } = true;
-
 
     /// <summary>
     /// Sets the database type that will store the feature flags
     /// </summary>
     public DatabaseTypes UseDatabase { get; set; }
+
+    /// <summary>
+    /// SQL Server connection string
+    /// </summary>
+    public string SqlServerConnectionString { get; set; }
 
     /// <summary>
     /// Defines for how long the feature flags will be cached in memory.
