@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
 using Dapper;
@@ -23,15 +24,21 @@ public class SqlServerDatabase : IDatabase
         _dbConnection.QueryFirstOrDefaultAsync<bool>(string.Format(Queries.IsEnabledQuery, SchemaName),
             new {Name = featureFlagName});
 
+    public Task<FeatureFlag> GetAsync(string name) =>
+        _dbConnection.QueryFirstAsync<FeatureFlag>(string.Format(Queries.GetQuery, SchemaName), new {Name = name});
+
+    public Task<IEnumerable<FeatureFlag>> GetAll() =>
+        _dbConnection.QueryAsync<FeatureFlag>(string.Format(Queries.GetAllQuery, SchemaName));
+
     public async Task<bool> AddAsync(FeatureFlag featureFlag) =>
        await _dbConnection.ExecuteAsync(string.Format(Queries.AddFeatureFlagQuery, SchemaName), featureFlag) > 0;
 
-    public async Task<bool> UpdateAsync(string featureFlagName, bool value, string filterValue) =>
+    public async Task<bool> UpdateAsync(FeatureFlag featureFlag) =>
         await _dbConnection.ExecuteAsync(string.Format(Queries.UpdateFeatureFlag, SchemaName), new
         {
-            Name = featureFlagName,
-            Value = value,
-            FilterValue = filterValue,
+            featureFlag.Name,
+            featureFlag.Value,
+            featureFlag.FilterValue,
             UpdatedAt = DateTime.UtcNow
         }) > 0;
 
@@ -42,7 +49,7 @@ public class SqlServerDatabase : IDatabase
         await _dbConnection.QueryFirstOrDefaultAsync<bool?>(string.Format(Queries.IsEnabledQuery, SchemaName),
             new {Name = featureFlagName}) != null;
 
-    public void Init()
+    private void Init()
     {
         _dbConnection.Open();
 

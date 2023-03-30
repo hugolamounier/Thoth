@@ -6,6 +6,14 @@ public static class Queries
         SELECT Value FROM {0}.FeatureFlag WHERE Name = @Name;
     """;
 
+    public const string GetQuery = """
+        SELECT * FROM {0}.FeatureFlag WHERE Name = @Name;
+    """;
+
+    public const string GetAllQuery = """
+        SELECT * FROM {0}.FeatureFlag;
+    """;
+
     public const string AddFeatureFlagQuery = """
         INSERT INTO {0}.FeatureFlag
             (Name, Type, Value, FilterValue, CreatedAt, UpdatedAt)
