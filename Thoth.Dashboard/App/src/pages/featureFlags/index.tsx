@@ -104,7 +104,9 @@ const FeatureFlags = (): JSX.Element => {
       value: tagValue(featureFlag.name, featureFlag.value),
       createdAt: moment(featureFlag.createdAt).format('YYYY-MM-DD hh:mm:ss'),
       updatedAt:
-        featureFlag?.updatedAt !== undefined ? moment(featureFlag.updatedAt).format() : '--',
+        featureFlag.updatedAt !== null
+          ? moment(featureFlag.createdAt).format('YYYY-MM-DD hh:mm:ss')
+          : '--',
       actions: actions(featureFlag.name),
     };
   });
