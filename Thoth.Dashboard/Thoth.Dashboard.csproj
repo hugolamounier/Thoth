@@ -22,6 +22,7 @@
 
     <ItemGroup>
       <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
+      <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.2.0" />
       <PackageReference Include="Microsoft.AspNetCore.SpaServices" Version="3.1.32" />
       <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="6.0.15" />
       <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.2.0" />
@@ -29,6 +30,10 @@
 
     <ItemGroup>
         <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Thoth.Core\Thoth.Core.csproj" />
     </ItemGroup>
     
     <Target Name="DashboardUI" BeforeTargets="Build">

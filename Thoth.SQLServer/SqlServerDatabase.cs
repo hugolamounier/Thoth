@@ -15,7 +15,7 @@ public class SqlServerDatabase : IDatabase
     private readonly IDbConnection _dbConnection;
     private const string SchemaName = "thoth";
 
-    public SqlServerDatabase(IOptions<FeatureFlagOptions> options)
+    public SqlServerDatabase(IOptions<ThothOptions> options)
     {
         _dbConnection = new SqlConnection(options.Value.SqlServerConnectionString);
         Init();
@@ -28,7 +28,7 @@ public class SqlServerDatabase : IDatabase
     public Task<FeatureFlag> GetAsync(string name) =>
         _dbConnection.QueryFirstAsync<FeatureFlag>(string.Format(Queries.GetQuery, SchemaName), new {Name = name});
 
-    public Task<IEnumerable<FeatureFlag>> GetAll() =>
+    public Task<IEnumerable<FeatureFlag>> GetAllAsync() =>
         _dbConnection.QueryAsync<FeatureFlag>(string.Format(Queries.GetAllQuery, SchemaName));
 
     public async Task<bool> AddAsync(FeatureFlag featureFlag) =>

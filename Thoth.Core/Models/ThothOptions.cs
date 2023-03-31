@@ -3,7 +3,7 @@ using Microsoft.Extensions.Options;
 
 namespace Thoth.Core.Models;
 
-public class FeatureFlagOptions: IOptions<FeatureFlagOptions>
+public class ThothOptions: IOptions<ThothOptions>
 {
     /// <summary>
     /// Whether feature flags should be cached, enabled by default
@@ -32,5 +32,10 @@ public class FeatureFlagOptions: IOptions<FeatureFlagOptions>
     /// </summary>
     public TimeSpan CacheSlidingExpiration { get; set; } = TimeSpan.FromDays(1);
 
-    public FeatureFlagOptions Value => this;
+    /// <summary>
+    ///
+    /// </summary>
+    public bool EnableThothApi { get; set; } = true;
+
+    public ThothOptions Value => this;
 }

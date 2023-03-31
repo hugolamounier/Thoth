@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
@@ -22,7 +23,7 @@ namespace Thoth.DependencyInjection;
 [ExcludeFromCodeCoverage]
 public static class Extensions
 {
-    public static IServiceCollection AddThoth(this IServiceCollection services, Action<FeatureFlagOptions> setupAction)
+    public static IServiceCollection AddThoth(this IServiceCollection services, Action<ThothOptions> setupAction)
     {
         if(services == null)
             throw new ArgumentNullException(nameof(services));
@@ -30,7 +31,7 @@ public static class Extensions
         if(setupAction == null)
             throw new ArgumentNullException(nameof(setupAction));
 
-        var options = new FeatureFlagOptions();
+        var options = new ThothOptions();
         setupAction(options);
 
         services.AddOptions();
@@ -55,12 +56,20 @@ public static class Extensions
 
         services.TryAddSingleton<IFeatureFlagManagement, FeatureFlagManagement>();
 
-        return services;
-    }
+        if (options.EnableThothApi)
+        {
+            services.AddSpaStaticFiles();
+            return services;
+        }
 
-    public static IServiceCollection AddThothDashboard(this IServiceCollection services)
-    {
-        services.AddSpaStaticFiles();
+        var appPartManager = (ApplicationPartManager)services
+            .FirstOrDefault(a => a.ServiceType == typeof(ApplicationPartManager))
+            ?.ImplementationInstance!;
+        var mockingPart = appPartManager.ApplicationParts
+            .FirstOrDefault(a => a.Name == "Thoth.Dashboard");
+
+        if(mockingPart != null)
+            appPartManager.ApplicationParts.Remove(mockingPart);
 
         return services;
     }
@@ -69,7 +78,11 @@ public static class Extensions
     {
         using var scope = app.ApplicationServices.CreateScope();
         var options = scope.ServiceProvider.GetRequiredService<IOptions<ThothDashboardOptions>>().Value;
+        var thothOptions = scope.ServiceProvider.GetRequiredService<IOptions<ThothOptions>>().Value;
         setupAction?.Invoke(options);
+
+        if(!thothOptions.EnableThothApi)
+            throw new ThothException(Messages.ERROR_CAN_NOT_USE_THOTH_DASHBOARD);
 
         if (setupAction is null)
             options = new ThothDashboardOptions();

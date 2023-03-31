@@ -9,7 +9,7 @@ public interface IDatabase : IDisposable
 {
     Task<bool> IsEnabledAsync(string featureFlagName);
     Task<FeatureFlag> GetAsync(string name);
-    Task<IEnumerable<FeatureFlag>> GetAll();
+    Task<IEnumerable<FeatureFlag>> GetAllAsync();
     Task<bool> AddAsync(FeatureFlag featureFlag);
     Task<bool> UpdateAsync(FeatureFlag featureFlag);
     Task<bool> DeleteAsync(string featureFlagName);

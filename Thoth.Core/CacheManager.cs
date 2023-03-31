@@ -9,9 +9,9 @@ namespace Thoth.Core;
 public class CacheManager
 {
     private readonly IMemoryCache _memoryCache;
-    private readonly FeatureFlagOptions _options;
+    private readonly ThothOptions _options;
 
-    public CacheManager(IMemoryCache memoryCache, IOptions<FeatureFlagOptions> options)
+    public CacheManager(IMemoryCache memoryCache, IOptions<ThothOptions> options)
     {
         _options = options.Value;
         _memoryCache = memoryCache;

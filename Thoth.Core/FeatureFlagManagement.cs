@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Thoth.Core.Interfaces;
@@ -27,6 +28,16 @@ public class FeatureFlagManagement: IFeatureFlagManagement
             throw new ThothException(string.Format(Messages.ERROR_FEATURE_FLAG_ALREADY_EXISTS, name));
 
         return await _cacheManager.GetOrCreateAsync(name, () => _dbContext.GetAsync(name));
+    }
+
+    public async Task<IEnumerable<FeatureFlag>> GetAllAsync()
+    {
+        var featureFlags = await _dbContext.GetAllAsync();
+
+        foreach (var featureFlag in featureFlags)
+            _ = await _cacheManager.GetOrCreateAsync(featureFlag.Name, () => Task.FromResult(featureFlag));
+
+        return featureFlags;
     }
 
     public async Task<bool> AddAsync(FeatureFlag featureFlag)
