@@ -2,6 +2,9 @@
 module.exports = {
   content: ['./src/**/*.{html,js,tsx,ts}'],
   theme: {
+    fontFamily: {
+      sans: 'Segoe UI, Roboto, sans-serif',
+    },
     fontWeight: {
       light: 300,
       regular: 400,

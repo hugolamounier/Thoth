@@ -1,11 +1,13 @@
 import React, { ReactNode } from 'react';
-import { LaptopOutlined, NotificationOutlined, UserOutlined } from '@ant-design/icons';
+import { UnorderedListOutlined } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
-import { Breadcrumb, Layout, Menu, theme } from 'antd';
+import { Layout, Menu, theme } from 'antd';
 
-const { Header, Content, Sider } = Layout;
+const { Header, Sider } = Layout;
 
-const items2: MenuProps['items'] = [{ key: 1, label: 'Feature Flags' }];
+const items2: MenuProps['items'] = [
+  { key: 1, label: 'Feature Flags', icon: <UnorderedListOutlined /> },
+];
 
 const BaseLayout = ({ children }: { children: ReactNode }): JSX.Element => {
   const {
@@ -18,7 +20,7 @@ const BaseLayout = ({ children }: { children: ReactNode }): JSX.Element => {
         <span className="text-logo text-white">Thoth</span>
       </Header>
       <Layout>
-        <Sider width={230} style={{ background: colorBgContainer }}>
+        <Sider className="shadow-1" width={230} style={{ background: colorBgContainer }}>
           <Menu
             className="pt-4 px-2"
             mode="inline"
@@ -27,18 +29,7 @@ const BaseLayout = ({ children }: { children: ReactNode }): JSX.Element => {
             items={items2}
           />
         </Sider>
-        <Layout style={{ padding: '0 24px 24px' }}>
-          <Content
-            style={{
-              padding: 24,
-              margin: '1rem 0 0 0',
-              minHeight: 280,
-              background: colorBgContainer,
-            }}
-          >
-            {children}
-          </Content>
-        </Layout>
+        <Layout style={{ padding: '0 24px 24px' }}>{children}</Layout>
       </Layout>
     </Layout>
   );
