@@ -49,4 +49,25 @@ public class FeatureFlagController
 
         return Results.BadRequest();
     }
+
+    /// <summary>
+    /// Update the feature flag
+    /// </summary>
+    /// <param name="featureFlag"></param>
+    /// <returns></returns>
+    public async Task<IResult> Update(FeatureFlag featureFlag)
+    {
+        if(await _featureFlagManagement.UpdateAsync(featureFlag))
+            return Results.Ok();
+
+        return Results.BadRequest();
+    }
+
+    public async Task<IResult> Delete(string name)
+    {
+        if (await _featureFlagManagement.DeleteAsync(name))
+            return Results.Ok();
+
+        return Results.BadRequest();
+    }
 }

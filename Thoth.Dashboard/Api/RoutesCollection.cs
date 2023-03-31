@@ -31,13 +31,17 @@ public static class RoutesCollection
 
         #region PUT
 
-
+        app.MapPut(basePath + "/{name}", async (string name, [FromBody] FeatureFlag featureFlag) =>
+        {
+            featureFlag.Name = name;
+            return await featureFlagController.Update(featureFlag);
+        });
 
         #endregion
 
         #region DELELTE
 
-
+        app.MapDelete(basePath + "/{name}", async (string name) => await featureFlagController.Delete(name));
 
         #endregion
 
