@@ -6,7 +6,7 @@ export type FeatureFlag = {
   value: boolean;
   filterValue: string;
   createdAt: Moment;
-  updatedAt: Moment;
+  updatedAt?: Moment;
 };
 
 export enum FeatureFlagsTypes {
