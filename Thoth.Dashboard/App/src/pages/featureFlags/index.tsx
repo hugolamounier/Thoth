@@ -2,17 +2,19 @@ import React, { useEffect, useState } from 'react';
 import BaseContent from '../../shared/Layout/BaseContent';
 import { Button, Modal, Space, Table, Tag } from 'antd';
 import { DeleteOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
-import { FeatureFlagsTypes } from '../../models/featureFlag';
+import { FeatureFlag, FeatureFlagsTypes } from '../../models/featureFlag';
 import FeatureFlagService from '../../services/featureFlagService';
 import moment from 'moment';
 
 const FeatureFlags = (): JSX.Element => {
-  const [featureFlags, setFeatureFlags] = useState<any[]>([]);
+  const [featureFlags, setFeatureFlags] = useState<FeatureFlag[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
-  const mock = [{ name: 'Teste', type: 2, value: true, createdAt: '2023-10-11 10:30:01' }];
-
   const [modal, contextHolder] = Modal.useModal();
+
+  const deleteFlag = async (name: string) => {
+    if (await FeatureFlagService.Delete(name)) await getFeatureFlags();
+  };
 
   const confirmDelete = (name: string) => {
     const deleteMessage = (
@@ -28,7 +30,7 @@ const FeatureFlags = (): JSX.Element => {
       content: deleteMessage,
       okText: 'Cancel',
       cancelText: 'Delete',
-      onCancel: async () => await FeatureFlagService.Delete(name),
+      onCancel: async () => await deleteFlag(name),
     });
   };
 
@@ -51,7 +53,7 @@ const FeatureFlags = (): JSX.Element => {
     newFeatureFlags[featureFlag].value = !featureFlags[featureFlag].value;
 
     setFeatureFlags(newFeatureFlags);
-    const response = await FeatureFlagService.Update(newFeatureFlags[featureFlag].value);
+    const response = await FeatureFlagService.Update(newFeatureFlags[featureFlag]);
 
     if (!response) {
       await new Promise((resolve) => setTimeout(resolve, 2000));
@@ -110,7 +112,8 @@ const FeatureFlags = (): JSX.Element => {
   const getFeatureFlags = async () => {
     setLoading(true);
     const data = await FeatureFlagService.GetAll();
-    setFeatureFlags(mock);
+    setFeatureFlags(data);
+    setLoading(false);
   };
 
   useEffect(() => {

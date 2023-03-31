@@ -14,6 +14,7 @@ apiService.interceptors.response.use(
         description: 'We could not retrieve the information you requested, please try again.',
       });
     }
+
     return error;
   }
 );

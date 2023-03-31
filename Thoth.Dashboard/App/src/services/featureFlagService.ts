@@ -18,7 +18,7 @@ export default class FeatureFlagService {
 
   public static async Delete(name: string): Promise<boolean> {
     try {
-      const { status } = await apiService.delete('/thoth-api/FeatureFlag');
+      const { status } = await apiService.delete(`/thoth-api/FeatureFlag/${name}`);
 
       return status < 400;
     } catch {
@@ -31,8 +31,12 @@ export default class FeatureFlagService {
   }
 
   public static async Update(featureFlag: FeatureFlag): Promise<boolean> {
+    console.log(featureFlag);
     try {
-      const { status } = await apiService.put('/thoth-api/FeatureFlag', featureFlag);
+      const { status } = await apiService.put(
+        `/thoth-api/FeatureFlag/${featureFlag.name}`,
+        featureFlag
+      );
 
       return status < 400;
     } catch {
