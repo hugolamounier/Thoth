@@ -1,0 +1,46 @@
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.DependencyInjection;
+using Thoth.Core.Interfaces;
+using Thoth.Core.Models;
+
+namespace Thoth.Dashboard.Api;
+
+public static class RoutesCollection
+{
+    public static WebApplication InjectThothDashboardRoutes(this WebApplication app, IServiceScope scope, string routePrefix)
+    {
+        var basePath = $"{routePrefix}-api/FeatureFlag";
+        var featureManagementService = scope.ServiceProvider.GetRequiredService<IFeatureFlagManagement>();
+        var featureFlagController = new FeatureFlagController(featureManagementService);
+
+        app.UseRouting();
+
+        #region GET
+
+        app.MapGet(basePath, async () => await featureFlagController.GetAll());
+
+        #endregion
+
+        #region POST
+
+        app.MapPost(basePath, async ([FromBody] FeatureFlag featureFlag) =>
+            await featureFlagController.Create(featureFlag));
+
+        #endregion
+
+        #region PUT
+
+
+
+        #endregion
+
+        #region DELELTE
+
+
+
+        #endregion
+
+        return app;
+    }
+}

@@ -1,10 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
 using Thoth.Core.Interfaces;
+using Microsoft.AspNetCore.Http;
+using Thoth.Core.Models;
 
 namespace Thoth.Dashboard.Api;
 
-[Route("thoth/[controller]")]
-public class FeatureFlagController: ControllerBase
+public class FeatureFlagController
 {
     private readonly IFeatureFlagManagement _featureFlagManagement;
 
@@ -17,11 +18,35 @@ public class FeatureFlagController: ControllerBase
     /// Get all feature flags
     /// </summary>
     /// <returns></returns>
-    [HttpGet]
-    public async Task<IActionResult> GetAll()
+    public async Task<IResult> GetAll()
     {
         var featureFlags = await _featureFlagManagement.GetAllAsync();
 
-        return Ok(featureFlags);
+        return Results.Ok(featureFlags);
+    }
+
+    /// <summary>
+    /// Get feature flag by name
+    /// </summary>
+    /// <param name="name"></param>
+    /// <returns></returns>
+    public async Task<IResult> GetByName(string name)
+    {
+        var featureFlag = await _featureFlagManagement.GetAsync(name);
+
+        return Results.Ok(featureFlag);
+    }
+
+    /// <summary>
+    /// Add a new feature flag
+    /// </summary>
+    /// <param name="featureFlag"></param>
+    /// <returns></returns>
+    public async Task<IResult> Create(FeatureFlag featureFlag)
+    {
+        if (await _featureFlagManagement.AddAsync(featureFlag))
+            return Results.StatusCode(201);
+
+        return Results.BadRequest();
     }
 }

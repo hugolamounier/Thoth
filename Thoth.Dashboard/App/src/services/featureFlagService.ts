@@ -5,7 +5,7 @@ import { FeatureFlag } from '../models/featureFlag';
 export default class FeatureFlagService {
   public static async GetAll(): Promise<FeatureFlag[]> {
     try {
-      const { data } = await apiService.get('/thoth/FeatureFlag');
+      const { data } = await apiService.get('/thoth-api/FeatureFlag');
       return await Promise.resolve(data);
     } catch {
       notification.error({

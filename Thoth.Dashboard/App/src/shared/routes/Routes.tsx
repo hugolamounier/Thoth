@@ -6,6 +6,7 @@ export default function AppRoutes(): JSX.Element {
     <BrowserRouter>
       <Routes>
         <Route element={<FeatureFlags />} path="/" />
+        <Route element={<FeatureFlags />} path="/index.html" />
       </Routes>
     </BrowserRouter>
   );

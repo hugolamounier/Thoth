@@ -13,6 +13,7 @@ using Thoth.Core;
 using Thoth.Core.Interfaces;
 using Thoth.Core.Models;
 using Thoth.Dashboard;
+using Thoth.Dashboard.Api;
 using Thoth.SQLServer;
 
 namespace Thoth.DependencyInjection;
@@ -74,25 +75,24 @@ public static class Extensions
         return services;
     }
 
-    public static IApplicationBuilder UseThothDashboard(this IApplicationBuilder app, Action<ThothDashboardOptions>? setupAction = null)
+    public static IApplicationBuilder UseThothDashboard(this WebApplication app, Action<ThothDashboardOptions>? setupAction = null)
     {
-        using var scope = app.ApplicationServices.CreateScope();
-        var options = scope.ServiceProvider.GetRequiredService<IOptions<ThothDashboardOptions>>().Value;
-        var thothOptions = scope.ServiceProvider.GetRequiredService<IOptions<ThothOptions>>().Value;
+        using var scope = app.Services.CreateScope();
+        var options = (ThothDashboardOptions?) scope.ServiceProvider.GetRequiredService<IOptions<ThothDashboardOptions>>().Value;
+        var thothOptions = (ThothOptions?) scope.ServiceProvider.GetRequiredService<IOptions<ThothOptions>>().Value;
         setupAction?.Invoke(options);
 
-        if(!thothOptions.EnableThothApi)
+        if(!thothOptions?.EnableThothApi ?? true)
             throw new ThothException(Messages.ERROR_CAN_NOT_USE_THOTH_DASHBOARD);
 
-        if (setupAction is null)
-            options = new ThothDashboardOptions();
+        options ??= new ThothDashboardOptions();
 
         app.UseStaticFiles(new StaticFileOptions
         {
             FileProvider = new EmbeddedFileProvider(typeof(ThothDashboardOptions).Assembly, "Thoth.Dashboard.wwwroot")
         });
 
-        app.Map(options.RoutePrefix, mappedSpa=>
+        app.Map(options.RoutePrefix, mappedSpa =>
         {
             mappedSpa.UseSpa(spa =>
             {
@@ -104,6 +104,6 @@ public static class Extensions
             });
         });
 
-        return app;
+        return app.InjectThothDashboardRoutes(scope, options.RoutePrefix);
     }
 }
