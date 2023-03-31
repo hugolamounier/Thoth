@@ -10,5 +10,30 @@
       <Folder Include="App" />
       <Folder Include="wwwroot" />
     </ItemGroup>
+    
+
+    <ItemGroup>
+        <EmbeddedResource Include="wwwroot/*" />
+        <EmbeddedResource Include="wwwroot/static/*" />
+        <EmbeddedResource Include="wwwroot/static/css/*" />
+        <EmbeddedResource Include="wwwroot/static/js/*" />
+        <EmbeddedResource Include="wwwroot/static/media/*" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
+      <PackageReference Include="Microsoft.AspNetCore.SpaServices" Version="3.1.32" />
+      <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="6.0.15" />
+      <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.2.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    </ItemGroup>
+    
+    <Target Name="DashboardUI" BeforeTargets="Build">
+        <Exec WorkingDirectory="App" Command="npm install" />
+        <Exec WorkingDirectory="App" Command="npm run build" />
+    </Target>
 
 </Project>

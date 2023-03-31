@@ -1,8 +1,12 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Thoth.Core;
 using Thoth.Core.Interfaces;
@@ -54,17 +58,39 @@ public static class Extensions
         return services;
     }
 
-    public static IApplicationBuilder UseThothDashboard(this IApplicationBuilder app, Action<ThothDashboardOptions> setupAction)
+    public static IServiceCollection AddThothDashboard(this IServiceCollection services)
     {
-        ThothDashboardOptions options;
-        using (var scope = app.ApplicationServices.CreateScope())
+        services.AddSpaStaticFiles();
+
+        return services;
+    }
+
+    public static IApplicationBuilder UseThothDashboard(this IApplicationBuilder app, Action<ThothDashboardOptions>? setupAction = null)
+    {
+        using var scope = app.ApplicationServices.CreateScope();
+        var options = scope.ServiceProvider.GetRequiredService<IOptions<ThothDashboardOptions>>().Value;
+        setupAction?.Invoke(options);
+
+        if (setupAction is null)
+            options = new ThothDashboardOptions();
+
+        app.UseStaticFiles(new StaticFileOptions
         {
-            options = scope.ServiceProvider.GetRequiredService<IOptionsSnapshot<ThothDashboardOptions>>().Value;
-            setupAction.Invoke(options);
-        }
+            FileProvider = new EmbeddedFileProvider(typeof(ThothDashboardOptions).Assembly, "Thoth.Dashboard.wwwroot")
+        });
 
-        app.UseStaticFiles();
+        app.Map(options.RoutePrefix, mappedSpa=>
+        {
+            mappedSpa.UseSpa(spa =>
+            {
+                spa.Options.DefaultPageStaticFileOptions = new StaticFileOptions
+                {
+                    FileProvider = new EmbeddedFileProvider(typeof(ThothDashboardOptions).Assembly, "Thoth.Dashboard.wwwroot")
+                };
+                spa.Options.SourcePath = "wwwroot";
+            });
+        });
 
-        return app.UseMiddleware<ThothDashboardMiddleware>(options);
+        return app;
     }
 }
