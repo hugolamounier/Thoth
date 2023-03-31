@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Thoth.MongoDB", "Thoth.Mong
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Thoth.DependencyInjection", "Thoth.DependencyInjection\Thoth.DependencyInjection.csproj", "{E9405954-4C72-4F60-B4E0-EEF29FCAEA4C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Thoth.Dashboard", "Thoth.Dashboard\Thoth.Dashboard.csproj", "{5834D2EB-2EF2-4BA5-8202-5B423B1868D5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -35,5 +37,9 @@ Global
 		{E9405954-4C72-4F60-B4E0-EEF29FCAEA4C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E9405954-4C72-4F60-B4E0-EEF29FCAEA4C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E9405954-4C72-4F60-B4E0-EEF29FCAEA4C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5834D2EB-2EF2-4BA5-8202-5B423B1868D5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5834D2EB-2EF2-4BA5-8202-5B423B1868D5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5834D2EB-2EF2-4BA5-8202-5B423B1868D5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5834D2EB-2EF2-4BA5-8202-5B423B1868D5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

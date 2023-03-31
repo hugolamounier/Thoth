@@ -1,10 +1,13 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
 using Thoth.Core;
 using Thoth.Core.Interfaces;
 using Thoth.Core.Models;
+using Thoth.Dashboard;
 using Thoth.SQLServer;
 
 namespace Thoth.DependencyInjection;
@@ -13,7 +16,7 @@ namespace Thoth.DependencyInjection;
 /// Contains extension methods to <see cref="IServiceCollection" /> for configuring consistence services.
 /// </summary>
 [ExcludeFromCodeCoverage]
-public static class ServiceCollectionExtensions
+public static class Extensions
 {
     public static IServiceCollection AddThoth(this IServiceCollection services, Action<FeatureFlagOptions> setupAction)
     {
@@ -49,5 +52,19 @@ public static class ServiceCollectionExtensions
         services.TryAddSingleton<IFeatureFlagManagement, FeatureFlagManagement>();
 
         return services;
+    }
+
+    public static IApplicationBuilder UseThothDashboard(this IApplicationBuilder app, Action<ThothDashboardOptions> setupAction)
+    {
+        ThothDashboardOptions options;
+        using (var scope = app.ApplicationServices.CreateScope())
+        {
+            options = scope.ServiceProvider.GetRequiredService<IOptionsSnapshot<ThothDashboardOptions>>().Value;
+            setupAction.Invoke(options);
+        }
+
+        app.UseStaticFiles();
+
+        return app.UseMiddleware<ThothDashboardMiddleware>(options);
     }
 }
