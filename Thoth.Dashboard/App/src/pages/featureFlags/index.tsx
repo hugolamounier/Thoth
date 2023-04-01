@@ -1,14 +1,25 @@
 import React, { useEffect, useState } from 'react';
 import BaseContent from '../../shared/Layout/BaseContent';
-import { App, Button, Space, Switch, Table, Tag } from 'antd';
-import { DeleteOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
+import { App, Button, Form, Input, Space, Switch, Table, Tag } from 'antd';
+import {
+  DeleteOutlined,
+  ExclamationCircleOutlined,
+  FileAddOutlined,
+  PlusOutlined,
+} from '@ant-design/icons';
 import { FeatureFlag, FeatureFlagsTypes } from '../../models/featureFlag';
 import FeatureFlagService from '../../services/featureFlagService';
 import moment from 'moment';
+import { useForm } from 'antd/lib/form/Form';
+
+type LoadingProps = {
+  loading: boolean;
+  updateLoading: boolean;
+};
 
 const FeatureFlags = (): JSX.Element => {
   const [featureFlags, setFeatureFlags] = useState<FeatureFlag[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState<LoadingProps>({ loading: true, updateLoading: false });
   const { modal } = App.useApp();
 
   const deleteFlag = async (name: string) => {
@@ -38,6 +49,31 @@ const FeatureFlags = (): JSX.Element => {
     });
   };
 
+  const [addFeatureFlagForm] = useForm<FeatureFlag>();
+
+  const addFeatureFlagModal = () => {
+    modal.confirm({
+      title: 'Create new feature flag',
+      icon: <FileAddOutlined className="text-black" />,
+      okText: 'Create',
+      width: 700,
+      cancelText: 'Cancel',
+      content: (
+        <Form
+          form={addFeatureFlagForm}
+          className="py-4"
+          labelCol={{ span: 4 }}
+          wrapperCol={{ span: 14 }}
+          layout="vertical"
+        >
+          <Form.Item name="name" label="Name">
+            <Input />
+          </Form.Item>
+        </Form>
+      ),
+    });
+  };
+
   const tagType = (type: FeatureFlagsTypes) => {
     switch (type) {
       case FeatureFlagsTypes.Boolean:
@@ -52,6 +88,7 @@ const FeatureFlags = (): JSX.Element => {
   };
 
   const onValueClick = async (name: string) => {
+    setLoading({ ...loading, updateLoading: true });
     const featureFlag = featureFlags.findIndex((x) => x.name === name);
     const newFeatureFlags = [...featureFlags];
     newFeatureFlags[featureFlag].value = !featureFlags[featureFlag].value;
@@ -65,6 +102,7 @@ const FeatureFlags = (): JSX.Element => {
       oldFeatureFlags[featureFlag].value = !oldFeatureFlags[featureFlag].value;
       setFeatureFlags(oldFeatureFlags);
     }
+    setLoading({ ...loading, updateLoading: false });
   };
 
   const actions = (name: string) => (
@@ -95,6 +133,7 @@ const FeatureFlags = (): JSX.Element => {
           checkedChildren="On"
           unCheckedChildren="Off"
           checked={featureFlag.value}
+          loading={loading.updateLoading}
           onChange={() => onValueClick(featureFlag.name)}
         />
       ),
@@ -107,20 +146,34 @@ const FeatureFlags = (): JSX.Element => {
     };
   });
 
+  const titleHeader = (
+    <Space
+      className="border-black border-b-2 pb-3 flex align-items-center justify-between"
+      style={{ width: '100%' }}
+    >
+      <h1 className="text-heading-bold-4 ">Feature Flags</h1>
+      <Button type="primary" onClick={() => addFeatureFlagModal()}>
+        <Space>
+          <PlusOutlined className="p-0 m-0" />
+          <span>Create</span>
+        </Space>
+      </Button>
+    </Space>
+  );
+
   const getFeatureFlags = async () => {
-    setLoading(true);
     const data = await FeatureFlagService.GetAll();
     setFeatureFlags(data);
-    setLoading(false);
   };
 
   useEffect(() => {
-    getFeatureFlags().finally(() => setLoading(false));
+    setLoading({ ...loading, loading: true });
+    getFeatureFlags().finally(() => setLoading({ ...loading, loading: false }));
   }, []);
 
   return (
-    <BaseContent title="Feature Flags">
-      <Table loading={loading} columns={tableHeader} dataSource={tableData} />
+    <BaseContent title={titleHeader}>
+      <Table loading={loading.loading} columns={tableHeader} dataSource={tableData} />
     </BaseContent>
   );
 };
