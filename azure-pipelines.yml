@@ -43,8 +43,5 @@ steps:
       projects: '**/*Tests/*.csproj'
       arguments: '--configuration $(buildConfiguration) --no-build --logger trx --settings "./runsettings.xml"'
 
-  - task: SonarCloudAnalyze@1
-    displayName: 'Run Code Analysis'
-
   - task: SonarCloudPublish@1
     displayName: 'Publish Quality Gate Result'
