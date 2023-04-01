@@ -114,12 +114,7 @@ const FeatureFlags = (): JSX.Element => {
               })}
           />
         </Form.Item>
-        <Form.Item
-          name="value"
-          label="Initial State"
-          valuePropName="checked"
-          rules={[{ required: true }]}
-        >
+        <Form.Item name="value" label="Initial State" valuePropName="checked">
           <Switch defaultChecked={false} unCheckedChildren="Off" checkedChildren="On" />
         </Form.Item>
       </Form>
@@ -135,8 +130,6 @@ const FeatureFlags = (): JSX.Element => {
         return <Tag color="red">Unknown</Tag>;
     }
   };
-
-  console.log(loading);
 
   const onValueClick = async (name: string) => {
     setLoading({ ...loading, updateLoading: loading.updateLoading.set(name, true) });

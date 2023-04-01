@@ -45,7 +45,7 @@ public static class Extensions
             case DatabaseTypes.SqlServer:
 
                 if (options.ConnectionString is null)
-                    throw new ThothException(Messages.ERROR_CONNECTION_STRING);
+                    throw new ArgumentException(Messages.ERROR_CONNECTION_STRING);
                 services.TryAddSingleton<IDatabase, SqlServerDatabase>();
 
                 break;
@@ -81,7 +81,7 @@ public static class Extensions
         setupAction?.Invoke(options);
 
         if(!thothOptions?.EnableThothApi ?? true)
-            throw new ThothException(Messages.ERROR_CAN_NOT_USE_THOTH_DASHBOARD);
+            throw new ArgumentException(Messages.ERROR_CAN_NOT_USE_THOTH_DASHBOARD);
 
         options ??= new ThothDashboardOptions();
 
@@ -101,6 +101,8 @@ public static class Extensions
                 spa.Options.SourcePath = "wwwroot";
             });
         });
+
+        app.UseMiddleware<ThothExceptionMiddleware>();
 
         return app.InjectThothDashboardRoutes(scope, options.RoutePrefix);
     }

@@ -63,6 +63,11 @@ public class FeatureFlagController
         return Results.BadRequest();
     }
 
+    /// <summary>
+    /// Delete the feature flag
+    /// </summary>
+    /// <param name="name"></param>
+    /// <returns></returns>
     public async Task<IResult> Delete(string name)
     {
         if (await _thothFeatureManager.DeleteAsync(name))
