@@ -4,7 +4,7 @@ export type FeatureFlag = {
   name: string;
   type: FeatureFlagsTypes;
   value: boolean;
-  filterValue: string;
+  filterValue?: string;
   createdAt: Moment;
   updatedAt?: Moment;
 };

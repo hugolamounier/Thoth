@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import BaseContent from '../../shared/Layout/BaseContent';
-import { Button, Modal, Space, Table, Tag } from 'antd';
+import { App, Button, Space, Switch, Table, Tag } from 'antd';
 import { DeleteOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import { FeatureFlag, FeatureFlagsTypes } from '../../models/featureFlag';
 import FeatureFlagService from '../../services/featureFlagService';
@@ -9,12 +9,20 @@ import moment from 'moment';
 const FeatureFlags = (): JSX.Element => {
   const [featureFlags, setFeatureFlags] = useState<FeatureFlag[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-
-  const [modal, contextHolder] = Modal.useModal();
+  const { modal } = App.useApp();
 
   const deleteFlag = async (name: string) => {
     if (await FeatureFlagService.Delete(name)) await getFeatureFlags();
   };
+
+  const mock: FeatureFlag[] = [
+    {
+      name: 'teste',
+      type: FeatureFlagsTypes.Boolean,
+      value: true,
+      createdAt: moment(),
+    },
+  ];
 
   const confirmDelete = (name: string) => {
     const deleteMessage = (
@@ -24,13 +32,18 @@ const FeatureFlags = (): JSX.Element => {
         dependencies your application have on this flag.
       </span>
     );
-    modal.confirm({
+    const modalState = modal.confirm({
       title: 'Are you sure?',
       icon: <ExclamationCircleOutlined />,
       content: deleteMessage,
-      okText: 'Cancel',
-      cancelText: 'Delete',
-      onCancel: async () => await deleteFlag(name),
+      footer: (
+        <Space className="p-3 flex justify-end" style={{ width: '100%' }}>
+          <Button onClick={async () => await deleteFlag(name)}>Delete</Button>
+          <Button type="primary" onClick={() => modalState.destroy()}>
+            Cancel
+          </Button>
+        </Space>
+      ),
     });
   };
 
@@ -63,25 +76,10 @@ const FeatureFlags = (): JSX.Element => {
     }
   };
 
-  const tagValue = (name: string, value: boolean) => {
-    if (value)
-      return (
-        <Tag className="cursor-pointer" color="green" onClick={() => onValueClick(name)}>
-          Enabled
-        </Tag>
-      );
-
-    return (
-      <Tag className="cursor-pointer" color="red" onClick={() => onValueClick(name)}>
-        Disabled
-      </Tag>
-    );
-  };
-
   const actions = (name: string) => (
     <Button type="primary" danger onClick={() => confirmDelete(name)}>
       <Space>
-        <DeleteOutlined />
+        <DeleteOutlined className="p-0 m-0" />
         <span>Delete</span>
       </Space>
     </Button>
@@ -89,10 +87,10 @@ const FeatureFlags = (): JSX.Element => {
 
   const tableHeader: any[] = [
     { title: 'Name', key: 'name', dataIndex: 'name' },
-    { title: 'Type', key: 'type', dataIndex: 'type' },
-    { title: 'Value', key: 'value', dataIndex: 'value' },
-    { title: 'CreatedAt', key: 'createdAt', dataIndex: 'createdAt' },
-    { title: 'UpdatedAt', key: 'updatedAt', dataIndex: 'updatedAt' },
+    { title: 'Flag Type', key: 'type', dataIndex: 'type' },
+    { title: 'State', key: 'value', dataIndex: 'value' },
+    { title: 'Created At', key: 'createdAt', dataIndex: 'createdAt' },
+    { title: 'Updated At', key: 'updatedAt', dataIndex: 'updatedAt' },
     { title: 'Actions', key: 'actions', dataIndex: 'actions' },
   ];
 
@@ -101,7 +99,14 @@ const FeatureFlags = (): JSX.Element => {
       key: featureFlag.name,
       name: featureFlag.name,
       type: tagType(featureFlag.type),
-      value: tagValue(featureFlag.name, featureFlag.value),
+      value: (
+        <Switch
+          checkedChildren="On"
+          unCheckedChildren="Off"
+          checked={featureFlag.value}
+          onChange={() => onValueClick(featureFlag.name)}
+        />
+      ),
       createdAt: moment(featureFlag.createdAt).format('YYYY-MM-DD hh:mm:ss'),
       updatedAt:
         featureFlag.updatedAt !== null
@@ -114,7 +119,7 @@ const FeatureFlags = (): JSX.Element => {
   const getFeatureFlags = async () => {
     setLoading(true);
     const data = await FeatureFlagService.GetAll();
-    setFeatureFlags(data);
+    setFeatureFlags(mock);
     setLoading(false);
   };
 
@@ -125,7 +130,6 @@ const FeatureFlags = (): JSX.Element => {
   return (
     <BaseContent title="Feature Flags">
       <Table loading={loading} columns={tableHeader} dataSource={tableData} />
-      {contextHolder}
     </BaseContent>
   );
 };
