@@ -155,7 +155,10 @@ const FeatureFlags = (): JSX.Element => {
       const oldFeatureFlags = [...featureFlags];
       oldFeatureFlags[featureFlag].value = !oldFeatureFlags[featureFlag].value;
       setFeatureFlags(oldFeatureFlags);
+      setLoading({ ...loading, updateLoading: false });
+      return;
     }
+    await getFeatureFlags();
     setLoading({ ...loading, updateLoading: false });
   };
 
@@ -191,10 +194,10 @@ const FeatureFlags = (): JSX.Element => {
           onChange={() => onValueClick(featureFlag.name)}
         />
       ),
-      createdAt: moment(featureFlag.createdAt).format('YYYY-MM-DD hh:mm:ss'),
+      createdAt: moment(featureFlag.createdAt).format('YYYY-MM-DD HH:mm:ss'),
       updatedAt:
         featureFlag.updatedAt !== null
-          ? moment(featureFlag.createdAt).format('YYYY-MM-DD hh:mm:ss')
+          ? moment(featureFlag.updatedAt).format('YYYY-MM-DD HH:mm:ss')
           : '--',
       actions: actions(featureFlag.name),
     };
