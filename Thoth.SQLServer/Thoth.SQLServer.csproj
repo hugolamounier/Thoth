@@ -2,8 +2,27 @@
 
     <PropertyGroup>
         <TargetFramework>net6.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <Description>Thoth SQLServer database storage.</Description>
         <LangVersion>10.0</LangVersion>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <Title>Thoth.SQLServer</Title>
+        <Authors>Hugo Lamounier</Authors>
+        <PackageProjectUrl>https://github.com/hugolamounier/Thoth</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/hugolamounier/Thoth</RepositoryUrl>
+        <RepositoryType>Git</RepositoryType>
+        <AssemblyName>Thoth.SQLServer</AssemblyName>
+        <RootNamespace>Thoth.SQLServer</RootNamespace>
+        <IsPackable>true</IsPackable>
+        <PackageIcon>icon-64.png</PackageIcon>
+        <Version>1.0.1</Version>
     </PropertyGroup>
+
+    <ItemGroup>
+        <None Include="../docs/README.md" Pack="true" PackagePath="\" />
+        <None Include="../docs/icon-64.png" Pack="true" PackagePath="\" />
+    </ItemGroup>
 
     <ItemGroup>
         <PackageReference Include="Dapper" Version="2.0.123" />

@@ -5,13 +5,20 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionItems", "SolutionItems", "{B13F108F-69E3-4C83-887B-C1A5C275F46B}"
 	ProjectSection(SolutionItems) = preProject
 		.gitignore = .gitignore
+		docker-compose.yml = docker-compose.yml
+		Dockerfile.local = Dockerfile.local
+		.env = .env
+		runsettings.xml = runsettings.xml
+		sonar-project.xml = sonar-project.xml
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Thoth.SQLServer", "Thoth.SQLServer\Thoth.SQLServer.csproj", "{BE9D1218-251C-4F21-9268-AF7A6370D608}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Thoth.DependencyInjection", "Thoth.DependencyInjection\Thoth.DependencyInjection.csproj", "{E9405954-4C72-4F60-B4E0-EEF29FCAEA4C}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Thoth.Dashboard", "Thoth.Dashboard\Thoth.Dashboard.csproj", "{5834D2EB-2EF2-4BA5-8202-5B423B1868D5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Thoth.Tests", "Thoth.Tests\Thoth.Tests.csproj", "{6198BA42-7D1D-4614-AE5D-615379C4AF91}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Thoth.Sample", "Thoth.Sample\Thoth.Sample.csproj", "{872F5990-EA72-4525-9CDC-C8E6F4F71FD0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,13 +34,17 @@ Global
 		{BE9D1218-251C-4F21-9268-AF7A6370D608}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BE9D1218-251C-4F21-9268-AF7A6370D608}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BE9D1218-251C-4F21-9268-AF7A6370D608}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E9405954-4C72-4F60-B4E0-EEF29FCAEA4C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E9405954-4C72-4F60-B4E0-EEF29FCAEA4C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E9405954-4C72-4F60-B4E0-EEF29FCAEA4C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E9405954-4C72-4F60-B4E0-EEF29FCAEA4C}.Release|Any CPU.Build.0 = Release|Any CPU
 		{5834D2EB-2EF2-4BA5-8202-5B423B1868D5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{5834D2EB-2EF2-4BA5-8202-5B423B1868D5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5834D2EB-2EF2-4BA5-8202-5B423B1868D5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5834D2EB-2EF2-4BA5-8202-5B423B1868D5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6198BA42-7D1D-4614-AE5D-615379C4AF91}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6198BA42-7D1D-4614-AE5D-615379C4AF91}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6198BA42-7D1D-4614-AE5D-615379C4AF91}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6198BA42-7D1D-4614-AE5D-615379C4AF91}.Release|Any CPU.Build.0 = Release|Any CPU
+		{872F5990-EA72-4525-9CDC-C8E6F4F71FD0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{872F5990-EA72-4525-9CDC-C8E6F4F71FD0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{872F5990-EA72-4525-9CDC-C8E6F4F71FD0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{872F5990-EA72-4525-9CDC-C8E6F4F71FD0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

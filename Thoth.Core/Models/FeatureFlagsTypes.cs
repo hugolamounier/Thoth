@@ -2,6 +2,6 @@ namespace Thoth.Core.Models;
 
 public enum FeatureFlagsTypes
 {
-    Boolean = 2,
-    PercentageFilter = 4
+    Boolean = 1,
+    PercentageFilter = 2
 }
