@@ -18,7 +18,7 @@ public class ThothOptions: IOptions<ThothOptions>
     /// <summary>
     /// SQL Server connection string
     /// </summary>
-    public string SqlServerConnectionString { get; set; }
+    public string ConnectionString { get; set; }
 
     /// <summary>
     /// Defines for how long the feature flags will be cached in memory.

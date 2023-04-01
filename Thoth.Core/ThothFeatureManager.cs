@@ -7,13 +7,13 @@ using Thoth.Core.Models;
 
 namespace Thoth.Core;
 
-public class FeatureFlagManagement: IFeatureFlagManagement
+public class ThothFeatureManager: IThothFeatureManager
 {
     private readonly IDatabase _dbContext;
-    private readonly ILogger<FeatureFlagManagement> _logger;
+    private readonly ILogger<ThothFeatureManager> _logger;
     private readonly CacheManager _cacheManager;
 
-    public FeatureFlagManagement(IDatabase dbContext, CacheManager cacheManager, ILogger<FeatureFlagManagement> logger)
+    public ThothFeatureManager(IDatabase dbContext, CacheManager cacheManager, ILogger<ThothFeatureManager> logger)
     {
         _dbContext = dbContext;
         _cacheManager = cacheManager;

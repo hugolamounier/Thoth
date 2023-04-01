@@ -7,11 +7,11 @@ namespace Thoth.Dashboard.Api;
 
 public class FeatureFlagController
 {
-    private readonly IFeatureFlagManagement _featureFlagManagement;
+    private readonly IThothFeatureManager _thothFeatureManager;
 
-    public FeatureFlagController(IFeatureFlagManagement featureFlagManagement)
+    public FeatureFlagController(IThothFeatureManager thothFeatureManager)
     {
-        _featureFlagManagement = featureFlagManagement;
+        _thothFeatureManager = thothFeatureManager;
     }
 
     /// <summary>
@@ -20,7 +20,7 @@ public class FeatureFlagController
     /// <returns></returns>
     public async Task<IResult> GetAll()
     {
-        var featureFlags = await _featureFlagManagement.GetAllAsync();
+        var featureFlags = await _thothFeatureManager.GetAllAsync();
 
         return Results.Ok(featureFlags);
     }
@@ -32,7 +32,7 @@ public class FeatureFlagController
     /// <returns></returns>
     public async Task<IResult> GetByName(string name)
     {
-        var featureFlag = await _featureFlagManagement.GetAsync(name);
+        var featureFlag = await _thothFeatureManager.GetAsync(name);
 
         return Results.Ok(featureFlag);
     }
@@ -44,7 +44,7 @@ public class FeatureFlagController
     /// <returns></returns>
     public async Task<IResult> Create(FeatureFlag featureFlag)
     {
-        if (await _featureFlagManagement.AddAsync(featureFlag))
+        if (await _thothFeatureManager.AddAsync(featureFlag))
             return Results.StatusCode(201);
 
         return Results.BadRequest();
@@ -57,15 +57,20 @@ public class FeatureFlagController
     /// <returns></returns>
     public async Task<IResult> Update(FeatureFlag featureFlag)
     {
-        if(await _featureFlagManagement.UpdateAsync(featureFlag))
+        if(await _thothFeatureManager.UpdateAsync(featureFlag))
             return Results.Ok();
 
         return Results.BadRequest();
     }
 
+    /// <summary>
+    /// Delete the feature flag
+    /// </summary>
+    /// <param name="name"></param>
+    /// <returns></returns>
     public async Task<IResult> Delete(string name)
     {
-        if (await _featureFlagManagement.DeleteAsync(name))
+        if (await _thothFeatureManager.DeleteAsync(name))
             return Results.Ok();
 
         return Results.BadRequest();

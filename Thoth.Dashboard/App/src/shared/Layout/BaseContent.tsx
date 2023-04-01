@@ -17,7 +17,7 @@ const BaseContent = ({ children, title }: BaseContentProps): JSX.Element => (
       backgroundColor: 'white',
     }}
   >
-    <h1 className="pb-3 text-heading-bold-4 border-black border-b-2">{title}</h1>
+    {title}
     <div className="py-4">{children}</div>
   </Content>
 );

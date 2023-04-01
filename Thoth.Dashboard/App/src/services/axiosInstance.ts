@@ -8,10 +8,11 @@ apiService.interceptors.response.use(
     return response;
   },
   (error) => {
+    console.log(error);
     if (error?.response.status >= 400) {
       notification.error({
-        message: 'We failed you...',
-        description: 'We could not retrieve the information you requested, please try again.',
+        message: 'Something is wrong...',
+        description: error?.response.data,
       });
     }
 

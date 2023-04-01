@@ -44,18 +44,16 @@ public static class Extensions
         {
             case DatabaseTypes.SqlServer:
 
-                if (options.SqlServerConnectionString is null)
-                    throw new ThothException(Messages.ERROR_SQL_SERVER_IS_REQUIRED);
+                if (options.ConnectionString is null)
+                    throw new ArgumentException(Messages.ERROR_CONNECTION_STRING);
                 services.TryAddSingleton<IDatabase, SqlServerDatabase>();
 
                 break;
-            case DatabaseTypes.MongoDb:
-                throw new NotImplementedException();
             default:
                 throw new ArgumentOutOfRangeException();
         }
 
-        services.TryAddSingleton<IFeatureFlagManagement, FeatureFlagManagement>();
+        services.TryAddSingleton<IThothFeatureManager, ThothFeatureManager>();
 
         if (options.EnableThothApi)
         {
@@ -83,7 +81,7 @@ public static class Extensions
         setupAction?.Invoke(options);
 
         if(!thothOptions?.EnableThothApi ?? true)
-            throw new ThothException(Messages.ERROR_CAN_NOT_USE_THOTH_DASHBOARD);
+            throw new ArgumentException(Messages.ERROR_CAN_NOT_USE_THOTH_DASHBOARD);
 
         options ??= new ThothDashboardOptions();
 
@@ -103,6 +101,8 @@ public static class Extensions
                 spa.Options.SourcePath = "wwwroot";
             });
         });
+
+        app.UseMiddleware<ThothExceptionMiddleware>();
 
         return app.InjectThothDashboardRoutes(scope, options.RoutePrefix);
     }

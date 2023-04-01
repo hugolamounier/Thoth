@@ -17,7 +17,7 @@ public class SqlServerDatabase : IDatabase
 
     public SqlServerDatabase(IOptions<ThothOptions> options)
     {
-        _dbConnection = new SqlConnection(options.Value.SqlServerConnectionString);
+        _dbConnection = new SqlConnection(options.Value.ConnectionString);
         Init();
     }
 
