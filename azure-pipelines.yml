@@ -29,12 +29,6 @@ steps:
     projectKey: 'hugolamounier_Thoth'
     projectName: Thoth
 
-- task: DotNetCoreCLI@2
-  displayName: Build
-  inputs:
-    projects: '$(solution)'
-    arguments: '--configuration $(BuildConfiguration)'
-
 - task: DockerCompose@0
   inputs:
     containerregistrytype: Container Registry
