@@ -4,7 +4,7 @@
 # https://docs.microsoft.com/azure/devops/pipelines/apps/aspnet/build-aspnet-4
 
 trigger:
-- master
+  - master
 
 pool:
   vmImage: 'ubuntu-latest'
@@ -16,35 +16,35 @@ variables:
 
 steps:
 
-- task: SonarCloudPrepare@1
-  displayName: 'Prepare analysis on SonarCloud'
-  inputs:
-    SonarCloud: SonarCloud
-    organization: hugolamounier
-    projectKey: 'hugolamounier_Thoth'
-    projectName: Thoth
+  - task: SonarCloudPrepare@1
+    displayName: 'Prepare analysis on SonarCloud'
+    inputs:
+      SonarCloud: SonarCloud
+      organization: hugolamounier
+      projectKey: 'hugolamounier_Thoth'
+      projectName: Thoth
 
-- task: DotNetCoreCLI@2
-  displayName: Build
-  inputs:
-    projects: '$(solution)'
-    arguments: '--configuration $(BuildConfiguration)'
+  - task: DotNetCoreCLI@2
+    displayName: Build
+    inputs:
+      projects: '$(solution)'
+      arguments: '--configuration $(BuildConfiguration)'
 
-- task: DockerCompose@0
-  inputs:
-    containerregistrytype: Container Registry
-    dockerComposeFile: '**/docker-compose.yml'
-    action: Run services
+  - task: CmdLine@2
+    displayName: Run containers
+    inputs:
+      script: |
+        docker compose up sqlserver --build
 
-- task: DotNetCoreCLI@2
-  displayName: 'Test applicaiton'
-  inputs:
-    command: test
-    projects: '**/*Tests/*.csproj'
-    arguments: '--configuration $(buildConfiguration) --no-build --logger trx --settings "./runsettings.xml"'
+  - task: DotNetCoreCLI@2
+    displayName: 'Test applicaiton'
+    inputs:
+      command: test
+      projects: '**/*Tests/*.csproj'
+      arguments: '--configuration $(buildConfiguration) --no-build --logger trx --settings "./runsettings.xml"'
 
-- task: SonarCloudAnalyze@1
-  displayName: 'Run Code Analysis'
+  - task: SonarCloudAnalyze@1
+    displayName: 'Run Code Analysis'
 
-- task: SonarCloudPublish@1
-  displayName: 'Publish Quality Gate Result'
+  - task: SonarCloudPublish@1
+    displayName: 'Publish Quality Gate Result'
