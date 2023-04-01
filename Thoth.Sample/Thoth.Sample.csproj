@@ -4,6 +4,7 @@
         <TargetFramework>net6.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
+        <DockerDefaultTargetOS>Windows</DockerDefaultTargetOS>
     </PropertyGroup>
 
     <ItemGroup>
@@ -11,6 +12,14 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Thoth.DependencyInjection\Thoth.DependencyInjection.csproj" />
+      <Content Include="..\.dockerignore">
+        <Link>.dockerignore</Link>
+      </Content>
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Thoth.Core\Thoth.Core.csproj" />
+      <ProjectReference Include="..\Thoth.Dashboard\Thoth.Dashboard.csproj" />
+      <ProjectReference Include="..\Thoth.SQLServer\Thoth.SQLServer.csproj" />
     </ItemGroup>
 </Project>

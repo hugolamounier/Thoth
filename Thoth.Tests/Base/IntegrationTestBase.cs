@@ -14,10 +14,10 @@ public abstract class IntegrationTestBase<TEntryPoint> : WebApplicationFactory<T
     protected IntegrationTestBase(Action<IServiceCollection>? serviceDelegate = null)
     {
         _serviceCollectionOverride = serviceDelegate;
-        ConfigureServer().GetAwaiter().GetResult();
+        ConfigureServer();
     }
     
-    protected async Task ConfigureServer()
+    protected void ConfigureServer()
     {
         HttpClient = CreateClient();
         ServiceScope = Services.CreateScope();
