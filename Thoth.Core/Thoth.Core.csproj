@@ -14,6 +14,7 @@
         <AssemblyName>Thoth.Core</AssemblyName>
         <RootNamespace>Thoth.Core</RootNamespace>
         <IsPackable>true</IsPackable>
+        <PackageIcon>icon-64.png</PackageIcon>
     </PropertyGroup>
 
     <ItemGroup>
@@ -28,6 +29,7 @@
 
     <ItemGroup>
         <None Include="../docs/README.md" Pack="true" PackagePath="\"/>
+        <None Include="../docks/icon-64.png" Pack="true" PackagePath="\"/>
     </ItemGroup>
 
 </Project>
