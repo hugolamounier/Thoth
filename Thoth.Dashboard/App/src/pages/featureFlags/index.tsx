@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import BaseContent from '../../shared/Layout/BaseContent';
-import { App, Button, Form, Input, Space, Switch, Table, Tag } from 'antd';
+import { App, Button, Form, Input, Select, Space, Switch, Table, Tag } from 'antd';
 import {
   DeleteOutlined,
   ExclamationCircleOutlined,
@@ -15,11 +15,20 @@ import { useForm } from 'antd/lib/form/Form';
 type LoadingProps = {
   loading: boolean;
   updateLoading: boolean;
+  createLoading: boolean;
 };
 
 const FeatureFlags = (): JSX.Element => {
   const [featureFlags, setFeatureFlags] = useState<FeatureFlag[]>([]);
-  const [loading, setLoading] = useState<LoadingProps>({ loading: true, updateLoading: false });
+  const [createModalState, setCreateModalState] = useState<{
+    destroy: () => void;
+    update: (configUpdate: any) => void;
+  }>();
+  const [loading, setLoading] = useState<LoadingProps>({
+    loading: true,
+    updateLoading: false,
+    createLoading: false,
+  });
   const { modal } = App.useApp();
 
   const deleteFlag = async (name: string) => {
@@ -50,14 +59,34 @@ const FeatureFlags = (): JSX.Element => {
   };
 
   const [addFeatureFlagForm] = useForm<FeatureFlag>();
+  const onSubmitForm = async (data: FeatureFlag) => {
+    setLoading({ ...loading, createLoading: true });
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+    if (await FeatureFlagService.Create(data)) {
+      await getFeatureFlags();
+      createModalState?.destroy();
+    }
+    setLoading({ ...loading, createLoading: false });
+  };
 
   const addFeatureFlagModal = () => {
-    modal.confirm({
+    const modalState = modal.confirm({
       title: 'Create new feature flag',
       icon: <FileAddOutlined className="text-black" />,
-      okText: 'Create',
       width: 700,
-      cancelText: 'Cancel',
+      footer: (
+        <Space className="p-3 flex justify-end" style={{ width: '100%' }}>
+          <Button onClick={() => modalState.destroy()}>Cancel</Button>
+          <Button
+            type="primary"
+            htmlType="submit"
+            loading={loading.createLoading}
+            onClick={() => addFeatureFlagForm.submit()}
+          >
+            Create
+          </Button>
+        </Space>
+      ),
       content: (
         <Form
           form={addFeatureFlagForm}
@@ -65,22 +94,47 @@ const FeatureFlags = (): JSX.Element => {
           labelCol={{ span: 4 }}
           wrapperCol={{ span: 14 }}
           layout="vertical"
+          onFinish={onSubmitForm}
         >
-          <Form.Item name="name" label="Name">
+          <Form.Item name="name" label="Name" rules={[{ required: true }]}>
             <Input />
+          </Form.Item>
+          <Form.Item name="type" label="Type" rules={[{ required: true }]}>
+            <Select
+              showSearch
+              placeholder="Select flag type"
+              optionFilterProp="children"
+              filterOption={(input, option) =>
+                (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+              }
+              options={Object.keys(FeatureFlagsTypes)
+                .filter((v) => isNaN(Number(v)))
+                .map((key, index) => {
+                  return {
+                    value: FeatureFlagsTypes[key as keyof typeof FeatureFlagsTypes],
+                    label: key,
+                  };
+                })}
+            />
+          </Form.Item>
+          <Form.Item
+            name="value"
+            label="Initial State"
+            valuePropName="checked"
+            rules={[{ required: true }]}
+          >
+            <Switch defaultChecked={false} unCheckedChildren="Off" checkedChildren="On" />
           </Form.Item>
         </Form>
       ),
     });
+    setCreateModalState(modalState);
   };
 
   const tagType = (type: FeatureFlagsTypes) => {
     switch (type) {
       case FeatureFlagsTypes.Boolean:
         return <Tag color="gold">{FeatureFlagsTypes[type]}</Tag>;
-
-      case FeatureFlagsTypes.PercentageFilter:
-        return <Tag color="blue">Percentage Filter</Tag>;
 
       default:
         return <Tag color="red">Unknown</Tag>;

@@ -16,6 +16,20 @@ export default class FeatureFlagService {
     }
   }
 
+  public static async Create(featureFlag: FeatureFlag): Promise<boolean> {
+    try {
+      const { status } = await apiService.post(`/thoth-api/FeatureFlag`, featureFlag);
+
+      return status < 400;
+    } catch {
+      notification.error({
+        message: 'We failed you...',
+        description: 'We could not retrieve the information you requested, please try again.',
+      });
+      return false;
+    }
+  }
+
   public static async Delete(name: string): Promise<boolean> {
     try {
       const { status } = await apiService.delete(`/thoth-api/FeatureFlag/${name}`);
@@ -31,7 +45,6 @@ export default class FeatureFlagService {
   }
 
   public static async Update(featureFlag: FeatureFlag): Promise<boolean> {
-    console.log(featureFlag);
     try {
       const { status } = await apiService.put(
         `/thoth-api/FeatureFlag/${featureFlag.name}`,
