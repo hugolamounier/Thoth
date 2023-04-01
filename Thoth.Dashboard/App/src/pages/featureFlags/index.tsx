@@ -15,15 +15,6 @@ const FeatureFlags = (): JSX.Element => {
     if (await FeatureFlagService.Delete(name)) await getFeatureFlags();
   };
 
-  const mock: FeatureFlag[] = [
-    {
-      name: 'teste',
-      type: FeatureFlagsTypes.Boolean,
-      value: true,
-      createdAt: moment(),
-    },
-  ];
-
   const confirmDelete = (name: string) => {
     const deleteMessage = (
       <span>
@@ -119,7 +110,7 @@ const FeatureFlags = (): JSX.Element => {
   const getFeatureFlags = async () => {
     setLoading(true);
     const data = await FeatureFlagService.GetAll();
-    setFeatureFlags(mock);
+    setFeatureFlags(data);
     setLoading(false);
   };
 
