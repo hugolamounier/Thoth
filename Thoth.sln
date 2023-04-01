@@ -9,8 +9,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionItems", "SolutionIt
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Thoth.SQLServer", "Thoth.SQLServer\Thoth.SQLServer.csproj", "{BE9D1218-251C-4F21-9268-AF7A6370D608}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Thoth.MongoDB", "Thoth.MongoDB\Thoth.MongoDB.csproj", "{25B814F4-43CD-4491-A472-058EBD3F6CFD}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Thoth.DependencyInjection", "Thoth.DependencyInjection\Thoth.DependencyInjection.csproj", "{E9405954-4C72-4F60-B4E0-EEF29FCAEA4C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Thoth.Dashboard", "Thoth.Dashboard\Thoth.Dashboard.csproj", "{5834D2EB-2EF2-4BA5-8202-5B423B1868D5}"
@@ -29,10 +27,6 @@ Global
 		{BE9D1218-251C-4F21-9268-AF7A6370D608}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BE9D1218-251C-4F21-9268-AF7A6370D608}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BE9D1218-251C-4F21-9268-AF7A6370D608}.Release|Any CPU.Build.0 = Release|Any CPU
-		{25B814F4-43CD-4491-A472-058EBD3F6CFD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{25B814F4-43CD-4491-A472-058EBD3F6CFD}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{25B814F4-43CD-4491-A472-058EBD3F6CFD}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{25B814F4-43CD-4491-A472-058EBD3F6CFD}.Release|Any CPU.Build.0 = Release|Any CPU
 		{E9405954-4C72-4F60-B4E0-EEF29FCAEA4C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{E9405954-4C72-4F60-B4E0-EEF29FCAEA4C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E9405954-4C72-4F60-B4E0-EEF29FCAEA4C}.Release|Any CPU.ActiveCfg = Release|Any CPU

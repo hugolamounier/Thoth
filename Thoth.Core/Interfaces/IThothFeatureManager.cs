@@ -4,7 +4,7 @@ using Thoth.Core.Models;
 
 namespace Thoth.Core.Interfaces;
 
-public interface IFeatureFlagManagement
+public interface IThothFeatureManager
 {
     Task<bool> IsEnabledAsync(string name);
     Task<FeatureFlag> GetAsync(string name);

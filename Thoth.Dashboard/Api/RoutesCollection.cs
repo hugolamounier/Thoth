@@ -11,7 +11,7 @@ public static class RoutesCollection
     public static WebApplication InjectThothDashboardRoutes(this WebApplication app, IServiceScope scope, string routePrefix)
     {
         var basePath = $"{routePrefix}-api/FeatureFlag";
-        var featureManagementService = scope.ServiceProvider.GetRequiredService<IFeatureFlagManagement>();
+        var featureManagementService = scope.ServiceProvider.GetRequiredService<IThothFeatureManager>();
         var featureFlagController = new FeatureFlagController(featureManagementService);
 
         app.UseRouting();

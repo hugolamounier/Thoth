@@ -44,18 +44,16 @@ public static class Extensions
         {
             case DatabaseTypes.SqlServer:
 
-                if (options.SqlServerConnectionString is null)
-                    throw new ThothException(Messages.ERROR_SQL_SERVER_IS_REQUIRED);
+                if (options.ConnectionString is null)
+                    throw new ThothException(Messages.ERROR_CONNECTION_STRING);
                 services.TryAddSingleton<IDatabase, SqlServerDatabase>();
 
                 break;
-            case DatabaseTypes.MongoDb:
-                throw new NotImplementedException();
             default:
                 throw new ArgumentOutOfRangeException();
         }
 
-        services.TryAddSingleton<IFeatureFlagManagement, FeatureFlagManagement>();
+        services.TryAddSingleton<IThothFeatureManager, ThothFeatureManager>();
 
         if (options.EnableThothApi)
         {
