@@ -40,7 +40,7 @@ public static class Queries
         END
     ";
 
-   public const string CreateFeatureFlagTableQuery = @"
+    public const string CreateFeatureFlagTableQuery = @"
         IF NOT EXISTS (SELECT * FROM sys.objects
             WHERE object_id = OBJECT_ID(N'[{0}].[FeatureFlag]') AND type in (N'U'))
         BEGIN
@@ -54,5 +54,4 @@ public static class Queries
             );
         END
     ";
-
 }

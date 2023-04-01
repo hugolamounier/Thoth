@@ -1,6 +1,6 @@
-using Microsoft.AspNetCore.Mvc;
-using Thoth.Core.Interfaces;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Thoth.Core.Interfaces;
 using Thoth.Core.Models;
 
 namespace Thoth.Dashboard.Api;
@@ -15,7 +15,7 @@ public class FeatureFlagController
     }
 
     /// <summary>
-    /// Get all feature flags
+    ///     Get all feature flags
     /// </summary>
     /// <returns></returns>
     public async Task<IResult> GetAll()
@@ -26,7 +26,7 @@ public class FeatureFlagController
     }
 
     /// <summary>
-    /// Get feature flag by name
+    ///     Get feature flag by name
     /// </summary>
     /// <param name="name"></param>
     /// <returns></returns>
@@ -38,7 +38,7 @@ public class FeatureFlagController
     }
 
     /// <summary>
-    /// Add a new feature flag
+    ///     Add a new feature flag
     /// </summary>
     /// <param name="featureFlag"></param>
     /// <returns></returns>
@@ -51,20 +51,20 @@ public class FeatureFlagController
     }
 
     /// <summary>
-    /// Update the feature flag
+    ///     Update the feature flag
     /// </summary>
     /// <param name="featureFlag"></param>
     /// <returns></returns>
     public async Task<IResult> Update(FeatureFlag featureFlag)
     {
-        if(await _thothFeatureManager.UpdateAsync(featureFlag))
+        if (await _thothFeatureManager.UpdateAsync(featureFlag))
             return Results.Ok();
 
         return Results.BadRequest();
     }
 
     /// <summary>
-    /// Delete the feature flag
+    ///     Delete the feature flag
     /// </summary>
     /// <param name="name"></param>
     /// <returns></returns>

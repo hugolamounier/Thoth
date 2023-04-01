@@ -7,11 +7,11 @@ using Thoth.Core.Models;
 
 namespace Thoth.Core;
 
-public class ThothFeatureManager: IThothFeatureManager
+public class ThothFeatureManager : IThothFeatureManager
 {
+    private readonly CacheManager _cacheManager;
     private readonly IDatabase _dbContext;
     private readonly ILogger<ThothFeatureManager> _logger;
-    private readonly CacheManager _cacheManager;
 
     public ThothFeatureManager(IDatabase dbContext, CacheManager cacheManager, ILogger<ThothFeatureManager> logger)
     {
@@ -20,7 +20,10 @@ public class ThothFeatureManager: IThothFeatureManager
         _logger = logger;
     }
 
-    public async Task<bool> IsEnabledAsync(string name) => (await GetAsync(name)).Value;
+    public async Task<bool> IsEnabledAsync(string name)
+    {
+        return (await GetAsync(name)).Value;
+    }
 
     public async Task<FeatureFlag> GetAsync(string name)
     {
@@ -55,12 +58,12 @@ public class ThothFeatureManager: IThothFeatureManager
 
             var insertResult = await _dbContext.AddAsync(featureFlag);
 
-            if(insertResult)
+            if (insertResult)
                 await _cacheManager.GetOrCreateAsync(featureFlag.Name, () => Task.FromResult(featureFlag));
 
             return insertResult;
         }
-        catch(Exception e)
+        catch (Exception e)
         {
             _logger.LogError("{Message}: {Exception}", Messages.ERROR_WHILE_ADDIND_FEATURE_FLAG,
                 e.InnerException?.Message ?? e.Message);
@@ -90,7 +93,7 @@ public class ThothFeatureManager: IThothFeatureManager
 
             return updateResult;
         }
-        catch(Exception e)
+        catch (Exception e)
         {
             _logger.LogError("{Message}: {Exception}", Messages.ERROR_WHILE_ADDIND_FEATURE_FLAG,
                 e.InnerException?.Message ?? e.Message);
@@ -105,7 +108,7 @@ public class ThothFeatureManager: IThothFeatureManager
 
         var deleteResult = await _dbContext.DeleteAsync(name);
 
-        if(deleteResult)
+        if (deleteResult)
             _cacheManager.Remove(name);
 
         return deleteResult;
