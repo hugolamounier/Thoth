@@ -44,6 +44,5 @@ steps:
 - task: SonarCloudAnalyze@1
   displayName: 'Run Code Analysis'
 
-steps:
 - task: SonarCloudPublish@1
   displayName: 'Publish Quality Gate Result'
