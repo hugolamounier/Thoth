@@ -15,11 +15,6 @@ variables:
   buildConfiguration: 'Release'
 
 steps:
-- task: DotNetCoreCLI@2
-  displayName: Restore
-  inputs:
-    command: restore
-    projects: '$(solution)'
 
 - task: SonarCloudPrepare@1
   displayName: 'Prepare analysis on SonarCloud'
@@ -34,6 +29,13 @@ steps:
     containerregistrytype: Container Registry
     dockerComposeFile: '**/docker-compose.yml'
     action: Run services
+
+- task: DotNetCoreCLI@2
+  displayName: 'Test applicaiton'
+  inputs:
+    command: test
+    projects: '**/*Tests/*.csproj'
+    arguments: '--configuration $(buildConfiguration) --no-build --logger trx --settings "./runsettings.xml"'
 
 - task: SonarCloudAnalyze@1
   displayName: 'Run Code Analysis'
