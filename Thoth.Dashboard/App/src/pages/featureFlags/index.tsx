@@ -28,8 +28,14 @@ const FeatureFlags = (): JSX.Element => {
   });
   const { modal } = App.useApp();
 
-  const deleteFlag = async (name: string) => {
-    if (await FeatureFlagService.Delete(name)) await getFeatureFlags();
+  const deleteFlag = async (
+    name: string,
+    modalState: { destroy: () => void; update: (configUpdate: any) => void }
+  ) => {
+    if (await FeatureFlagService.Delete(name)) {
+      await getFeatureFlags();
+      modalState.destroy();
+    }
   };
 
   const confirmDelete = (name: string) => {
@@ -46,7 +52,7 @@ const FeatureFlags = (): JSX.Element => {
       content: deleteMessage,
       footer: (
         <Space className="p-3 flex justify-end" style={{ width: '100%' }}>
-          <Button onClick={async () => await deleteFlag(name)}>Delete</Button>
+          <Button onClick={async () => await deleteFlag(name, modalState)}>Delete</Button>
           <Button type="primary" onClick={() => modalState.destroy()}>
             Cancel
           </Button>
@@ -77,6 +83,7 @@ const FeatureFlags = (): JSX.Element => {
       onOk={() => addFeatureFlagForm.submit()}
       onCancel={() => setCreateModalOpen(false)}
       okText="Create"
+      width={700}
     >
       <Form
         form={addFeatureFlagForm}
