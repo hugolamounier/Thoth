@@ -52,10 +52,4 @@
     <ItemGroup>
         <ProjectReference Include="..\Thoth.Core\Thoth.Core.csproj" />
     </ItemGroup>
-
-    <Target Name="DashboardUI" BeforeTargets="Build">
-        <Exec WorkingDirectory="App" Command="npm install" />
-        <Exec WorkingDirectory="App" Command="npm run build" />
-    </Target>
-
 </Project>

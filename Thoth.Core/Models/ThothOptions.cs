@@ -11,11 +11,6 @@ public class ThothOptions : IOptions<ThothOptions>
     public bool EnableCaching { get; set; } = true;
 
     /// <summary>
-    ///     Sets the database type that will store the feature flags
-    /// </summary>
-    public DatabaseTypes UseDatabase { get; set; }
-
-    /// <summary>
     ///     SQL Server connection string
     /// </summary>
     public string ConnectionString { get; set; }
@@ -31,8 +26,10 @@ public class ThothOptions : IOptions<ThothOptions>
     ///     Distributed applications should set shorten durations.
     /// </summary>
     public TimeSpan CacheSlidingExpiration { get; set; } = TimeSpan.FromDays(1);
-
+    
     /// <summary>
+    ///     Defines if the Thoth Api should be exposed.
+    ///     This is required true when using Dashboard.
     /// </summary>
     public bool EnableThothApi { get; set; } = true;
 

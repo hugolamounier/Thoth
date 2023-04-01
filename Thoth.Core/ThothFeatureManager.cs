@@ -22,12 +22,17 @@ public class ThothFeatureManager : IThothFeatureManager
 
     public async Task<bool> IsEnabledAsync(string name)
     {
-        return (await GetAsync(name)).Value;
+        var featureFlag = await GetAsync(name);
+
+        return await EvaluateAsync(featureFlag);
     }
+
+    public async Task<bool> IsActiveAsync(string name) =>
+        (await GetAsync(name)).Value;
 
     public async Task<FeatureFlag> GetAsync(string name)
     {
-        if (!await CheckIfExists(name))
+        if (!await CheckIfExistsAsync(name))
             throw new ThothException(string.Format(Messages.ERROR_FEATURE_FLAG_ALREADY_EXISTS, name));
 
         return await _cacheManager.GetOrCreateAsync(name, () => _dbContext.GetAsync(name));
@@ -45,7 +50,7 @@ public class ThothFeatureManager : IThothFeatureManager
 
     public async Task<bool> AddAsync(FeatureFlag featureFlag)
     {
-        if (await CheckIfExists(featureFlag.Name))
+        if (await CheckIfExistsAsync(featureFlag.Name))
             throw new ThothException(string.Format(Messages.ERROR_FEATURE_FLAG_ALREADY_EXISTS, featureFlag.Name));
 
         if (featureFlag.Type == FeatureFlagsTypes.Boolean && !string.IsNullOrWhiteSpace(featureFlag.FilterValue))
@@ -54,7 +59,8 @@ public class ThothFeatureManager : IThothFeatureManager
         try
         {
             _logger.LogInformation("{Message}",
-                string.Format(Messages.INFO_ADDED_FEATURE_FLAG, featureFlag.Name, featureFlag.Value.ToString(), featureFlag.FilterValue));
+                string.Format(Messages.INFO_ADDED_FEATURE_FLAG, featureFlag.Name, featureFlag.Value.ToString(),
+                 featureFlag.FilterValue));
 
             var insertResult = await _dbContext.AddAsync(featureFlag);
 
@@ -103,7 +109,7 @@ public class ThothFeatureManager : IThothFeatureManager
 
     public async Task<bool> DeleteAsync(string name)
     {
-        if (!await CheckIfExists(name))
+        if (!await CheckIfExistsAsync(name))
             throw new ThothException(string.Format(Messages.ERROR_FEATURE_FLAG_NOT_EXISTS, name));
 
         var deleteResult = await _dbContext.DeleteAsync(name);
@@ -114,12 +120,23 @@ public class ThothFeatureManager : IThothFeatureManager
         return deleteResult;
     }
 
-    private async Task<bool> CheckIfExists(string name)
+    private async Task<bool> CheckIfExistsAsync(string name)
     {
         var cachedValue = _cacheManager.GetIfExistsAsync(name);
         if (cachedValue != null)
             return true;
 
         return await _dbContext.ExistsAsync(name);
+    }
+
+    private async Task<bool> EvaluateAsync(FeatureFlag featureFlag)
+    {
+        return featureFlag.Type switch
+        {
+            FeatureFlagsTypes.Boolean => featureFlag.Value,
+            FeatureFlagsTypes.PercentageFilter =>
+                featureFlag.Value && await featureFlag.EvaluatePercentageFlag(_logger),
+            _ => false
+        };
     }
 }

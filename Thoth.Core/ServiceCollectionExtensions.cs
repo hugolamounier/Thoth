@@ -30,7 +30,7 @@ public static class ServiceCollectionExtensions
         services.AddOptions();
         services.Configure(setupAction);
 
-        if (options.ConnectionString is null)
+        if (string.IsNullOrWhiteSpace(options.ConnectionString))
             throw new ArgumentException(Messages.ERROR_CONNECTION_STRING);
 
         services.TryAddSingleton<IMemoryCache, MemoryCache>();
