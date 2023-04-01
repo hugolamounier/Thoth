@@ -29,7 +29,7 @@ dotnet sonarscanner begin \
     /d:sonar.exclusions="Thoth.Dashboard/App/**/*.*, Thoth.Dashboard/wwwroot/**/*.*"
 
 dotnet build
-./scripts/start-tests.sh
+./Scripts/start-tests.sh
 
 # Now we can collect the results 👍
 dotnet sonarscanner end /d:sonar.login="$SONAR_TOKEN"
