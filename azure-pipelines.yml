@@ -1,0 +1,49 @@
+# ASP.NET
+# Build and test ASP.NET projects.
+# Add steps that publish symbols, save build artifacts, deploy, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/apps/aspnet/build-aspnet-4
+
+trigger:
+- master
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  solution: '**/*.sln'
+  buildPlatform: 'Any CPU'
+  buildConfiguration: 'Release'
+
+steps:
+- task: DotNetCoreCLI@2
+  displayName: Restore
+  inputs:
+    command: restore
+    projects: '$(solution)'
+
+- task: SonarCloudPrepare@1
+  displayName: 'Prepare analysis on SonarCloud'
+  inputs:
+    SonarCloud: SonarCloud
+    organization: hugolamounier
+    projectKey: 'hugolamounier_Thoth'
+    projectName: Thoth
+
+- task: DotNetCoreCLI@2
+  displayName: Build
+  inputs:
+    projects: '$(solution)'
+    arguments: '--configuration $(BuildConfiguration)'
+
+- task: DockerCompose@0
+  inputs:
+    containerregistrytype: Container Registry
+    dockerComposeFile: '**/docker-compose.yml'
+    action: Run services
+
+- task: SonarCloudAnalyze@1
+  displayName: 'Run Code Analysis'
+
+steps:
+- task: SonarCloudPublish@1
+  displayName: 'Publish Quality Gate Result'
