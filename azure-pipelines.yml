@@ -34,7 +34,7 @@ steps:
     displayName: Run containers
     inputs:
       script: |
-        docker compose up sqlserver --build
+        docker compose up -d sqlserver --build
 
   - task: DotNetCoreCLI@2
     displayName: 'Test applicaiton'
