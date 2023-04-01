@@ -35,13 +35,7 @@ public class SqlServerDatabase : IDatabase
        await _dbConnection.ExecuteAsync(string.Format(Queries.AddFeatureFlagQuery, SchemaName), featureFlag) > 0;
 
     public async Task<bool> UpdateAsync(FeatureFlag featureFlag) =>
-        await _dbConnection.ExecuteAsync(string.Format(Queries.UpdateFeatureFlag, SchemaName), new
-        {
-            featureFlag.Name,
-            featureFlag.Value,
-            featureFlag.FilterValue,
-            UpdatedAt = DateTime.UtcNow
-        }) > 0;
+        await _dbConnection.ExecuteAsync(string.Format(Queries.UpdateFeatureFlag, SchemaName), featureFlag) > 0;
 
     public async Task<bool> DeleteAsync(string featureFlagName) =>
         await _dbConnection.ExecuteAsync(string.Format(Queries.DeleteFeatureFlagQuery, SchemaName), new { Name = featureFlagName }) > 0;

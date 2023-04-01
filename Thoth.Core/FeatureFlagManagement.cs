@@ -70,8 +70,7 @@ public class FeatureFlagManagement: IFeatureFlagManagement
 
     public async Task<bool> UpdateAsync(FeatureFlag featureFlag)
     {
-        if (!await CheckIfExists(featureFlag.Name))
-            throw new ThothException(string.Format(Messages.ERROR_FEATURE_FLAG_NOT_EXISTS, featureFlag.Name));
+        var dbFeatureFlag = await GetAsync(featureFlag.Name);
 
         if (featureFlag.Type == FeatureFlagsTypes.Boolean && !string.IsNullOrWhiteSpace(featureFlag.FilterValue))
             throw new ThothException(Messages.ERROR_BOOLEAN_FEATURE_FLAGS_CANT_HAVE_FILTER_VALUE);
@@ -80,6 +79,9 @@ public class FeatureFlagManagement: IFeatureFlagManagement
         {
             _logger.LogInformation("{Message}",
                 string.Format(Messages.INFO_UPDATED_FEATURE_FLAG, featureFlag.Name, featureFlag.Value.ToString(), featureFlag.FilterValue));
+
+            featureFlag.CreatedAt = dbFeatureFlag.CreatedAt;
+            featureFlag.UpdatedAt = DateTime.UtcNow;
 
             var updateResult = await _dbContext.UpdateAsync(featureFlag);
 
