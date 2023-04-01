@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import BaseContent from '../../shared/Layout/BaseContent';
-import { App, Button, Form, Input, Select, Space, Switch, Table, Tag } from 'antd';
+import { App, Button, Form, Input, Modal, Select, Space, Switch, Table, Tag } from 'antd';
 import {
   DeleteOutlined,
   ExclamationCircleOutlined,
@@ -14,19 +14,16 @@ import { useForm } from 'antd/lib/form/Form';
 
 type LoadingProps = {
   loading: boolean;
-  updateLoading: boolean;
+  updateLoading: Map<string, boolean>;
   createLoading: boolean;
 };
 
 const FeatureFlags = (): JSX.Element => {
   const [featureFlags, setFeatureFlags] = useState<FeatureFlag[]>([]);
-  const [createModalState, setCreateModalState] = useState<{
-    destroy: () => void;
-    update: (configUpdate: any) => void;
-  }>();
+  const [createModalOpen, setCreateModalOpen] = useState<boolean>(false);
   const [loading, setLoading] = useState<LoadingProps>({
-    loading: true,
-    updateLoading: false,
+    loading: false,
+    updateLoading: new Map<string, boolean>(),
     createLoading: false,
   });
   const { modal } = App.useApp();
@@ -61,75 +58,66 @@ const FeatureFlags = (): JSX.Element => {
   const [addFeatureFlagForm] = useForm<FeatureFlag>();
   const onSubmitForm = async (data: FeatureFlag) => {
     setLoading({ ...loading, createLoading: true });
-    await new Promise((resolve) => setTimeout(resolve, 2000));
     if (await FeatureFlagService.Create(data)) {
       await getFeatureFlags();
-      createModalState?.destroy();
+      setCreateModalOpen(false);
     }
     setLoading({ ...loading, createLoading: false });
   };
 
-  const addFeatureFlagModal = () => {
-    const modalState = modal.confirm({
-      title: 'Create new feature flag',
-      icon: <FileAddOutlined className="text-black" />,
-      width: 700,
-      footer: (
-        <Space className="p-3 flex justify-end" style={{ width: '100%' }}>
-          <Button onClick={() => modalState.destroy()}>Cancel</Button>
-          <Button
-            type="primary"
-            htmlType="submit"
-            loading={loading.createLoading}
-            onClick={() => addFeatureFlagForm.submit()}
-          >
-            Create
-          </Button>
+  const addFeatureFlagModal = (
+    <Modal
+      title={
+        <Space>
+          <FileAddOutlined /> <span> Create new feature flag</span>
         </Space>
-      ),
-      content: (
-        <Form
-          form={addFeatureFlagForm}
-          className="py-4"
-          labelCol={{ span: 4 }}
-          wrapperCol={{ span: 14 }}
-          layout="vertical"
-          onFinish={onSubmitForm}
+      }
+      open={createModalOpen}
+      okButtonProps={{ loading: loading.createLoading }}
+      onOk={() => addFeatureFlagForm.submit()}
+      onCancel={() => setCreateModalOpen(false)}
+      okText="Create"
+    >
+      <Form
+        form={addFeatureFlagForm}
+        className="py-4"
+        labelCol={{ span: 4 }}
+        wrapperCol={{ span: 14 }}
+        layout="vertical"
+        onFinish={onSubmitForm}
+      >
+        <Form.Item name="name" label="Name" rules={[{ required: true }]}>
+          <Input />
+        </Form.Item>
+        <Form.Item name="type" label="Type" rules={[{ required: true }]}>
+          <Select
+            showSearch
+            placeholder="Select flag type"
+            optionFilterProp="children"
+            filterOption={(input, option) =>
+              (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+            }
+            options={Object.keys(FeatureFlagsTypes)
+              .filter((v) => isNaN(Number(v)))
+              .map((key, index) => {
+                return {
+                  value: FeatureFlagsTypes[key as keyof typeof FeatureFlagsTypes],
+                  label: key,
+                };
+              })}
+          />
+        </Form.Item>
+        <Form.Item
+          name="value"
+          label="Initial State"
+          valuePropName="checked"
+          rules={[{ required: true }]}
         >
-          <Form.Item name="name" label="Name" rules={[{ required: true }]}>
-            <Input />
-          </Form.Item>
-          <Form.Item name="type" label="Type" rules={[{ required: true }]}>
-            <Select
-              showSearch
-              placeholder="Select flag type"
-              optionFilterProp="children"
-              filterOption={(input, option) =>
-                (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
-              }
-              options={Object.keys(FeatureFlagsTypes)
-                .filter((v) => isNaN(Number(v)))
-                .map((key, index) => {
-                  return {
-                    value: FeatureFlagsTypes[key as keyof typeof FeatureFlagsTypes],
-                    label: key,
-                  };
-                })}
-            />
-          </Form.Item>
-          <Form.Item
-            name="value"
-            label="Initial State"
-            valuePropName="checked"
-            rules={[{ required: true }]}
-          >
-            <Switch defaultChecked={false} unCheckedChildren="Off" checkedChildren="On" />
-          </Form.Item>
-        </Form>
-      ),
-    });
-    setCreateModalState(modalState);
-  };
+          <Switch defaultChecked={false} unCheckedChildren="Off" checkedChildren="On" />
+        </Form.Item>
+      </Form>
+    </Modal>
+  );
 
   const tagType = (type: FeatureFlagsTypes) => {
     switch (type) {
@@ -141,8 +129,10 @@ const FeatureFlags = (): JSX.Element => {
     }
   };
 
+  console.log(loading);
+
   const onValueClick = async (name: string) => {
-    setLoading({ ...loading, updateLoading: true });
+    setLoading({ ...loading, updateLoading: loading.updateLoading.set(name, true) });
     const featureFlag = featureFlags.findIndex((x) => x.name === name);
     const newFeatureFlags = [...featureFlags];
     newFeatureFlags[featureFlag].value = !featureFlags[featureFlag].value;
@@ -155,11 +145,11 @@ const FeatureFlags = (): JSX.Element => {
       const oldFeatureFlags = [...featureFlags];
       oldFeatureFlags[featureFlag].value = !oldFeatureFlags[featureFlag].value;
       setFeatureFlags(oldFeatureFlags);
-      setLoading({ ...loading, updateLoading: false });
+      setLoading({ ...loading, updateLoading: loading.updateLoading.set(name, false) });
       return;
     }
     await getFeatureFlags();
-    setLoading({ ...loading, updateLoading: false });
+    setLoading({ ...loading, updateLoading: loading.updateLoading.set(name, false) });
   };
 
   const actions = (name: string) => (
@@ -190,7 +180,7 @@ const FeatureFlags = (): JSX.Element => {
           checkedChildren="On"
           unCheckedChildren="Off"
           checked={featureFlag.value}
-          loading={loading.updateLoading}
+          loading={loading.updateLoading?.get(featureFlag.name) ?? false}
           onChange={() => onValueClick(featureFlag.name)}
         />
       ),
@@ -209,7 +199,7 @@ const FeatureFlags = (): JSX.Element => {
       style={{ width: '100%' }}
     >
       <h1 className="text-heading-bold-4 ">Feature Flags</h1>
-      <Button type="primary" onClick={() => addFeatureFlagModal()}>
+      <Button type="primary" onClick={() => setCreateModalOpen(true)}>
         <Space>
           <PlusOutlined className="p-0 m-0" />
           <span>Create</span>
@@ -231,6 +221,7 @@ const FeatureFlags = (): JSX.Element => {
   return (
     <BaseContent title={titleHeader}>
       <Table loading={loading.loading} columns={tableHeader} dataSource={tableData} />
+      {addFeatureFlagModal}
     </BaseContent>
   );
 };
