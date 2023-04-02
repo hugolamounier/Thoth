@@ -17,5 +17,5 @@ jobs:
         uses: Azure/pipelines@v1
         with:
           azure-devops-project-url: https://dev.azure.com/hugolamouniersoft/Hugo
-          azure-pipeline-name: 'Thoth'
+          azure-pipeline-name: 'hugolamounier.Thoth'
           azure-devops-token: ${{ secrets.AZURE_DEVOPS_TOKEN }}
