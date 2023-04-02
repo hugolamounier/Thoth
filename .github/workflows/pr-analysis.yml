@@ -1,21 +1,21 @@
-name: PR Analysis
-
 on:
-  push:
-    branches:
-      - master
   pull_request:
     branches:
       - master
 
 jobs:
-  build:
-    name: Call Azure Pipeline
+  build-n-publish:
     runs-on: ubuntu-latest
     steps:
-      - name: Azure Pipelines Action
-        uses: Azure/pipelines@v1
-        with:
-          azure-devops-project-url: https://dev.azure.com/hugolamouniersoft/Hugo
-          azure-pipeline-name: 'hugolamounier.Thoth'
-          azure-devops-token: ${{ secrets.AZURE_DEVOPS_TOKEN }}
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Install dotnet-sonarscanner
+        run: |
+          dotnet tool install --global dotnet-sonarscanner
+      - name: Build the project, run all tests and publish to SonarCloud
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          docker-compose up -d sqlserver --build
+          ./scripts/start-sonarcloud.sh ${{ secrets.SONAR_TOKEN }} ${{ github.sha }}

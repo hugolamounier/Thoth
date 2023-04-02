@@ -1,2 +1,5 @@
 #!/bin/bash
-dotnet test --configuration Release --logger trx --settings "./runsettings.xml"
+dotnet test \
+    --logger trx \
+    --logger "console;verbosity=detailed" \
+    --settings "runsettings.xml"
