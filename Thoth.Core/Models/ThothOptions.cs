@@ -3,7 +3,7 @@ using Microsoft.Extensions.Options;
 
 namespace Thoth.Core.Models;
 
-public class ThothOptions : IOptions<ThothOptions>
+public class ThothOptions
 {
     /// <summary>
     ///     Whether feature flags should be cached, enabled by default
@@ -32,6 +32,4 @@ public class ThothOptions : IOptions<ThothOptions>
     ///     This is required true when using Dashboard.
     /// </summary>
     public bool EnableThothApi { get; set; } = true;
-
-    public ThothOptions Value => this;
 }
