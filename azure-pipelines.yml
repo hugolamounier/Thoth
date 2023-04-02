@@ -24,6 +24,12 @@ steps:
       projectKey: 'hugolamounier_Thoth'
       projectName: Thoth
 
+  - task: CmdLine@2
+    displayName: Begin scan
+    inputs:
+      script: |
+        dotnet sonarscanner begin /k:"hugolamounier_Thoth" /d:sonar.login="$(TOKEN)" /o:"hugolamounier" /d:sonar.cs.opencover.reportsPaths="**/*/coverage.opencover.xml"
+
   - task: DotNetCoreCLI@2
     displayName: Build
     inputs:
@@ -45,3 +51,9 @@ steps:
 
   - task: SonarCloudPublish@1
     displayName: 'Publish Quality Gate Result'
+
+  - task: CmdLine@2
+    displayName: 'Publish Coverage Result'
+    inputs:
+      script: |
+        dotnet sonarscanner end /d:sonar.login="$(TOKEN)"
