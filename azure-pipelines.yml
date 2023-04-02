@@ -23,6 +23,10 @@ steps:
     organization: hugolamounier
     projectKey: 'hugolamounier_Thoth'
     projectName: Thoth
+    extraProperties: |
+      sonar.exclusions=**/obj/**,**/*.dll
+      sonar.cs.opencover.reportsPaths=$(Build.SourcesDirectory)/**/coverage.opencover.xml
+      sonar.cs.vstest.reportsPaths=$(Agent.TempDirectory)/*.trx
 
 - task: DotNetCoreCLI@2
   displayName: Build
@@ -41,7 +45,7 @@ steps:
   inputs:
     command: test
     projects: '**/*Tests/*.csproj'
-    arguments: '--configuration $(buildConfiguration) --no-build --logger trx --settings "./runsettings.xml"'
+    arguments: '--configuration $(buildConfiguration) --logger trx --settings "./runsettings.xml"'
 
 - task: SonarCloudAnalyze@1
   displayName: 'Run Code Analysis'
