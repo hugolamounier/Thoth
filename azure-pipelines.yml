@@ -33,7 +33,6 @@ steps:
       sonar.cs.opencover.reportsPaths="**/*/coverage.opencover.xml" 
       sonar.cs.vstest.reportsPaths="**/*/*.trx" 
       sonar.exclusions="**/App/*/*.*"
-      sonar.branch.name="$(Build.SourceBranchName)"
 
 - task: DotNetCoreCLI@2
   displayName: Build
