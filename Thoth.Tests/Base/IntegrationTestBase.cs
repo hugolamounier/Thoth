@@ -43,4 +43,17 @@ public abstract class IntegrationTestBase<TEntryPoint> : WebApplicationFactory<T
 
         return base.CreateHost(builder);
     }
+
+    private void AfterEachTestAsync()
+    {
+        HttpClient.Dispose();
+        ServiceScope.Dispose();
+    }
+
+    public override ValueTask DisposeAsync()
+    {
+        AfterEachTestAsync();
+        GC.SuppressFinalize(this);
+        return base.DisposeAsync();
+    }
 }
