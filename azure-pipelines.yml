@@ -56,4 +56,5 @@ steps:
     displayName: 'Publish Coverage Result'
     inputs:
       script: |
+        dotnet tool install --global dotnet-sonarscanner
         dotnet sonarscanner end /d:sonar.login="$(TOKEN)"
