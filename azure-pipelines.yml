@@ -45,7 +45,7 @@ steps:
   inputs:
     command: test
     projects: '**/*Tests/*.csproj'
-    arguments: '--configuration $(buildConfiguration) --logger trx --settings "./runsettings.xml"'
+    arguments: '--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=opencover --logger trx'
 
 - task: SonarCloudAnalyze@1
   displayName: 'Run Code Analysis'
