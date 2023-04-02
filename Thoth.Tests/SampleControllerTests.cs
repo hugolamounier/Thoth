@@ -46,7 +46,7 @@ public class SampleControllerTests : IntegrationTestBase<Program>
             Name = Guid.NewGuid().ToString(),
             Type = FeatureFlagsTypes.PercentageFilter,
             Value = true,
-            FilterValue = "50"
+            FilterValue = "50" 
         };
         
         await _thothFeatureManager.AddAsync(newFeatureFlag);
