@@ -16,17 +16,13 @@ variables:
 
 steps:
 
-- task: SonarCloudPrepare@1
-  displayName: 'Prepare analysis on SonarCloud'
+- task: CmdLine@2
+  displayName: Begin scan
   inputs:
-    SonarCloud: SonarCloud
-    organization: hugolamounier
-    projectKey: 'hugolamounier_Thoth'
-    projectName: Thoth
-    extraProperties: |
-      sonar.exclusions=**/obj/**,**/*.dll
-      sonar.cs.opencover.reportsPaths=$(Build.SourcesDirectory)/**/coverage.opencover.xml
-      sonar.cs.vstest.reportsPaths=$(Agent.TempDirectory)/*.trx
+    script: |
+      dotnet tool install --global dotnet-sonarscanner
+      dotnet sonarscanner begin /k:"hugolamounier_Thoth" /d:sonar.login="$(TOKEN)" /o:"hugolamounier" /d:sonar.cs.opencover.reportsPaths="**/*/coverage.opencover.xml"
+
 
 - task: DotNetCoreCLI@2
   displayName: Build
@@ -47,8 +43,11 @@ steps:
     projects: '**/*Tests/*.csproj'
     arguments: '--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=opencover --logger trx'
 
-- task: SonarCloudAnalyze@1
-  displayName: 'Run Code Analysis'
+- task: CmdLine@2
+  displayName: 'Publish Coverage Result'
+  inputs:
+    script: |
+      dotnet sonarscanner end /d:sonar.login="$(TOKEN)"
 
 - task: SonarCloudPublish@1
   displayName: 'Publish Quality Gate Result'
