@@ -28,6 +28,7 @@ steps:
     displayName: Begin scan
     inputs:
       script: |
+        dotnet tool install --global dotnet-sonarscanner
         dotnet sonarscanner begin /k:"hugolamounier_Thoth" /d:sonar.login="$(TOKEN)" /o:"hugolamounier" /d:sonar.cs.opencover.reportsPaths="**/*/coverage.opencover.xml"
 
   - task: DotNetCoreCLI@2
@@ -56,5 +57,4 @@ steps:
     displayName: 'Publish Coverage Result'
     inputs:
       script: |
-        dotnet tool install --global dotnet-sonarscanner
         dotnet sonarscanner end /d:sonar.login="$(TOKEN)"

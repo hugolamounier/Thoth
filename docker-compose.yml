@@ -7,14 +7,3 @@ services:
       ACCEPT_EULA: "Y"
     ports:
       - 1433:1433
-  
-  integration-tests:
-    container_name: integration-tests
-    build:
-      context: .
-      dockerfile: Dockerfile.local
-    env_file:
-      - .env
-    depends_on:
-      - sqlserver
-    command: [ "./Scripts/start-tests.sh" ]
