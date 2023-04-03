@@ -20,6 +20,8 @@ public static class RoutesCollection
 
         app.MapGet(basePath, async () => await featureFlagController.GetAll());
 
+        app.MapGet(basePath+ "/{name}", async (string name) => await featureFlagController.GetByName(name));
+
         #endregion
 
         #region POST

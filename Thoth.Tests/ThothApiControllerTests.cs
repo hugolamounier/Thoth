@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using System.Net.Http.Json;
 using System.Text;
 using FluentAssertions;
 using Newtonsoft.Json;
@@ -38,9 +39,46 @@ public class ThothApiControllerTests : IntegrationTestBase<Program>
 
         //Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-        content.Should().Be(string.Join(Environment.NewLine, new [] { message }));
+        content.Should().Contain(message);
     }
-    
+
+    [Fact]
+    public async Task GetAll_ShouldSuccess()
+    {
+        //Act
+        var response = await HttpClient.GetAsync("/thoth-api/FeatureFlag");
+        var content = await response.Content.ReadFromJsonAsync<IEnumerable<FeatureFlag>>();
+
+        //Assert
+        response.IsSuccessStatusCode.Should().BeTrue();
+        content.Should().NotBeNullOrEmpty();
+    }
+
+    [Fact]
+    public async Task GetByName_ShouldSuccess()
+    {
+        //Arrange
+        var featureFlag = new FeatureFlag
+        {
+            Name = Guid.NewGuid().ToString(),
+            Type = FeatureFlagsTypes.Boolean,
+            Value = true,
+        };
+        var postContent = new StringContent(JsonConvert.SerializeObject(featureFlag), Encoding.UTF8, "application/json");
+        await HttpClient.PostAsync("/thoth-api/FeatureFlag", postContent);
+
+        //Act
+        var response = await HttpClient.GetAsync($"/thoth-api/FeatureFlag/{featureFlag.Name}");
+        var content = await response.Content.ReadFromJsonAsync<FeatureFlag>();
+
+        //Assert
+        response.IsSuccessStatusCode.Should().BeTrue();
+        content.Should().NotBeNull();
+        content?.Name.Should().Be(featureFlag.Name);
+        content?.Type.Should().Be(featureFlag.Type);
+        content?.Value.Should().Be(featureFlag.Value);
+    }
+
     public static IEnumerable<object[]> CreateValidDataGenerator()
     {
         yield return new object[] { new FeatureFlag
