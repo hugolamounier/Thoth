@@ -14,11 +14,11 @@ namespace Thoth.Tests;
 
 public class ThothApiControllerTests : IntegrationTestBase<Program>
 {
-    private static readonly Mock<ILogger<ThothFeatureManager>> Logger = new ();
-    public ThothApiControllerTests(): base(services =>
+    private static readonly Mock<ILogger<ThothFeatureManager>> Logger = new();
+
+    public ThothApiControllerTests() : base(services => { services.AddScoped<ILogger<ThothFeatureManager>>(_ => Logger.Object); })
     {
-        services.AddScoped<ILogger<ThothFeatureManager>>(_ => Logger.Object);
-    }) { }
+    }
 
     [Theory]
     [MemberData(nameof(CreateValidDataGenerator))]
@@ -37,13 +37,13 @@ public class ThothApiControllerTests : IntegrationTestBase<Program>
             x => x.Log(
                 It.Is<LogLevel>(l => l == LogLevel.Information),
                 It.IsAny<EventId>(),
-                It.Is<It.IsAnyType>((v, t) => v.ToString()!.Contains(string.Format(Messages.INFO_ADDED_FEATURE_FLAG, featureFlag.Name, featureFlag.Value.ToString(),
+                It.Is<It.IsAnyType>((v, t) => v.ToString()!.Contains(string.Format(Messages.INFO_ADDED_FEATURE_FLAG, featureFlag.Name,
+                    featureFlag.Value.ToString(),
                     featureFlag.FilterValue))),
                 It.IsAny<Exception>(),
                 It.Is<Func<It.IsAnyType, Exception, string>>((v, t) => true)!), Times.Once);
-
     }
-    
+
     [Theory]
     [MemberData(nameof(CreateAndUpdateInvalidDataGenerator))]
     public async Task Create_WhenInvalid_ShouldReturnError(FeatureFlag featureFlag, string message)
@@ -112,7 +112,7 @@ public class ThothApiControllerTests : IntegrationTestBase<Program>
         {
             Name = Guid.NewGuid().ToString(),
             Type = FeatureFlagsTypes.Boolean,
-            Value = true,
+            Value = true
         };
         var postContent = new StringContent(JsonConvert.SerializeObject(featureFlag), Encoding.UTF8, "application/json");
         await HttpClient.PostAsync("/thoth-api/FeatureFlag", postContent);
@@ -137,7 +137,7 @@ public class ThothApiControllerTests : IntegrationTestBase<Program>
         {
             Name = Guid.NewGuid().ToString(),
             Type = FeatureFlagsTypes.Boolean,
-            Value = true,
+            Value = true
         };
         var postContent = new StringContent(JsonConvert.SerializeObject(featureFlag), Encoding.UTF8, "application/json");
         await HttpClient.PostAsync("/thoth-api/FeatureFlag", postContent);
@@ -146,7 +146,7 @@ public class ThothApiControllerTests : IntegrationTestBase<Program>
         var updateContent = new StringContent(JsonConvert.SerializeObject(featureFlag), Encoding.UTF8, "application/json");
 
         //Act
-        await HttpClient.PutAsync($"/thoth-api/FeatureFlag", updateContent);
+        await HttpClient.PutAsync("/thoth-api/FeatureFlag", updateContent);
         var response = await HttpClient.GetAsync($"/thoth-api/FeatureFlag/{featureFlag.Name}");
         var content = await response.Content.ReadFromJsonAsync<FeatureFlag>();
 
@@ -161,8 +161,9 @@ public class ThothApiControllerTests : IntegrationTestBase<Program>
             x => x.Log(
                 It.Is<LogLevel>(l => l == LogLevel.Information),
                 It.IsAny<EventId>(),
-                It.Is<It.IsAnyType>((v, t) => v.ToString()!.Contains(string.Format(Messages.INFO_UPDATED_FEATURE_FLAG, featureFlag.Name, featureFlag.Value.ToString(),
-                        featureFlag.FilterValue))),
+                It.Is<It.IsAnyType>((v, t) => v.ToString()!.Contains(string.Format(Messages.INFO_UPDATED_FEATURE_FLAG, featureFlag.Name,
+                    featureFlag.Value.ToString(),
+                    featureFlag.FilterValue))),
                 It.IsAny<Exception>(),
                 It.Is<Func<It.IsAnyType, Exception, string>>((v, t) => true)!), Times.Once);
     }
@@ -219,7 +220,7 @@ public class ThothApiControllerTests : IntegrationTestBase<Program>
         {
             Name = Guid.NewGuid().ToString(),
             Type = FeatureFlagsTypes.Boolean,
-            Value = true,
+            Value = true
         };
         var postContent = new StringContent(JsonConvert.SerializeObject(featureFlag), Encoding.UTF8, "application/json");
         await HttpClient.PostAsync("/thoth-api/FeatureFlag", postContent);
@@ -244,7 +245,7 @@ public class ThothApiControllerTests : IntegrationTestBase<Program>
         {
             Name = Guid.NewGuid().ToString(),
             Type = FeatureFlagsTypes.Boolean,
-            Value = true,
+            Value = true
         };
 
         //Act
@@ -265,32 +266,46 @@ public class ThothApiControllerTests : IntegrationTestBase<Program>
 
     public static IEnumerable<object[]> CreateValidDataGenerator()
     {
-        yield return new object[] { new FeatureFlag
+        yield return new object[]
         {
-            Name = Guid.NewGuid().ToString(),
-            Type = FeatureFlagsTypes.Boolean,
-            Value = true
-        } };
-        yield return new object[] { new FeatureFlag
+            new FeatureFlag
+            {
+                Name = Guid.NewGuid().ToString(),
+                Type = FeatureFlagsTypes.Boolean,
+                Value = true
+            }
+        };
+        yield return new object[]
         {
-            Name = Guid.NewGuid().ToString(),
-            Type = FeatureFlagsTypes.PercentageFilter,
-            FilterValue = "50",
-            Value = true
-        } };
+            new FeatureFlag
+            {
+                Name = Guid.NewGuid().ToString(),
+                Type = FeatureFlagsTypes.PercentageFilter,
+                FilterValue = "50",
+                Value = true
+            }
+        };
     }
-    
+
     public static IEnumerable<object[]> CreateAndUpdateInvalidDataGenerator()
     {
-        yield return new object[] { new FeatureFlag
+        yield return new object[]
         {
-            Type = FeatureFlagsTypes.Boolean
-        }, string.Format(Messages.VALIDATION_INVALID_FIELD, nameof(FeatureFlag.Name)) };
-        yield return new object[] { new FeatureFlag
+            new FeatureFlag
+            {
+                Type = FeatureFlagsTypes.Boolean
+            },
+            string.Format(Messages.VALIDATION_INVALID_FIELD, nameof(FeatureFlag.Name))
+        };
+        yield return new object[]
         {
-            Name = Guid.NewGuid().ToString(),
-            Type = FeatureFlagsTypes.PercentageFilter,
-            Value = true
-        }, string.Format(Messages.VALIDATION_INVALID_FIELD, nameof(FeatureFlag.FilterValue)) };
+            new FeatureFlag
+            {
+                Name = Guid.NewGuid().ToString(),
+                Type = FeatureFlagsTypes.PercentageFilter,
+                Value = true
+            },
+            string.Format(Messages.VALIDATION_INVALID_FIELD, nameof(FeatureFlag.FilterValue))
+        };
     }
 }

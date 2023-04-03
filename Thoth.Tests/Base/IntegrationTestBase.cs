@@ -5,14 +5,16 @@ using Microsoft.Extensions.Hosting;
 
 namespace Thoth.Tests.Base;
 
-public abstract class IntegrationTestBase<TEntryPoint> : WebApplicationFactory<TEntryPoint> where TEntryPoint : class
+public abstract class IntegrationTestBase<TEntryPoint> : WebApplicationFactory<TEntryPoint>, IDisposable where TEntryPoint : class
 {
-    protected HttpClient HttpClient;
-    protected IServiceScope ServiceScope;
-    private readonly Action<IServiceCollection>? _serviceCollectionOverride; 
-    
-    protected IntegrationTestBase(Action<IServiceCollection>? serviceDelegate = null)
+    protected HttpClient HttpClient { get; private set; } = null!;
+    protected IServiceScope ServiceScope { get; private set; } = null!;
+    private readonly Action<IServiceCollection>? _serviceCollectionOverride;
+    private readonly Dictionary<string, string>? _arguments;
+
+    protected IntegrationTestBase(Action<IServiceCollection>? serviceDelegate = null, Dictionary<string, string>? arguments = null)
     {
+        _arguments = arguments;
         _serviceCollectionOverride = serviceDelegate;
         ConfigureServer();
     }
@@ -22,7 +24,6 @@ public abstract class IntegrationTestBase<TEntryPoint> : WebApplicationFactory<T
         HttpClient = CreateClient();
         ServiceScope = Services.CreateScope();
     }
-
 
     protected override IHost CreateHost(IHostBuilder builder)
     {
@@ -37,6 +38,15 @@ public abstract class IntegrationTestBase<TEntryPoint> : WebApplicationFactory<T
         {
             c.AddConfiguration(configuration);
         });
+
+        if (_arguments?.Any() ?? false)
+            builder.ConfigureWebHost(x =>
+            {
+                foreach (var arg in _arguments)
+                {
+                    x.UseSetting(arg.Key, arg.Value);
+                }
+            });
         
         if(_serviceCollectionOverride is not null)
             builder.ConfigureServices(_serviceCollectionOverride);
@@ -50,10 +60,10 @@ public abstract class IntegrationTestBase<TEntryPoint> : WebApplicationFactory<T
         ServiceScope.Dispose();
     }
 
-    public override ValueTask DisposeAsync()
+    public new void Dispose()
     {
         AfterEachTestAsync();
         GC.SuppressFinalize(this);
-        return base.DisposeAsync();
+        base.Dispose();
     }
 }

@@ -16,40 +16,40 @@
         <RootNamespace>Thoth.Dashboard</RootNamespace>
         <IsPackable>true</IsPackable>
         <PackageIcon>icon-64.png</PackageIcon>
-        <Version>1.0.3</Version>
+        <Version>1.1.0</Version>
     </PropertyGroup>
 
     <ItemGroup>
-        <Folder Include="App" />
+        <Folder Include="App"/>
     </ItemGroup>
 
     <ItemGroup>
-        <None Include="../docs/README.md" Pack="true" PackagePath="\" />
-        <None Include="../docs/icon-64.png" Pack="true" PackagePath="\" />
+        <None Include="../docs/README.md" Pack="true" PackagePath="\"/>
+        <None Include="../docs/icon-64.png" Pack="true" PackagePath="\"/>
     </ItemGroup>
 
     <ItemGroup>
-        <EmbeddedResource Include="wwwroot/*" />
-        <EmbeddedResource Include="wwwroot/static/*" />
-        <EmbeddedResource Include="wwwroot/static/css/*" />
-        <EmbeddedResource Include="wwwroot/static/js/*" />
-        <EmbeddedResource Include="wwwroot/static/media/*" />
+        <EmbeddedResource Include="wwwroot/*"/>
+        <EmbeddedResource Include="wwwroot/static/*"/>
+        <EmbeddedResource Include="wwwroot/static/css/*"/>
+        <EmbeddedResource Include="wwwroot/static/js/*"/>
+        <EmbeddedResource Include="wwwroot/static/media/*"/>
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.2.2" />
-        <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
-        <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.2.0" />
-        <PackageReference Include="Microsoft.AspNetCore.SpaServices" Version="3.1.32" />
-        <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="6.0.15" />
-        <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.2.0" />
+        <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.2.2"/>
+        <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0"/>
+        <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.2.0"/>
+        <PackageReference Include="Microsoft.AspNetCore.SpaServices" Version="3.1.32"/>
+        <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="6.0.15"/>
+        <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.2.0"/>
     </ItemGroup>
 
     <ItemGroup>
-        <FrameworkReference Include="Microsoft.AspNetCore.App" />
+        <FrameworkReference Include="Microsoft.AspNetCore.App"/>
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Thoth.Core\Thoth.Core.csproj" />
+        <ProjectReference Include="..\Thoth.Core\Thoth.Core.csproj"/>
     </ItemGroup>
 </Project>

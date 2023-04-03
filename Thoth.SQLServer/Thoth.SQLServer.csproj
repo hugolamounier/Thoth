@@ -16,22 +16,22 @@
         <RootNamespace>Thoth.SQLServer</RootNamespace>
         <IsPackable>true</IsPackable>
         <PackageIcon>icon-64.png</PackageIcon>
-        <Version>1.0.3</Version>
+        <Version>1.1.0</Version>
     </PropertyGroup>
 
     <ItemGroup>
-        <None Include="../docs/README.md" Pack="true" PackagePath="\" />
-        <None Include="../docs/icon-64.png" Pack="true" PackagePath="\" />
+        <None Include="../docs/README.md" Pack="true" PackagePath="\"/>
+        <None Include="../docs/icon-64.png" Pack="true" PackagePath="\"/>
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Dapper" Version="2.0.123" />
-        <PackageReference Include="Microsoft.Data.SqlClient" Version="5.1.1" />
-        <PackageReference Include="Microsoft.Extensions.Options" Version="7.0.1" />
+        <PackageReference Include="Dapper" Version="2.0.123"/>
+        <PackageReference Include="Microsoft.Data.SqlClient" Version="5.1.1"/>
+        <PackageReference Include="Microsoft.Extensions.Options" Version="7.0.1"/>
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Thoth.Core\Thoth.Core.csproj" />
+        <ProjectReference Include="..\Thoth.Core\Thoth.Core.csproj"/>
     </ItemGroup>
 
 </Project>
