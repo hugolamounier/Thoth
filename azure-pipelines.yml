@@ -54,11 +54,8 @@ steps:
       projects: '**/*Tests/*.csproj'
       arguments: '--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=opencover --logger trx'
 
-  - task: CmdLine@2
-    displayName: 'Publish Coverage Result'
-    inputs:
-      script: |
-        dotnet sonarscanner end /d:sonar.login="$(TOKEN)"
+  - task: SonarCloudAnalyze@1
+    displayName: 'Run Code Analysis'
 
   - task: SonarCloudPublish@1
     displayName: 'Publish Quality Gate Result'
