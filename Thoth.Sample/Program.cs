@@ -8,10 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 builder.Services.AddControllers();
-builder.Services.AddThoth(options =>
-{
-    options.ConnectionString = builder.Configuration.GetConnectionString("SqlContext");
-})
+builder.Services.AddThoth(options => { options.ConnectionString = builder.Configuration.GetConnectionString("SqlContext"); })
     .UseSqlServer();
 
 builder.Services.AddSwaggerGen();
@@ -28,9 +25,11 @@ app.UseThothDashboard(options =>
 {
     options.RoutePrefix = "/thoth";
     if (args.Any(x => x.Contains("UseThothAuthorization")))
-        options.Authorization = new [] { new ThothAuthorizationFilter() };
+        options.Authorization = new[] {new ThothAuthorizationFilter()};
 });
 
 app.Run();
 
-public abstract partial class Program { }
+public abstract partial class Program
+{
+}

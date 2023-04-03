@@ -7,13 +7,14 @@ using Thoth.Tests.Base;
 
 namespace Thoth.Tests;
 
-public class ThothAuthorizationTests: IntegrationTestBase<Program>
+public class ThothAuthorizationTests : IntegrationTestBase<Program>
 {
-
-    public ThothAuthorizationTests(): base(arguments: new Dictionary<string, string>
+    public ThothAuthorizationTests() : base(arguments: new Dictionary<string, string>
     {
         {"auth", "UseThothAuthorization"}
-    }) {}
+    })
+    {
+    }
 
     [Theory]
     [MemberData(nameof(CreateValidDataGenerator))]
@@ -34,30 +35,34 @@ public class ThothAuthorizationTests: IntegrationTestBase<Program>
     [Fact]
     public async Task Dashboard_ShouldReturnForbidden()
     {
-
         //Act
         var response = await HttpClient.GetAsync("/thoth");
 
         //Assert
         response.IsSuccessStatusCode.Should().BeFalse();
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
-
     }
 
     public static IEnumerable<object[]> CreateValidDataGenerator()
     {
-        yield return new object[] { new FeatureFlag
+        yield return new object[]
         {
-            Name = Guid.NewGuid().ToString(),
-            Type = FeatureFlagsTypes.Boolean,
-            Value = true
-        } };
-        yield return new object[] { new FeatureFlag
+            new FeatureFlag
+            {
+                Name = Guid.NewGuid().ToString(),
+                Type = FeatureFlagsTypes.Boolean,
+                Value = true
+            }
+        };
+        yield return new object[]
         {
-            Name = Guid.NewGuid().ToString(),
-            Type = FeatureFlagsTypes.PercentageFilter,
-            FilterValue = "50",
-            Value = true
-        } };
+            new FeatureFlag
+            {
+                Name = Guid.NewGuid().ToString(),
+                Type = FeatureFlagsTypes.PercentageFilter,
+                FilterValue = "50",
+                Value = true
+            }
+        };
     }
 }

@@ -2,16 +2,13 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Moq;
-using Moq.Contrib.HttpClient;
 
 namespace Thoth.Tests.Base;
 
 public abstract class IntegrationTestBase<TEntryPoint> : WebApplicationFactory<TEntryPoint>, IDisposable where TEntryPoint : class
 {
-    protected HttpClient HttpClient;
-    protected IServiceScope ServiceScope;
-    protected Mock<HttpMessageHandler> HttpMessageHandlerMock;
+    protected HttpClient HttpClient { get; private set; } = null!;
+    protected IServiceScope ServiceScope { get; private set; } = null!;
     private readonly Action<IServiceCollection>? _serviceCollectionOverride;
     private readonly Dictionary<string, string>? _arguments;
 

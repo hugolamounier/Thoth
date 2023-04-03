@@ -1,5 +1,4 @@
 using System;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -8,13 +7,13 @@ namespace Thoth.Dashboard;
 
 public class ThothAuthorizationMiddleware
 {
+    private readonly IWebHostEnvironment _environment;
     private readonly RequestDelegate _next;
     private readonly ThothDashboardOptions _options;
-    private readonly IWebHostEnvironment _environment;
 
     public ThothAuthorizationMiddleware(RequestDelegate next, ThothDashboardOptions options, IWebHostEnvironment environment)
     {
-        _next = next ?? throw new ArgumentNullException(nameof (next));
+        _next = next ?? throw new ArgumentNullException(nameof(next));
         _options = options;
         _environment = environment;
     }

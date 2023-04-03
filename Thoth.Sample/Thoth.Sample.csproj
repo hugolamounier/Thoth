@@ -8,12 +8,12 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0"/>
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Thoth.Core\Thoth.Core.csproj" />
-      <ProjectReference Include="..\Thoth.Dashboard\Thoth.Dashboard.csproj" />
-      <ProjectReference Include="..\Thoth.SQLServer\Thoth.SQLServer.csproj" />
+        <ProjectReference Include="..\Thoth.Core\Thoth.Core.csproj"/>
+        <ProjectReference Include="..\Thoth.Dashboard\Thoth.Dashboard.csproj"/>
+        <ProjectReference Include="..\Thoth.SQLServer\Thoth.SQLServer.csproj"/>
     </ItemGroup>
 </Project>
