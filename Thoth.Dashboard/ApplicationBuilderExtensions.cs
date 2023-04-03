@@ -14,7 +14,7 @@ namespace Thoth.Dashboard;
 ///     Contains extension methods to <see cref="IServiceCollection" /> for configuring consistence services.
 /// </summary>
 [ExcludeFromCodeCoverage]
-public static class ServiceCollectionExtensions
+public static class ApplicationBuilderExtensions
 {
     public static IApplicationBuilder UseThothDashboard(this WebApplication app, Action<ThothDashboardOptions>? setupAction = null)
     {
@@ -27,6 +27,8 @@ public static class ServiceCollectionExtensions
             throw new ArgumentException(Messages.ERROR_CAN_NOT_USE_THOTH_DASHBOARD);
 
         options ??= new ThothDashboardOptions();
+
+        app.UseMiddleware<ThothAuthorizationMiddleware>(options);
 
         app.UseStaticFiles(new StaticFileOptions
         {

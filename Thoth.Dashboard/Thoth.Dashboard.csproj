@@ -16,7 +16,7 @@
         <RootNamespace>Thoth.Dashboard</RootNamespace>
         <IsPackable>true</IsPackable>
         <PackageIcon>icon-64.png</PackageIcon>
-        <Version>1.0.3</Version>
+        <Version>1.1.0</Version>
     </PropertyGroup>
 
     <ItemGroup>
