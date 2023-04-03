@@ -27,6 +27,8 @@ jobs:
           ./Scripts/start-sonarcloud.sh ${{ secrets.SONAR_TOKEN }} ${{ github.sha }}
 
       - name: Generate package
+        env:
+          CI: false
         run: |
           npm install --prefix ./Thoth.Dashboard/App
           npm run build --prefix ./Thoth.Dashboard/App
