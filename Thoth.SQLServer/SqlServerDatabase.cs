@@ -60,9 +60,17 @@ public class SqlServerDatabase : IDatabase
 
     public void Dispose()
     {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (!disposing)
+            return;
+
         _dbConnection.Close();
         _dbConnection.Dispose();
-        GC.SuppressFinalize(this);
     }
 
     private void Init()
