@@ -27,9 +27,6 @@ public class ThothFeatureManager : IThothFeatureManager
         return await EvaluateAsync(featureFlag);
     }
 
-    public async Task<bool> IsActiveAsync(string name) =>
-        (await GetAsync(name)).Value;
-
     public async Task<FeatureFlag> GetAsync(string name)
     {
         if (!await CheckIfExistsAsync(name))
