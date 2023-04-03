@@ -1,0 +1,55 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <Description>Thoth feature flag mangament dashboard.</Description>
+        <LangVersion>10.0</LangVersion>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <Title>Thoth.Dashboard</Title>
+        <Authors>Hugo Lamounier</Authors>
+        <PackageProjectUrl>https://github.com/hugolamounier/Thoth</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/hugolamounier/Thoth</RepositoryUrl>
+        <RepositoryType>Git</RepositoryType>
+        <AssemblyName>Thoth.Dashboard</AssemblyName>
+        <RootNamespace>Thoth.Dashboard</RootNamespace>
+        <IsPackable>true</IsPackable>
+        <PackageIcon>icon-64.png</PackageIcon>
+        <Version>1.0.1</Version>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Folder Include="App" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="../docs/README.md" Pack="true" PackagePath="\" />
+        <None Include="../docs/icon-64.png" Pack="true" PackagePath="\" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <EmbeddedResource Include="wwwroot/*" />
+        <EmbeddedResource Include="wwwroot/static/*" />
+        <EmbeddedResource Include="wwwroot/static/css/*" />
+        <EmbeddedResource Include="wwwroot/static/js/*" />
+        <EmbeddedResource Include="wwwroot/static/media/*" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.2.2" />
+        <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
+        <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.2.0" />
+        <PackageReference Include="Microsoft.AspNetCore.SpaServices" Version="3.1.32" />
+        <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="6.0.15" />
+        <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.2.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Thoth.Core\Thoth.Core.csproj" />
+    </ItemGroup>
+</Project>
