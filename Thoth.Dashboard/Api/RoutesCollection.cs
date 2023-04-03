@@ -8,7 +8,7 @@ namespace Thoth.Dashboard.Api;
 
 public static class RoutesCollection
 {
-    public static WebApplication InjectThothDashboardRoutes(this WebApplication app, IServiceScope scope, string routePrefix)
+    public static IApplicationBuilder InjectThothDashboardRoutes(this IApplicationBuilder app, IServiceScope scope, string routePrefix)
     {
         var basePath = $"{routePrefix}-api/FeatureFlag";
         var featureManagementService = scope.ServiceProvider.GetRequiredService<IThothFeatureManager>();
@@ -16,32 +16,35 @@ public static class RoutesCollection
 
         app.UseRouting();
 
-        #region GET
+        app.UseEndpoints(endpoints =>
+        {
+            #region GET
 
-        app.MapGet(basePath, async () => await featureFlagController.GetAll());
+            endpoints.MapGet(basePath, async () => await featureFlagController.GetAll());
 
-        app.MapGet(basePath+ "/{name}", async (string name) => await featureFlagController.GetByName(name));
+            endpoints.MapGet(basePath+ "/{name}", async (string name) => await featureFlagController.GetByName(name));
 
-        #endregion
+            #endregion
 
-        #region POST
+            #region POST
 
-        app.MapPost(basePath, async ([FromBody] FeatureFlag featureFlag) =>
-            await featureFlagController.Create(featureFlag));
+            endpoints.MapPost(basePath, async ([FromBody] FeatureFlag featureFlag) =>
+                await featureFlagController.Create(featureFlag));
 
-        #endregion
+            #endregion
 
-        #region PUT
+            #region PUT
 
-        app.MapPut(basePath, async ([FromBody] FeatureFlag featureFlag) => await featureFlagController.Update(featureFlag));
+            endpoints.MapPut(basePath, async ([FromBody] FeatureFlag featureFlag) => await featureFlagController.Update(featureFlag));
 
-        #endregion
+            #endregion
 
-        #region DELELTE
+            #region DELELTE
 
-        app.MapDelete(basePath + "/{name}", async (string name) => await featureFlagController.Delete(name));
+            endpoints.MapDelete(basePath + "/{name}", async (string name) => await featureFlagController.Delete(name));
 
-        #endregion
+            #endregion
+        });
 
         return app;
     }
