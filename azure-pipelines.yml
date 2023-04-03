@@ -29,8 +29,7 @@ steps:
       projectKey: 'hugolamounier_Thoth'
       projectName: Thoth
       extraProperties: |
-        sonar.login="$(TOKEN)" /o:"hugolamounier" 
-        sonar.cs.opencover.reportsPaths="**/*/coverage.opencover.xml" \
+        sonar.cs.opencover.reportsPaths="**/*/coverage.opencover.xml"
         sonar.host.url="https://sonarcloud.io"
         sonar.cs.vstest.reportsPaths="**/*/*.trx"
         sonar.exclusions="**/App/*/*.*"
