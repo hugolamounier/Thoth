@@ -20,6 +20,7 @@ type LoadingProps = {
 
 const FeatureFlags = (): JSX.Element => {
   const [featureFlags, setFeatureFlags] = useState<FeatureFlag[]>([]);
+  const [typeSelect, setTypeSelect] = useState<FeatureFlagsTypes | undefined>(undefined);
   const [createModalOpen, setCreateModalOpen] = useState<boolean>(false);
   const [loading, setLoading] = useState<LoadingProps>({
     loading: false,
@@ -73,6 +74,11 @@ const FeatureFlags = (): JSX.Element => {
 
   const addFeatureFlagModal = (
     <Modal
+      destroyOnClose
+      afterClose={() => {
+        addFeatureFlagForm.resetFields();
+        setTypeSelect(undefined);
+      }}
       title={
         <Space>
           <FileAddOutlined /> <span> Create new feature flag</span>
@@ -101,6 +107,7 @@ const FeatureFlags = (): JSX.Element => {
             showSearch
             placeholder="Select flag type"
             optionFilterProp="children"
+            onChange={(value, option) => setTypeSelect(value)}
             filterOption={(input, option) =>
               (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
             }
@@ -114,6 +121,11 @@ const FeatureFlags = (): JSX.Element => {
               })}
           />
         </Form.Item>
+        {typeSelect !== undefined && typeSelect !== FeatureFlagsTypes.Boolean ? (
+          <Form.Item name="filterValue" label="Filter value" rules={[{ required: true }]}>
+            <Input />
+          </Form.Item>
+        ) : null}
         <Form.Item name="value" label="Initial State" valuePropName="checked">
           <Switch defaultChecked={false} unCheckedChildren="Off" checkedChildren="On" />
         </Form.Item>
@@ -126,6 +138,8 @@ const FeatureFlags = (): JSX.Element => {
       case FeatureFlagsTypes.Boolean:
         return <Tag color="gold">{FeatureFlagsTypes[type]}</Tag>;
 
+      case FeatureFlagsTypes.PercentageFilter:
+        return <Tag color="purple">{FeatureFlagsTypes[type]}</Tag>;
       default:
         return <Tag color="red">Unknown</Tag>;
     }
@@ -165,6 +179,7 @@ const FeatureFlags = (): JSX.Element => {
     { title: 'Name', key: 'name', dataIndex: 'name' },
     { title: 'Flag Type', key: 'type', dataIndex: 'type' },
     { title: 'State', key: 'value', dataIndex: 'value' },
+    { title: 'Filter Value', key: 'filterValue', dataIndex: 'filterValue' },
     { title: 'Created At', key: 'createdAt', dataIndex: 'createdAt' },
     { title: 'Updated At', key: 'updatedAt', dataIndex: 'updatedAt' },
     { title: 'Actions', key: 'actions', dataIndex: 'actions' },
@@ -184,6 +199,7 @@ const FeatureFlags = (): JSX.Element => {
           onChange={() => onValueClick(featureFlag.name)}
         />
       ),
+      filterValue: featureFlag.filterValue ?? '--',
       createdAt: moment(featureFlag.createdAt).format('YYYY-MM-DD HH:mm:ss'),
       updatedAt:
         featureFlag.updatedAt !== null

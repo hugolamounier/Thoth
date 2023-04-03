@@ -9,8 +9,11 @@
 
     <ItemGroup>
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
-        <PackageReference Include="Thoth.Core" Version="1.0.2" />
-        <PackageReference Include="Thoth.Dashboard" Version="1.0.2" />
-        <PackageReference Include="Thoth.SQLServer" Version="1.0.2" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Thoth.Core\Thoth.Core.csproj" />
+      <ProjectReference Include="..\Thoth.Dashboard\Thoth.Dashboard.csproj" />
+      <ProjectReference Include="..\Thoth.SQLServer\Thoth.SQLServer.csproj" />
     </ItemGroup>
 </Project>
