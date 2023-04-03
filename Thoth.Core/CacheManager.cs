@@ -66,6 +66,7 @@ public class CacheManager
 
         cachedValue.Value = featureFlag.Value;
         cachedValue.FilterValue = featureFlag.FilterValue;
+        cachedValue.UpdatedAt = DateTime.UtcNow;
 
         _memoryCache.Remove(cacheKey);
         _memoryCache.Set(cacheKey, cachedValue, new MemoryCacheEntryOptions

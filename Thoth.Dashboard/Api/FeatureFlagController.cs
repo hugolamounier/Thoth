@@ -1,3 +1,5 @@
+using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Thoth.Core.Interfaces;
@@ -44,6 +46,9 @@ public class FeatureFlagController
     /// <returns></returns>
     public async Task<IResult> Create(FeatureFlag featureFlag)
     {
+        if (await featureFlag.IsValidAsync(out var messages) is false)
+            return Results.BadRequest(string.Join(Environment.NewLine, messages));
+                
         if (await _thothFeatureManager.AddAsync(featureFlag))
             return Results.StatusCode(201);
 
@@ -57,6 +62,9 @@ public class FeatureFlagController
     /// <returns></returns>
     public async Task<IResult> Update(FeatureFlag featureFlag)
     {
+        if (await featureFlag.IsValidAsync(out var messages) is false)
+            return Results.BadRequest(string.Join(Environment.NewLine, messages));
+        
         if (await _thothFeatureManager.UpdateAsync(featureFlag))
             return Results.Ok();
 

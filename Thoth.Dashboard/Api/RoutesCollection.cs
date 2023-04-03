@@ -20,6 +20,8 @@ public static class RoutesCollection
 
         app.MapGet(basePath, async () => await featureFlagController.GetAll());
 
+        app.MapGet(basePath+ "/{name}", async (string name) => await featureFlagController.GetByName(name));
+
         #endregion
 
         #region POST
@@ -31,11 +33,7 @@ public static class RoutesCollection
 
         #region PUT
 
-        app.MapPut(basePath + "/{name}", async (string name, [FromBody] FeatureFlag featureFlag) =>
-        {
-            featureFlag.Name = name;
-            return await featureFlagController.Update(featureFlag);
-        });
+        app.MapPut(basePath, async ([FromBody] FeatureFlag featureFlag) => await featureFlagController.Update(featureFlag));
 
         #endregion
 
