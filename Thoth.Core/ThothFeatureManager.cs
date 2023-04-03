@@ -53,9 +53,6 @@ public class ThothFeatureManager : IThothFeatureManager
         if (await CheckIfExistsAsync(featureFlag.Name))
             throw new ThothException(string.Format(Messages.ERROR_FEATURE_FLAG_ALREADY_EXISTS, featureFlag.Name));
 
-        if (featureFlag.Type == FeatureFlagsTypes.Boolean && !string.IsNullOrWhiteSpace(featureFlag.FilterValue))
-            throw new ThothException(Messages.ERROR_BOOLEAN_FEATURE_FLAGS_CANT_HAVE_FILTER_VALUE);
-
         try
         {
             _logger.LogInformation("{Message}",
@@ -80,9 +77,6 @@ public class ThothFeatureManager : IThothFeatureManager
     public async Task<bool> UpdateAsync(FeatureFlag featureFlag)
     {
         var dbFeatureFlag = await GetAsync(featureFlag.Name);
-
-        if (featureFlag.Type == FeatureFlagsTypes.Boolean && !string.IsNullOrWhiteSpace(featureFlag.FilterValue))
-            throw new ThothException(Messages.ERROR_BOOLEAN_FEATURE_FLAGS_CANT_HAVE_FILTER_VALUE);
 
         try
         {

@@ -11,4 +11,6 @@ public static class Messages
 
     public const string INFO_ADDED_FEATURE_FLAG = "The feature flag '{0}' was successfully added with the initial value {1} and filterValue {2}.";
     public const string INFO_UPDATED_FEATURE_FLAG = "The feature flag '{0}' was successfully updated with the value {1} and filterValue {2}.";
+
+    public const string VALIDATION_INVALID_FIELD= "The field '{0}' is required.";
 }
