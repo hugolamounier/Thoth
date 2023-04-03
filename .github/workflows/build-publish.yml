@@ -1,0 +1,33 @@
+name: Build and publish
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build-n-publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Install dotnet-sonarscanner
+        run: |
+          dotnet tool install --global dotnet-sonarscanner
+      - name: Build the project, run all tests and publish to SonarCloud
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          docker-compose up -d sqlserver
+          ./Scripts/start-sonarcloud.sh ${{ secrets.SONAR_TOKEN }} ${{ github.sha }}
+      - name: Generate package
+        run: |
+          npm install --prefix ./Thoth.Dashboard/App
+          npm run build --prefix ./Thoth.Dashboard/App
+          dotnet pack -c Release -o out
+      - name: Push nuget
+        run: |
+          dotnet nuget push out/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source ${{ secrets.NUGET_SERVER }} --skip-duplicate
