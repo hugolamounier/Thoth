@@ -15,20 +15,25 @@ variables:
   buildConfiguration: 'Release'
 
 steps:
-
-- task: CmdLine@2
-  displayName: Begin scan
+- task: DotNetCoreCLI@2
+  displayName: Restore
   inputs:
-    script: |
-      dotnet tool install --global dotnet-sonarscanner
-      dotnet sonarscanner begin 
-      /k:"hugolamounier_Thoth" 
-      /d:sonar.login="$(TOKEN)" /o:"hugolamounier" 
-      /d:sonar.cs.opencover.reportsPaths="**/*/coverage.opencover.xml" \
-      /d:sonar.host.url="https://sonarcloud.io" \
-      /d:sonar.cs.vstest.reportsPaths="**/*/*.trx"
-      /d:sonar.exclusions="**/App/*/*.*"
-
+    command: restore
+    projects: '$(solution)'
+    
+- task: SonarCloudPrepare@1
+  displayName: 'Prepare analysis on SonarCloud'
+  inputs:
+    SonarCloud: SonarCloud
+    organization: hugolamounier
+    projectKey: 'hugolamounier_Thoth'
+    projectName: Thoth
+    extraProperties: |
+      sonar.login="$(TOKEN)" /o:"hugolamounier" 
+      sonar.cs.opencover.reportsPaths="**/*/coverage.opencover.xml" \
+      sonar.host.url="https://sonarcloud.io"
+      sonar.cs.vstest.reportsPaths="**/*/*.trx"
+      sonar.exclusions="**/App/*/*.*"
 
 - task: DotNetCoreCLI@2
   displayName: Build
