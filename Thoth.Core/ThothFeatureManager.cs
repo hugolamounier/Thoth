@@ -33,7 +33,7 @@ public class ThothFeatureManager : IThothFeatureManager
     public async Task<FeatureFlag> GetAsync(string name)
     {
         if (!await CheckIfExistsAsync(name))
-            throw new ThothException(string.Format(Messages.ERROR_FEATURE_FLAG_ALREADY_EXISTS, name));
+            throw new ThothException(string.Format(Messages.ERROR_FEATURE_FLAG_NOT_EXISTS, name));
 
         return await _cacheManager.GetOrCreateAsync(name, () => _dbContext.GetAsync(name));
     }
@@ -50,19 +50,19 @@ public class ThothFeatureManager : IThothFeatureManager
 
     public async Task<bool> AddAsync(FeatureFlag featureFlag)
     {
-        if (await CheckIfExistsAsync(featureFlag.Name))
-            throw new ThothException(string.Format(Messages.ERROR_FEATURE_FLAG_ALREADY_EXISTS, featureFlag.Name));
-
         try
         {
-            _logger.LogInformation("{Message}",
-                string.Format(Messages.INFO_ADDED_FEATURE_FLAG, featureFlag.Name, featureFlag.Value.ToString(),
-                 featureFlag.FilterValue));
+            if (await CheckIfExistsAsync(featureFlag.Name))
+                throw new ThothException(string.Format(Messages.ERROR_FEATURE_FLAG_ALREADY_EXISTS, featureFlag.Name));
 
             var insertResult = await _dbContext.AddAsync(featureFlag);
 
             if (insertResult)
                 await _cacheManager.GetOrCreateAsync(featureFlag.Name, () => Task.FromResult(featureFlag));
+
+            _logger.LogInformation("{Message}",
+                string.Format(Messages.INFO_ADDED_FEATURE_FLAG, featureFlag.Name, featureFlag.Value.ToString(),
+                    featureFlag.FilterValue));
 
             return insertResult;
         }
@@ -76,12 +76,9 @@ public class ThothFeatureManager : IThothFeatureManager
 
     public async Task<bool> UpdateAsync(FeatureFlag featureFlag)
     {
-        var dbFeatureFlag = await GetAsync(featureFlag.Name);
-
         try
         {
-            _logger.LogInformation("{Message}",
-                string.Format(Messages.INFO_UPDATED_FEATURE_FLAG, featureFlag.Name, featureFlag.Value.ToString(), featureFlag.FilterValue));
+            var dbFeatureFlag = await GetAsync(featureFlag.Name);
 
             featureFlag.CreatedAt = dbFeatureFlag.CreatedAt;
             featureFlag.UpdatedAt = DateTime.UtcNow;
@@ -91,11 +88,14 @@ public class ThothFeatureManager : IThothFeatureManager
             if (updateResult)
                 await _cacheManager.UpdateAsync(featureFlag.Name, featureFlag);
 
+            _logger.LogInformation("{Message}",
+                string.Format(Messages.INFO_UPDATED_FEATURE_FLAG, featureFlag.Name, featureFlag.Value.ToString(), featureFlag.FilterValue));
+
             return updateResult;
         }
         catch (Exception e)
         {
-            _logger.LogError("{Message}: {Exception}", Messages.ERROR_WHILE_ADDIND_FEATURE_FLAG,
+            _logger.LogError("{Message}: {Exception}", string.Format(Messages.ERROR_WHILE_UPDATING_FEATURE_FLAG, featureFlag.Name),
                 e.InnerException?.Message ?? e.Message);
             throw;
         }
@@ -103,15 +103,27 @@ public class ThothFeatureManager : IThothFeatureManager
 
     public async Task<bool> DeleteAsync(string name)
     {
-        if (!await CheckIfExistsAsync(name))
-            throw new ThothException(string.Format(Messages.ERROR_FEATURE_FLAG_NOT_EXISTS, name));
+        try
+        {
+            if (!await CheckIfExistsAsync(name))
+                throw new ThothException(string.Format(Messages.ERROR_FEATURE_FLAG_NOT_EXISTS, name));
 
-        var deleteResult = await _dbContext.DeleteAsync(name);
+            var deleteResult = await _dbContext.DeleteAsync(name);
 
-        if (deleteResult)
-            _cacheManager.Remove(name);
+            if (deleteResult)
+                _cacheManager.Remove(name);
 
-        return deleteResult;
+            _logger.LogInformation("{Message}",
+                string.Format(Messages.INFO_DELETED_FEATURE_FLAG, name));
+
+            return deleteResult;
+        }
+        catch (Exception e)
+        {
+            _logger.LogError("{Message}: {Exception}", string.Format(Messages.ERROR_WHILE_DELETING_FEATURE_FLAG, name),
+                e.InnerException?.Message ?? e.Message);
+            throw;
+        }
     }
 
     private async Task<bool> CheckIfExistsAsync(string name)
