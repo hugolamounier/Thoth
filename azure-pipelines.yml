@@ -30,7 +30,6 @@ steps:
       projectName: Thoth
       extraProperties: |
         sonar.cs.opencover.reportsPaths="**/*/coverage.opencover.xml"
-        sonar.host.url="https://sonarcloud.io"
         sonar.cs.vstest.reportsPaths="**/*/*.trx"
         sonar.exclusions="**/App/*/*.*"
 
