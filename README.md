@@ -33,7 +33,7 @@ builder.Services.AddThoth(options =>
 }).UseSqlServer(); // Sets Thoth to use SQLServer as its database storage.
 ```
 
-A Dashboard can optioanally be injected to the application:
+A Dashboard can optionally be injected to the application:
 ```c#
 var app = builder.Build();
 app.UseThothDashboard(options =>
