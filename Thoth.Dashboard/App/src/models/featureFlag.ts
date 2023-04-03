@@ -11,5 +11,5 @@ export type FeatureFlag = {
 
 export enum FeatureFlagsTypes {
   Boolean = 1,
-  PercentageFilter,
+  PercentageFilter = 2,
 }
