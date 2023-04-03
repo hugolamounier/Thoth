@@ -46,10 +46,7 @@ export default class FeatureFlagService {
 
   public static async Update(featureFlag: FeatureFlag): Promise<boolean> {
     try {
-      const { status } = await apiService.put(
-        `/thoth-api/FeatureFlag/${featureFlag.name}`,
-        featureFlag
-      );
+      const { status } = await apiService.put(`/thoth-api/FeatureFlag`, featureFlag);
 
       return status < 400;
     } catch {
