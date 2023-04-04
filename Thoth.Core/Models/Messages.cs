@@ -11,6 +11,8 @@ public static class Messages
     public const string ERROR_CONNECTION_STRING = "ConnectionString option was not set.";
     public const string ERROR_CAN_NOT_USE_THOTH_DASHBOARD = "The option EnableThothApi needs to be set 'true' to use Thoth Dashboard.";
 
+    public const string INFO_NON_EXISTENT_FLAG_REQUESTED =
+        "Non-existent feature flag '{0}' requested, returning false (Option 'ShouldReturnFalseWhenNotExists' enabled)";
     public const string INFO_ADDED_FEATURE_FLAG = "The feature flag '{0}' was successfully added with the initial value {1} and filterValue {2}.";
     public const string INFO_UPDATED_FEATURE_FLAG = "The feature flag '{0}' was successfully updated with the value {1} and filterValue {2}.";
     public const string INFO_DELETED_FEATURE_FLAG = "The feature flag '{0}' was successfully deleted.";
