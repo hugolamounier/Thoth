@@ -11,6 +11,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionItems", "SolutionIt
 		runsettings.xml = runsettings.xml
 		sonar-project.xml = sonar-project.xml
 		azure-pipelines.yml = azure-pipelines.yml
+		README.md = README.md
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Thoth.SQLServer", "Thoth.SQLServer\Thoth.SQLServer.csproj", "{BE9D1218-251C-4F21-9268-AF7A6370D608}"

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Thoth.Core.Interfaces;
 using Thoth.Core.Models;
 
@@ -12,19 +13,35 @@ public class ThothFeatureManager : IThothFeatureManager
     private readonly CacheManager _cacheManager;
     private readonly IDatabase _dbContext;
     private readonly ILogger<ThothFeatureManager> _logger;
+    private readonly ThothOptions _thothOptions;
 
-    public ThothFeatureManager(IDatabase dbContext, CacheManager cacheManager, ILogger<ThothFeatureManager> logger)
+    public ThothFeatureManager(
+        IDatabase dbContext,
+        CacheManager cacheManager,
+        ILogger<ThothFeatureManager> logger,
+        IOptions<ThothOptions> thothOptions)
     {
         _dbContext = dbContext;
         _cacheManager = cacheManager;
         _logger = logger;
+        _thothOptions = thothOptions.Value;
     }
 
     public async Task<bool> IsEnabledAsync(string name)
     {
-        var featureFlag = await GetAsync(name);
+        try
+        {
+            var featureFlag = await GetAsync(name);
 
-        return await EvaluateAsync(featureFlag);
+            return await EvaluateAsync(featureFlag);
+        }
+        catch (Exception e)
+        when (e.Message == string.Format(Messages.ERROR_FEATURE_FLAG_NOT_EXISTS, name) &&
+              _thothOptions.ShouldReturnFalseWhenNotExists)
+        {
+            _logger.LogInformation("{Message}", string.Format(Messages.INFO_NON_EXISTENT_FLAG_REQUESTED, name));
+            return false;
+        }
     }
 
     public async Task<FeatureFlag> GetAsync(string name)

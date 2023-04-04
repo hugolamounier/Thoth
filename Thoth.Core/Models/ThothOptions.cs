@@ -11,6 +11,11 @@ public class ThothOptions
     public bool EnableCaching { get; set; } = true;
 
     /// <summary>
+    ///     Defines if the default value to a non-existent should be false or throw
+    /// </summary>
+    public bool ShouldReturnFalseWhenNotExists { get; set; } = true;
+
+    /// <summary>
     ///     SQL Server connection string
     /// </summary>
     public string ConnectionString { get; set; }

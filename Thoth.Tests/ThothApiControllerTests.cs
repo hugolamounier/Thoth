@@ -2,6 +2,7 @@
 using System.Net.Http.Json;
 using System.Text;
 using FluentAssertions;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -16,9 +17,21 @@ public class ThothApiControllerTests : IntegrationTestBase<Program>
 {
     private static readonly Mock<ILogger<ThothFeatureManager>> Logger = new();
 
-    public ThothApiControllerTests() : base(services => { services.AddScoped<ILogger<ThothFeatureManager>>(_ => Logger.Object); })
+    public ThothApiControllerTests() : base(services =>
     {
-    }
+        services.AddThoth(options =>
+        {
+            var configuration = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false)
+                .AddEnvironmentVariables()
+                .Build();
+
+            options.ConnectionString = configuration.GetConnectionString("SqlContext");
+            options.ShouldReturnFalseWhenNotExists = false;
+        });
+        services.AddScoped<ILogger<ThothFeatureManager>>(_ => Logger.Object);
+    }) { }
 
     [Theory]
     [MemberData(nameof(CreateValidDataGenerator))]
