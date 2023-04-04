@@ -26,6 +26,7 @@ Add the Thoth Feature Manager to yout application DI (Dependency Injection) cont
 builder.Services.AddThoth(options =>
 {
     options.ConnectionString = builder.Configuration.GetConnectionString("SqlContext"); // Your application sql database connection
+    options.ShouldReturnFalseWhenNotExists = true; // Defines if the default value to a non-existent should be false or throw
     options.EnableCaching = true; // Whether Thoth should use caching strategies to improve performance. Optional.
     options.CacheExpiration = TimeSpan.FromDays(7); // Defines for how long feature flags are going to be cached in memory. Optional.
     options.CacheSlidingExpiration = TimeSpan.FromDays(1); // Defines for how long the feature flags will be cached without being accessed. Optional.
