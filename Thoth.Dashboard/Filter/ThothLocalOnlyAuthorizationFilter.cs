@@ -1,7 +1,9 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 
 namespace Thoth.Dashboard.Filter;
 
+[ExcludeFromCodeCoverage]
 public class ThothLocalOnlyAuthorizationFilter : IThothDashboardAuthorizationFilter
 {
     public Task<bool> AuthorizeAsync(ThothDashboardContext thothDashboardContext)
