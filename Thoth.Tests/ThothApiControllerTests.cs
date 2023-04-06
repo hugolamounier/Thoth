@@ -8,14 +8,17 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using Newtonsoft.Json;
 using Thoth.Core;
+using Thoth.Core.Interfaces;
 using Thoth.Core.Models;
+using Thoth.Dashboard.Api;
 using Thoth.Tests.Base;
 
 namespace Thoth.Tests;
 
 public class ThothApiControllerTests : IntegrationTestBase<Program>
 {
-    private static readonly Mock<ILogger<ThothFeatureManager>> Logger = new();
+    private static readonly Mock<ILogger<FeatureFlagController>> Logger = new();
+    private static readonly Mock<ILogger<ThothFeatureManager>> LoggerThothManager = new();
 
     public ThothApiControllerTests() : base(services =>
     {
@@ -30,7 +33,8 @@ public class ThothApiControllerTests : IntegrationTestBase<Program>
             options.ConnectionString = configuration.GetConnectionString("SqlContext");
             options.ShouldReturnFalseWhenNotExists = false;
         });
-        services.AddScoped<ILogger<ThothFeatureManager>>(_ => Logger.Object);
+        services.AddScoped<ILogger<FeatureFlagController>>(_ => Logger.Object);
+        services.AddScoped<ILogger<ThothFeatureManager>>(_ => LoggerThothManager.Object);
     }) { }
 
     [Theory]
@@ -96,7 +100,7 @@ public class ThothApiControllerTests : IntegrationTestBase<Program>
         //Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         content.Should().Contain(string.Format(Messages.ERROR_FEATURE_FLAG_ALREADY_EXISTS, featureFlag.Name));
-        Logger.Verify(
+        LoggerThothManager.Verify(
             x => x.Log(
                 It.Is<LogLevel>(l => l == LogLevel.Error),
                 It.IsAny<EventId>(),
@@ -216,7 +220,7 @@ public class ThothApiControllerTests : IntegrationTestBase<Program>
         //Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         content.Should().Contain(string.Format(Messages.ERROR_FEATURE_FLAG_NOT_EXISTS, featureFlag.Name));
-        Logger.Verify(
+        LoggerThothManager.Verify(
             x => x.Log(
                 It.Is<LogLevel>(l => l == LogLevel.Error),
                 It.IsAny<EventId>(),
@@ -268,7 +272,7 @@ public class ThothApiControllerTests : IntegrationTestBase<Program>
         //Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         content.Should().Contain(string.Format(Messages.ERROR_FEATURE_FLAG_NOT_EXISTS, featureFlag.Name));
-        Logger.Verify(
+        LoggerThothManager.Verify(
             x => x.Log(
                 It.Is<LogLevel>(l => l == LogLevel.Error),
                 It.IsAny<EventId>(),
