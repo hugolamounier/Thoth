@@ -3,18 +3,25 @@ using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Hosting;
 
 namespace Thoth.Dashboard.Filter;
 
 public class ThothJwtAuthorizationFilter: IThothDashboardAuthorizationFilter
 {
+    private readonly IWebHostEnvironment _environment;
     private readonly string _tokenQueryParamName;
     private readonly string? _roleClaimName;
     private readonly IEnumerable<string>? _allowedRoles;
 
-    public ThothJwtAuthorizationFilter(string tokenQueryParamName = "accessToken", string? roleClaimName = null, IEnumerable<string>? allowedRoles = null)
+    public ThothJwtAuthorizationFilter(IWebHostEnvironment environment, 
+        string tokenQueryParamName = "accessToken",
+        string? roleClaimName = null,
+        IEnumerable<string>? allowedRoles = null)
     {
+        _environment = environment;
         _tokenQueryParamName = tokenQueryParamName;
         _roleClaimName = roleClaimName;
         _allowedRoles = allowedRoles;
@@ -51,14 +58,14 @@ public class ThothJwtAuthorizationFilter: IThothDashboardAuthorizationFilter
                                                                 _allowedRoles.Contains(t.Value)));
     }
 
-    private static void SetCookie(string? jwtToken, HttpContext httpContext)
+    private void SetCookie(string? jwtToken, HttpContext httpContext)
     {
         if (jwtToken is null) return;
 
         httpContext.Response.Cookies.Append("_thothCookie", jwtToken, new CookieOptions
         {
             Expires = DateTime.Now.AddDays(30),
-            Secure = true,
+            Secure = !_environment.IsEnvironment("Testing"),
             HttpOnly = true
         });
     }

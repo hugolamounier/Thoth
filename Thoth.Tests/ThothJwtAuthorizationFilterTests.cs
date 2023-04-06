@@ -49,7 +49,7 @@ public class ThothJwtAuthorizationFilterTests: IntegrationTestBase<Program>
         //Act
         HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _token);
         var response = await HttpClient.GetAsync($"/thoth/?accessToken={_token}");
-        var responseShouldUseCookies = await HttpClient.GetAsync($"/thoth?accessToken={_token}");
+        var responseShouldUseCookies = await HttpClient.GetAsync($"/thoth");
 
         //Assert
         response.IsSuccessStatusCode.Should().BeTrue();

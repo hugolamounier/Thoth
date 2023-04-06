@@ -59,7 +59,7 @@ app.UseThothDashboard(options =>
         options.Authorization = new[] {new ThothAuthorizationFilter()};
 
     if (args.Any(x => x.Contains("UseThothJwtAuthorization")))
-        options.Authorization = new[] {new ThothJwtAuthorizationFilter()};
+        options.Authorization = new[] {new ThothJwtAuthorizationFilter(builder.Environment)};
 });
 
 app.Run();
