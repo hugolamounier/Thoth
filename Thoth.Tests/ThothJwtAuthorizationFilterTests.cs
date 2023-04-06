@@ -49,9 +49,11 @@ public class ThothJwtAuthorizationFilterTests: IntegrationTestBase<Program>
         //Act
         HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _token);
         var response = await HttpClient.GetAsync($"/thoth/?accessToken={_token}");
+        var responseShouldUseCookies = await HttpClient.GetAsync($"/thoth?accessToken={_token}");
 
         //Assert
         response.IsSuccessStatusCode.Should().BeTrue();
+        responseShouldUseCookies.IsSuccessStatusCode.Should().BeTrue();
     }
 
     [Theory]
@@ -61,10 +63,12 @@ public class ThothJwtAuthorizationFilterTests: IntegrationTestBase<Program>
         //Act
         HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
         var response = await HttpClient.GetAsync($"/thoth?accessToken={token}");
+        
 
         //Assert
         response.IsSuccessStatusCode.Should().BeFalse();
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+        
     }
 
     public static IEnumerable<object[]> CreateValidDataGenerator()
