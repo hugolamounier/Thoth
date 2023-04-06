@@ -7,9 +7,9 @@ using Thoth.Tests.Base;
 
 namespace Thoth.Tests;
 
-public class ThothAuthorizationTests : IntegrationTestBase<Program>
+public class ThothAuthorizationFilterTests : IntegrationTestBase<Program>
 {
-    public ThothAuthorizationTests() : base(arguments: new Dictionary<string, string>
+    public ThothAuthorizationFilterTests() : base(arguments: new Dictionary<string, string>
     {
         {"auth", "UseThothAuthorization"}
     })

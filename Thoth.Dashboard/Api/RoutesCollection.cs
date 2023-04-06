@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Thoth.Core.Interfaces;
 using Thoth.Core.Models;
 
@@ -8,11 +10,17 @@ namespace Thoth.Dashboard.Api;
 
 public static class RoutesCollection
 {
-    public static IApplicationBuilder InjectThothDashboardRoutes(this IApplicationBuilder app, IServiceScope scope, string routePrefix)
+    public static IApplicationBuilder InjectThothDashboardRoutes(
+        this IApplicationBuilder app,
+        IServiceScope scope,
+        ThothDashboardOptions thothDashboardOptions)
     {
-        var basePath = $"{routePrefix}-api/FeatureFlag";
+        var basePath = $"{thothDashboardOptions.RoutePrefix}-api/FeatureFlag";
         var featureManagementService = scope.ServiceProvider.GetRequiredService<IThothFeatureManager>();
-        var featureFlagController = new FeatureFlagController(featureManagementService);
+        var logger = scope.ServiceProvider.GetRequiredService<ILogger<FeatureFlagController>>();
+        var httpAccessorContext = scope.ServiceProvider.GetRequiredService<IHttpContextAccessor>();
+
+        var featureFlagController = new FeatureFlagController(featureManagementService, logger, httpAccessorContext, thothDashboardOptions);
 
         app.UseRouting();
 
