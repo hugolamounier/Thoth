@@ -3,28 +3,32 @@ using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Hosting;
 
 namespace Thoth.Dashboard.Filter;
 
 public class ThothJwtAuthorizationFilter: IThothDashboardAuthorizationFilter
 {
-    private readonly IWebHostEnvironment _environment;
     private readonly string _tokenQueryParamName;
     private readonly string? _roleClaimName;
     private readonly IEnumerable<string>? _allowedRoles;
+    private readonly CookieOptions? _cookieOptions;
 
-    public ThothJwtAuthorizationFilter(IWebHostEnvironment environment, 
+    public ThothJwtAuthorizationFilter(
         string tokenQueryParamName = "accessToken",
-        string? roleClaimName = null,
-        IEnumerable<string>? allowedRoles = null)
+        string? roleClaimName = "role",
+        IEnumerable<string>? allowedRoles = null,
+        CookieOptions? cookieOptions = null)
     {
-        _environment = environment;
         _tokenQueryParamName = tokenQueryParamName;
         _roleClaimName = roleClaimName;
         _allowedRoles = allowedRoles;
+        _cookieOptions = cookieOptions ??  new CookieOptions
+        {
+            Expires = DateTime.Now.AddDays(30),
+            Secure = true,
+            HttpOnly = true
+        };
     }
 
     public Task<bool> AuthorizeAsync(ThothDashboardContext thothDashboardContext)
@@ -48,25 +52,21 @@ public class ThothJwtAuthorizationFilter: IThothDashboardAuthorizationFilter
         if (string.IsNullOrEmpty(jwtToken))
             return Task.FromResult(false);
 
+        var isAuthenticated = httpContext.User.Identity?.IsAuthenticated ?? false;
         var handler = new JwtSecurityTokenHandler();
         var jwtSecurityToken = handler.ReadJwtToken(jwtToken);
 
-        if (_roleClaimName is null || _allowedRoles is null)
-            return Task.FromResult(httpContext.User.Identity?.IsAuthenticated ?? false);
+        if (_allowedRoles is null)
+            return Task.FromResult(isAuthenticated);
 
-        return Task.FromResult(jwtSecurityToken.Claims.Any(t => t.Type == _roleClaimName &&
-                                                                _allowedRoles.Contains(t.Value)));
+        return Task.FromResult(isAuthenticated && jwtSecurityToken.Claims.Any(t => t.Type == _roleClaimName &&
+                                                                               _allowedRoles.Contains(t.Value)));
     }
 
     private void SetCookie(string? jwtToken, HttpContext httpContext)
     {
         if (jwtToken is null) return;
 
-        httpContext.Response.Cookies.Append("_thothCookie", jwtToken, new CookieOptions
-        {
-            Expires = DateTime.Now.AddDays(30),
-            Secure = !_environment.IsEnvironment("Testing"),
-            HttpOnly = true
-        });
+        httpContext.Response.Cookies.Append("_thothCookie", jwtToken, _cookieOptions!);
     }
 }

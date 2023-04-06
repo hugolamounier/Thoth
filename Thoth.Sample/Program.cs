@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Security.Claims;
+using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Thoth.Core;
@@ -10,59 +11,100 @@ using Thoth.Tests.Filters;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
-if (args.Any(x => x.Contains("UseThothJwtAuthorization")))
+//Testing container
+if (builder.Environment.IsEnvironment("Testing"))
 {
-    builder.Services.AddAuthentication(options =>
-        {
-            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-        })
-        .AddJwtBearer(options =>
-        {
-            options.TokenValidationParameters = new TokenValidationParameters
+    if (args.Any(x => x.Contains("UseThothJwtAuthorization") || x.Contains("UseThothJwtAuthorizationWithRoles")))
+    {
+        builder.Services.AddAuthentication(options =>
             {
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(JwtConfiguration.HmacKey)),
-                ValidIssuer = JwtConfiguration.Issuer,
-                ValidAudience = JwtConfiguration.Audience,
-                ValidateIssuerSigningKey = true,
-                ValidateIssuer = true,
-                ValidateAudience = false,
-            };
-        });
-    builder.Services.AddAuthorization();
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(JwtConfiguration.HmacKey)),
+                    ValidIssuer = JwtConfiguration.Issuer,
+                    ValidAudience = JwtConfiguration.Audience,
+                    ValidateIssuerSigningKey = true,
+                    ValidateIssuer = true,
+                    ValidateAudience = false,
+                };
+            });
+        builder.Services.AddAuthorization();
+    }
+    
+    builder.Services.AddControllers();
+    builder.Services.AddThoth(options =>
+        {
+            options.ConnectionString = builder.Configuration.GetConnectionString("SqlContext");
+        })
+        .UseSqlServer();
+    
+    builder.Services.AddSwaggerGen();
+    
+    var app = builder.Build();
+    
+    app.UseSwagger();
+    app.UseSwaggerUI();
+    
+    app.UseHttpsRedirection();
+    
+    if (args.Any(x => x.Contains("UseThothJwtAuthorization") || x.Contains("UseThothJwtAuthorizationWithRoles")))
+        app.UseAuthentication();
+    
+    app.UseAuthorization();
+    app.MapControllers();
+    app.UseThothDashboard(options =>
+    {
+        options.RoutePrefix = "/thoth";
+        if (args.Any(x => x.Contains("UseThothAuthorization")))
+            options.Authorization = new[] {new ThothAuthorizationFilter()};
+    
+        if (args.Any(x => x.Contains("UseThothJwtAuthorization")))
+            options.Authorization = new[] {new ThothJwtAuthorizationFilter(cookieOptions: new CookieOptions
+            {
+                Expires = DateTime.Now.AddDays(30),
+                Secure = false,
+                HttpOnly = true
+            })};
+        
+        if (args.Any(x => x.Contains("UseThothJwtAuthorizationWithRoles")))
+            options.Authorization = new[] {new ThothJwtAuthorizationFilter(cookieOptions: new CookieOptions
+            {
+                Expires = DateTime.Now.AddDays(30),
+                Secure = false,
+                HttpOnly = true
+            }, allowedRoles: new []{ "Admin" })};
+    });
+    
+    app.Run();
 }
-
-builder.Services.AddControllers();
-builder.Services.AddThoth(options => { options.ConnectionString = builder.Configuration.GetConnectionString("SqlContext"); })
-    .UseSqlServer();
-
-builder.Services.AddSwaggerGen();
-
-var app = builder.Build();
-
-app.UseSwagger();
-app.UseSwaggerUI();
-
-app.UseHttpsRedirection();
-
-if (args.Any(x => x.Contains("UseThothJwtAuthorization")))
-    app.UseAuthentication();
-
-app.UseAuthorization();
-app.MapControllers();
-app.UseThothDashboard(options =>
+else
 {
-    options.RoutePrefix = "/thoth";
-    if (args.Any(x => x.Contains("UseThothAuthorization")))
-        options.Authorization = new[] {new ThothAuthorizationFilter()};
+    // Add services to the container.
+    builder.Services.AddControllers();
+    builder.Services.AddThoth(options =>
+        {
+            options.ConnectionString = builder.Configuration.GetConnectionString("SqlContext");
+        })
+        .UseSqlServer();
 
-    if (args.Any(x => x.Contains("UseThothJwtAuthorization")))
-        options.Authorization = new[] {new ThothJwtAuthorizationFilter(builder.Environment)};
-});
+    builder.Services.AddSwaggerGen();
 
-app.Run();
+    var app = builder.Build();
+
+    app.UseSwagger();
+    app.UseSwaggerUI();
+    app.UseHttpsRedirection();
+    app.UseAuthorization();
+    app.MapControllers();
+    app.UseThothDashboard();
+
+    app.Run();   
+}
 
 public abstract partial class Program
 {
