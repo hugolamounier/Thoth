@@ -58,7 +58,8 @@ public class ThothJwtAuthorizationFilter: IThothDashboardAuthorizationFilter
         httpContext.Response.Cookies.Append("_thothCookie", jwtToken, new CookieOptions
         {
             Expires = DateTime.Now.AddDays(30),
-            Secure = true
+            Secure = true,
+            HttpOnly = true
         });
     }
 }
