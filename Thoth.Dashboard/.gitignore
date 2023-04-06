@@ -2,3 +2,4 @@
 App/node_modules
 wwwroot/*
 !wwwroot/.gitkeep
+!wwwroot/index.html
