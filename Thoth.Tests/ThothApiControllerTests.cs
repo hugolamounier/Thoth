@@ -8,7 +8,6 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using Newtonsoft.Json;
 using Thoth.Core;
-using Thoth.Core.Interfaces;
 using Thoth.Core.Models;
 using Thoth.Dashboard.Api;
 using Thoth.Tests.Base;

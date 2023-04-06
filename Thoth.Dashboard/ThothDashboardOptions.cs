@@ -9,5 +9,5 @@ public class ThothDashboardOptions
     public IEnumerable<string> ClaimsToRegisterOnLog { get; set; } = System.Array.Empty<string>();
 
     public IEnumerable<IThothDashboardAuthorizationFilter> Authorization { get; set; } =
-        new List<IThothDashboardAuthorizationFilter> {new LocalOnlyThothFilter()};
+        new List<IThothDashboardAuthorizationFilter> {new ThothLocalOnlyAuthorizationFilter()};
 }

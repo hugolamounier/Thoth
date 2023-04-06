@@ -1,9 +1,8 @@
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Hosting;
 
 namespace Thoth.Dashboard.Filter;
 
-public class LocalOnlyThothFilter : IThothDashboardAuthorizationFilter
+public class ThothLocalOnlyAuthorizationFilter : IThothDashboardAuthorizationFilter
 {
     public Task<bool> AuthorizeAsync(ThothDashboardContext thothDashboardContext)
     {

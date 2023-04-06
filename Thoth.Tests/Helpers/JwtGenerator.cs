@@ -8,17 +8,21 @@ namespace Thoth.Tests.Helpers;
 
 public static class JwtGenerator
 {
-    public static string GenerateToken(IEnumerable<Claim> claims, int daysToExpire = 7)
+    public static string GenerateToken(
+        IEnumerable<Claim> claims, int daysToExpire = 1,
+        string? audience = null,
+        string? issuer = null,
+        SigningCredentials? signingCredentials = null)
     {
 
         var tokenHandler = new JwtSecurityTokenHandler();
         var tokenDescriptor = new SecurityTokenDescriptor
         {
             Subject = new ClaimsIdentity(claims),
-            Audience = JwtConfiguration.Audience,
-            Issuer = JwtConfiguration.Issuer,
+            Audience = audience ?? JwtConfiguration.Audience,
+            Issuer = issuer ?? JwtConfiguration.Issuer,
             Expires = DateTime.UtcNow.AddDays(daysToExpire),
-            SigningCredentials = new SigningCredentials
+            SigningCredentials = signingCredentials ?? new SigningCredentials
             (
                 new SymmetricSecurityKey(Encoding.UTF8.GetBytes(JwtConfiguration.HmacKey)),
                 SecurityAlgorithms.HmacSha256Signature
