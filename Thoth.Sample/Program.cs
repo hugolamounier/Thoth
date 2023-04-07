@@ -7,7 +7,6 @@ using Thoth.Dashboard;
 using Thoth.Dashboard.Filter;
 using Thoth.Sample;
 using Thoth.SQLServer;
-using Thoth.Tests.Filters;
 
 var builder = WebApplication.CreateBuilder(args);
 
