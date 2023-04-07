@@ -15,7 +15,7 @@
         <RootNamespace>Thoth.Core</RootNamespace>
         <IsPackable>true</IsPackable>
         <PackageIcon>icon-64.png</PackageIcon>
-        <Version>1.2.1</Version>
+        <Version>1.3.0</Version>
     </PropertyGroup>
 
     <ItemGroup>
