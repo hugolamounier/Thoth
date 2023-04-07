@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Security.Claims;
+using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Thoth.Core;
@@ -67,7 +68,7 @@ if (builder.Environment.IsEnvironment("Testing"))
                 Secure = false,
                 HttpOnly = true
             })};
-            options.ClaimsToRegisterOnLog = new[] { "email", "nameid" };
+            options.ClaimsToRegisterOnLog = new[] { ClaimTypes.Email, ClaimTypes.NameIdentifier };
         }
         
         if (args.Any(x => x.Contains("UseThothJwtAuthorizationWithRoles")))

@@ -122,6 +122,10 @@ public class FeatureFlagController
                 info.Append($"'{claimName}': '{claim.Value}'; ");
         }
 
-        return string.Format(Messages.INFO_ACTION_MADE_BY_USER_WITH_CLAIMS, info);
+        var teste = info.ToString();
+
+        return string.IsNullOrWhiteSpace(info.ToString()) ? 
+            string.Empty : 
+            string.Format(Messages.INFO_ACTION_MADE_BY_USER_WITH_CLAIMS, info);
     }
 }
