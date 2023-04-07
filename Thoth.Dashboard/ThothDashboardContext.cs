@@ -10,8 +10,10 @@ public class ThothDashboardContext
     {
         Request = new ThothDashboardRequest(httpContext);
         WebHostEnvironment = environment;
+        HttpContext = httpContext;
     }
 
     public IWebHostEnvironment WebHostEnvironment { get; }
     public ThothDashboardRequest Request { get; }
+    public HttpContext HttpContext { get; }
 }

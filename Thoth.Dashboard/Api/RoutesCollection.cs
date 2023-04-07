@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Thoth.Core.Interfaces;
 using Thoth.Core.Models;
 
@@ -8,11 +10,14 @@ namespace Thoth.Dashboard.Api;
 
 public static class RoutesCollection
 {
-    public static IApplicationBuilder InjectThothDashboardRoutes(this IApplicationBuilder app, IServiceScope scope, string routePrefix)
+    public static IApplicationBuilder InjectThothDashboardRoutes(
+        this IApplicationBuilder app,
+        IServiceScope scope,
+        ThothDashboardOptions thothDashboardOptions)
     {
-        var basePath = $"{routePrefix}-api/FeatureFlag";
+        var basePath = $"{thothDashboardOptions.RoutePrefix}-api/FeatureFlag";
         var featureManagementService = scope.ServiceProvider.GetRequiredService<IThothFeatureManager>();
-        var featureFlagController = new FeatureFlagController(featureManagementService);
+        var logger = scope.ServiceProvider.GetRequiredService<ILogger<FeatureFlagController>>();
 
         app.UseRouting();
 
@@ -20,28 +25,36 @@ public static class RoutesCollection
         {
             #region GET
 
-            endpoints.MapGet(basePath, async () => await featureFlagController.GetAll());
+            endpoints.MapGet(basePath, async (HttpContext httpContext) =>
+            {
+                return await new FeatureFlagController(featureManagementService, logger, httpContext, thothDashboardOptions)
+                    .GetAll();
+            });
 
-            endpoints.MapGet(basePath+ "/{name}", async (string name) => await featureFlagController.GetByName(name));
+            endpoints.MapGet(basePath+ "/{name}", async (HttpContext httpContext, string name) => 
+                await new FeatureFlagController(featureManagementService, logger, httpContext, thothDashboardOptions).GetByName(name));
 
             #endregion
 
             #region POST
 
-            endpoints.MapPost(basePath, async ([FromBody] FeatureFlag featureFlag) =>
-                await featureFlagController.Create(featureFlag));
+            endpoints.MapPost(basePath, async (HttpContext httpContext, [FromBody] FeatureFlag featureFlag) => 
+                await new FeatureFlagController(featureManagementService, logger, httpContext, thothDashboardOptions).Create(featureFlag));
+                
 
             #endregion
 
             #region PUT
 
-            endpoints.MapPut(basePath, async ([FromBody] FeatureFlag featureFlag) => await featureFlagController.Update(featureFlag));
+            endpoints.MapPut(basePath, async (HttpContext httpContext, [FromBody] FeatureFlag featureFlag) => 
+                await new FeatureFlagController(featureManagementService, logger, httpContext, thothDashboardOptions).Update(featureFlag));
 
             #endregion
 
             #region DELELTE
 
-            endpoints.MapDelete(basePath + "/{name}", async (string name) => await featureFlagController.Delete(name));
+            endpoints.MapDelete(basePath + "/{name}", async (HttpContext httpContext, string name) =>
+                await new FeatureFlagController(featureManagementService, logger, httpContext, thothDashboardOptions).Delete(name));
 
             #endregion
         });

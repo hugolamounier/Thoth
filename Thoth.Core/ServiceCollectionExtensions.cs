@@ -33,6 +33,7 @@ public static class ServiceCollectionExtensions
         if (string.IsNullOrWhiteSpace(options.ConnectionString))
             throw new ArgumentException(Messages.ERROR_CONNECTION_STRING);
 
+        services.AddHttpContextAccessor();
         services.TryAddSingleton<IMemoryCache, MemoryCache>();
         services.TryAddSingleton<CacheManager>();
         services.TryAddSingleton<IThothFeatureManager, ThothFeatureManager>();
@@ -46,7 +47,7 @@ public static class ServiceCollectionExtensions
         var appPartManager = (ApplicationPartManager) services
             .FirstOrDefault(a => a.ServiceType == typeof(ApplicationPartManager))
             ?.ImplementationInstance!;
-        var mockingPart = appPartManager.ApplicationParts
+        var mockingPart = appPartManager?.ApplicationParts
             .FirstOrDefault(a => a.Name == "Thoth.Dashboard");
 
         if (mockingPart != null)
