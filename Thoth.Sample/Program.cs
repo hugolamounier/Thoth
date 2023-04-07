@@ -59,16 +59,16 @@ if (builder.Environment.IsEnvironment("Testing"))
     app.UseThothDashboard(options =>
     {
         options.RoutePrefix = "/thoth";
-        if (args.Any(x => x.Contains("UseThothAuthorization")))
-            options.Authorization = new[] {new ThothAuthorizationFilter()};
-    
         if (args.Any(x => x.Contains("UseThothJwtAuthorization")))
+        {
             options.Authorization = new[] {new ThothJwtAuthorizationFilter(cookieOptions: new CookieOptions
             {
                 Expires = DateTime.Now.AddDays(30),
                 Secure = false,
                 HttpOnly = true
             })};
+            options.ClaimsToRegisterOnLog = new[] { "email", "nameid" };
+        }
         
         if (args.Any(x => x.Contains("UseThothJwtAuthorizationWithRoles")))
             options.Authorization = new[] {new ThothJwtAuthorizationFilter(cookieOptions: new CookieOptions

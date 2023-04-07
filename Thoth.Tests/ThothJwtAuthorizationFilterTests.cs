@@ -3,9 +3,13 @@ using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text;
 using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
+using Moq;
 using Newtonsoft.Json;
 using Thoth.Core.Models;
+using Thoth.Dashboard.Api;
 using Thoth.Tests.Base;
 using Thoth.Tests.Helpers;
 
@@ -14,10 +18,14 @@ namespace Thoth.Tests;
 public class ThothJwtAuthorizationFilterTests: IntegrationTestBase<Program>
 {
     private readonly string _token;
+    private static readonly Mock<ILogger<FeatureFlagController>> Logger = new();
 
     public ThothJwtAuthorizationFilterTests() : base(arguments: new Dictionary<string, string>
     {
         {"auth", "UseThothJwtAuthorization"}
+    }, serviceDelegate: services =>
+    {
+        services.AddScoped<ILogger<FeatureFlagController>>(_ => Logger.Object);
     })
     {
         _token = JwtGenerator.GenerateToken(new List<Claim>
@@ -41,6 +49,14 @@ public class ThothJwtAuthorizationFilterTests: IntegrationTestBase<Program>
 
         //Assert
         response.IsSuccessStatusCode.Should().BeTrue();
+        Logger.Verify(
+            x => x.Log(
+                It.Is<LogLevel>(l => l == LogLevel.Information),
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((v, t) => v.ToString()!.Contains(string.Format(Messages.INFO_ACTION_MADE_BY_USER_WITH_CLAIMS, string.Empty)) &&
+                                                                     v.ToString()!.Contains(featureFlag.Name)),
+                It.IsAny<Exception>(),
+                It.Is<Func<It.IsAnyType, Exception, string>>((v, t) => true)!), Times.Once);
     }
 
     [Fact]

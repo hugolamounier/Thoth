@@ -20,11 +20,11 @@ public class FeatureFlagController
     public FeatureFlagController(
         IThothFeatureManager thothFeatureManager,
         ILogger<FeatureFlagController> logger,
-        IHttpContextAccessor httpContextAccessor,
+        HttpContext httpContext,
         ThothDashboardOptions dashboardOptions)
     {
         _thothFeatureManager = thothFeatureManager;
-        _user = httpContextAccessor.HttpContext?.User;
+        _user = httpContext.User;
         _logger = logger;
         _dashboardOptions = dashboardOptions;
     }
