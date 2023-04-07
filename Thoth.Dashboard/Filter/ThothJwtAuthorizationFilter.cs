@@ -2,24 +2,29 @@ using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Thoth.Dashboard.Filter;
 
 public class ThothJwtAuthorizationFilter: IThothDashboardAuthorizationFilter
 {
+    private readonly TokenValidationParameters _tokenValidationParameters;
     private readonly string _tokenQueryParamName;
     private readonly string? _roleClaimName;
     private readonly IEnumerable<string>? _allowedRoles;
     private readonly CookieOptions? _cookieOptions;
 
     public ThothJwtAuthorizationFilter(
+        TokenValidationParameters tokenValidationParameters,
         string tokenQueryParamName = "accessToken",
-        string? roleClaimName = "role",
+        string? roleClaimName = ClaimTypes.Role,
         IEnumerable<string>? allowedRoles = null,
         CookieOptions? cookieOptions = null)
     {
+        _tokenValidationParameters = tokenValidationParameters;
         _tokenQueryParamName = tokenQueryParamName;
         _roleClaimName = roleClaimName;
         _allowedRoles = allowedRoles;
@@ -51,11 +56,24 @@ public class ThothJwtAuthorizationFilter: IThothDashboardAuthorizationFilter
     {
         if (string.IsNullOrEmpty(jwtToken))
             return Task.FromResult(false);
+        
+        var tokenHandler = new JwtSecurityTokenHandler();
+        ClaimsPrincipal? jwtSecurityToken;
 
+        try
+        {
+            jwtSecurityToken = tokenHandler.ValidateToken(jwtToken, _tokenValidationParameters, out _);
+        }
+        catch
+        {
+            return Task.FromResult(false);
+        }
+
+        if (jwtSecurityToken is null)
+            return Task.FromResult(false);
+
+        httpContext.User = new ClaimsPrincipal(jwtSecurityToken);
         var isAuthenticated = httpContext.User.Identity?.IsAuthenticated ?? false;
-        var handler = new JwtSecurityTokenHandler();
-        var jwtSecurityToken = handler.ReadJwtToken(jwtToken);
-
         if (_allowedRoles is null)
             return Task.FromResult(isAuthenticated);
 

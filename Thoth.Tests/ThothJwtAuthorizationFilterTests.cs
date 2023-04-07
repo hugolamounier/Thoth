@@ -40,7 +40,6 @@ public class ThothJwtAuthorizationFilterTests: IntegrationTestBase<Program>
     public async Task Create_ShouldBeAuthorized(FeatureFlag featureFlag)
     {
         //Arrange
-        HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _token);
         var postContent = new StringContent(
             JsonConvert.SerializeObject(featureFlag), Encoding.UTF8, "application/json");
 
@@ -63,7 +62,6 @@ public class ThothJwtAuthorizationFilterTests: IntegrationTestBase<Program>
     public async Task Dashboard_ShouldBeAuthorized()
     {
         //Act
-        HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _token);
         var response = await HttpClient.GetAsync($"/thoth/?accessToken={_token}");
         var responseShouldUseCookies = await HttpClient.GetAsync($"/thoth");
 
@@ -77,7 +75,6 @@ public class ThothJwtAuthorizationFilterTests: IntegrationTestBase<Program>
     public async Task Dashboard_ShouldBeForbidden(string token)
     {
         //Act
-        HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
         var response = await HttpClient.GetAsync($"/thoth?accessToken={token}");
         
 

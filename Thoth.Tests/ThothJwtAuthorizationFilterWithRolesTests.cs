@@ -1,5 +1,4 @@
 ﻿using System.Net;
-using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text;
 using FluentAssertions;
@@ -33,7 +32,6 @@ public class ThothJwtAuthorizationFilterWithRolesTests: IntegrationTestBase<Prog
     public async Task Create_ShouldBeAuthorized(FeatureFlag featureFlag)
     {
         //Arrange
-        HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _token);
         var postContent = new StringContent(
             JsonConvert.SerializeObject(featureFlag), Encoding.UTF8, "application/json");
 
@@ -48,7 +46,6 @@ public class ThothJwtAuthorizationFilterWithRolesTests: IntegrationTestBase<Prog
     public async Task Dashboard_ShouldBeAuthorized()
     {
         //Act
-        HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _token);
         var response = await HttpClient.GetAsync($"/thoth/?accessToken={_token}");
         var responseShouldUseCookies = await HttpClient.GetAsync($"/thoth");
 
@@ -62,7 +59,6 @@ public class ThothJwtAuthorizationFilterWithRolesTests: IntegrationTestBase<Prog
     public async Task Dashboard_ShouldBeForbidden(string token)
     {
         //Act
-        HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
         var response = await HttpClient.GetAsync($"/thoth?accessToken={token}");
         
 

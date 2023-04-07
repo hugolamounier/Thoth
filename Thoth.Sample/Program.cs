@@ -61,7 +61,18 @@ if (builder.Environment.IsEnvironment("Testing"))
         options.RoutePrefix = "/thoth";
         if (args.Any(x => x.Contains("UseThothJwtAuthorization")))
         {
-            options.Authorization = new[] {new ThothJwtAuthorizationFilter(cookieOptions: new CookieOptions
+            options.Authorization = new[] {new ThothJwtAuthorizationFilter(new TokenValidationParameters
+            {
+                ValidateIssuerSigningKey = true,
+                ValidateLifetime = true,
+                ClockSkew = TimeSpan.Zero,
+                IssuerSigningKey = new SymmetricSecurityKey
+                (
+                    Encoding.UTF8.GetBytes(JwtConfiguration.HmacKey)
+                ),
+                ValidAudience = JwtConfiguration.Audience,
+                ValidIssuer = JwtConfiguration.Issuer
+            }, cookieOptions: new CookieOptions
             {
                 Expires = DateTime.Now.AddDays(30),
                 Secure = false,
@@ -71,7 +82,18 @@ if (builder.Environment.IsEnvironment("Testing"))
         }
         
         if (args.Any(x => x.Contains("UseThothJwtAuthorizationWithRoles")))
-            options.Authorization = new[] {new ThothJwtAuthorizationFilter(cookieOptions: new CookieOptions
+            options.Authorization = new[] {new ThothJwtAuthorizationFilter(new TokenValidationParameters
+            {
+                ValidateIssuerSigningKey = true,
+                ValidateLifetime = true,
+                ClockSkew = TimeSpan.Zero,
+                IssuerSigningKey = new SymmetricSecurityKey
+                (
+                    Encoding.UTF8.GetBytes(JwtConfiguration.HmacKey)
+                ),
+                ValidAudience = JwtConfiguration.Audience,
+                ValidIssuer = JwtConfiguration.Issuer
+            }, cookieOptions: new CookieOptions
             {
                 Expires = DateTime.Now.AddDays(30),
                 Secure = false,
