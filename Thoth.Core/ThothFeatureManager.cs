@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Thoth.Core.Interfaces;
@@ -74,10 +75,6 @@ public class ThothFeatureManager : IThothFeatureManager
             if (insertResult)
                 await _cacheManager.GetOrCreateAsync(featureFlag.Name, () => Task.FromResult(featureFlag));
 
-            _logger.LogInformation("{Message}",
-                string.Format(Messages.INFO_ADDED_FEATURE_FLAG, featureFlag.Name, featureFlag.Value.ToString(),
-                    featureFlag.FilterValue));
-
             return insertResult;
         }
         catch (Exception e)
@@ -102,9 +99,6 @@ public class ThothFeatureManager : IThothFeatureManager
             if (updateResult)
                 await _cacheManager.UpdateAsync(featureFlag.Name, featureFlag);
 
-            _logger.LogInformation("{Message}",
-                string.Format(Messages.INFO_UPDATED_FEATURE_FLAG, featureFlag.Name, featureFlag.Value.ToString(), featureFlag.FilterValue));
-
             return updateResult;
         }
         catch (Exception e)
@@ -126,9 +120,6 @@ public class ThothFeatureManager : IThothFeatureManager
 
             if (deleteResult)
                 _cacheManager.Remove(name);
-
-            _logger.LogInformation("{Message}",
-                string.Format(Messages.INFO_DELETED_FEATURE_FLAG, name));
 
             return deleteResult;
         }
