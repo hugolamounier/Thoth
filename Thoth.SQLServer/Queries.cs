@@ -49,6 +49,7 @@ public static class Queries
                 Type TINYINT NOT NULL,
                 Value BIT NOT NULL,
                 FilterValue VARCHAR(100) NULL,
+                Description VARCHAR(200) NULL,
                 CreatedAt DATETIME NOT NULL,
                 UpdatedAt DATETIME NULL
             );

@@ -11,6 +11,7 @@ import { FeatureFlag, FeatureFlagsTypes } from '../../models/featureFlag';
 import FeatureFlagService from '../../services/featureFlagService';
 import moment from 'moment';
 import { useForm } from 'antd/lib/form/Form';
+import CreateModal from './components/createModal';
 
 type LoadingProps = {
   loading: boolean;
@@ -20,7 +21,6 @@ type LoadingProps = {
 
 const FeatureFlags = (): JSX.Element => {
   const [featureFlags, setFeatureFlags] = useState<FeatureFlag[]>([]);
-  const [typeSelect, setTypeSelect] = useState<FeatureFlagsTypes | undefined>(undefined);
   const [createModalOpen, setCreateModalOpen] = useState<boolean>(false);
   const [loading, setLoading] = useState<LoadingProps>({
     loading: false,
@@ -62,7 +62,6 @@ const FeatureFlags = (): JSX.Element => {
     });
   };
 
-  const [addFeatureFlagForm] = useForm<FeatureFlag>();
   const onSubmitForm = async (data: FeatureFlag) => {
     setLoading({ ...loading, createLoading: true });
     if (await FeatureFlagService.Create(data)) {
@@ -71,67 +70,6 @@ const FeatureFlags = (): JSX.Element => {
     }
     setLoading({ ...loading, createLoading: false });
   };
-
-  const addFeatureFlagModal = (
-    <Modal
-      destroyOnClose
-      afterClose={() => {
-        addFeatureFlagForm.resetFields();
-        setTypeSelect(undefined);
-      }}
-      title={
-        <Space>
-          <FileAddOutlined /> <span> Create new feature flag</span>
-        </Space>
-      }
-      open={createModalOpen}
-      okButtonProps={{ loading: loading.createLoading }}
-      onOk={() => addFeatureFlagForm.submit()}
-      onCancel={() => setCreateModalOpen(false)}
-      okText="Create"
-      width={700}
-    >
-      <Form
-        form={addFeatureFlagForm}
-        className="py-4"
-        labelCol={{ span: 4 }}
-        wrapperCol={{ span: 14 }}
-        layout="vertical"
-        onFinish={onSubmitForm}
-      >
-        <Form.Item name="name" label="Name" rules={[{ required: true }]}>
-          <Input />
-        </Form.Item>
-        <Form.Item name="type" label="Type" rules={[{ required: true }]}>
-          <Select
-            showSearch
-            placeholder="Select flag type"
-            optionFilterProp="children"
-            onChange={(value, option) => setTypeSelect(value)}
-            filterOption={(input, option) =>
-              (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
-            }
-            options={Object.keys(FeatureFlagsTypes)
-              .filter((v) => isNaN(Number(v)))
-              .map((key, index) => {
-                return {
-                  value: FeatureFlagsTypes[key as keyof typeof FeatureFlagsTypes],
-                  label: key,
-                };
-              })}
-          />
-        </Form.Item>
-        {typeSelect !== undefined && typeSelect !== FeatureFlagsTypes.Boolean ? (
-          <Form.Item name="filterValue" label="Filter value" rules={[{ required: true }]}>
-            <Input />
-          </Form.Item>
-        ) : null}
-        <Form.Item name="value" label="Initial State" valuePropName="checked">
-          <Switch defaultChecked={false} unCheckedChildren="Off" checkedChildren="On" />
-        </Form.Item>
-      </Form>
-    </Modal>
-  );
 
   const tagType = (type: FeatureFlagsTypes) => {
     switch (type) {
@@ -237,7 +175,12 @@ const FeatureFlags = (): JSX.Element => {
   return (
     <BaseContent title={titleHeader}>
       <Table loading={loading.loading} columns={tableHeader} dataSource={tableData} />
-      {addFeatureFlagModal}
+      <CreateModal
+        isOpen={createModalOpen}
+        setIsOpen={setCreateModalOpen}
+        onSubmitForm={onSubmitForm}
+        isLoading={loading.createLoading}
+      />
     </BaseContent>
   );
 };
