@@ -96,8 +96,7 @@ public class SampleControllerTests : IntegrationTestBase<Program>
         var response = await HttpClient.GetAsync($"/Sample?featureFlagName={newFeatureFlag.Name}");
         response.IsSuccessStatusCode.Should().BeTrue();
         var validationResult = await response.Content.ReadAsStringAsync();
-        
-        
+
         //Assert
         validationResult.Should().Be(validationMessage);
     }
