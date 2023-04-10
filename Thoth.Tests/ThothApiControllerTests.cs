@@ -159,6 +159,7 @@ public class ThothApiControllerTests : IntegrationTestBase<Program>
         await HttpClient.PostAsync("/thoth-api/FeatureFlag", postContent);
 
         featureFlag.Value = false;
+        featureFlag.Description = "test";
         var updateContent = new StringContent(JsonConvert.SerializeObject(featureFlag), Encoding.UTF8, "application/json");
 
         //Act
@@ -172,6 +173,7 @@ public class ThothApiControllerTests : IntegrationTestBase<Program>
         content?.Name.Should().Be(featureFlag.Name);
         content?.Type.Should().Be(featureFlag.Type);
         content?.Value.Should().Be(featureFlag.Value);
+        content?.Description.Should().Be(featureFlag.Description);
         content?.UpdatedAt.Should().NotBeNull();
         Logger.Verify(
             x => x.Log(
@@ -288,6 +290,7 @@ public class ThothApiControllerTests : IntegrationTestBase<Program>
             {
                 Name = Guid.NewGuid().ToString(),
                 Type = FeatureFlagsTypes.Boolean,
+                Description = "Test",
                 Value = true
             }
         };

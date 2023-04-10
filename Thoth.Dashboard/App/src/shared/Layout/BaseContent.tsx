@@ -8,17 +8,24 @@ interface BaseContentProps {
 
 const BaseContent = ({ children, title }: BaseContentProps): JSX.Element => (
   <Content
-    className="shadow-1"
+    className="p-6 py-4"
     style={{
-      padding: 24,
-      margin: '1rem 0 0 0',
-      minHeight: 280,
-      borderRadius: '0.25rem',
-      backgroundColor: 'white',
+      overflowY: 'auto',
     }}
   >
-    {title}
-    <div className="py-4">{children}</div>
+    <div
+      className="shadow-1"
+      style={{
+        padding: 24,
+        margin: '1rem 0 0 0',
+        minHeight: 280,
+        borderRadius: '0.25rem',
+        backgroundColor: 'white',
+      }}
+    >
+      {title}
+      {children}
+    </div>
   </Content>
 );
 

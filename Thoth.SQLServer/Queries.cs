@@ -16,15 +16,15 @@ public static class Queries
 
     public const string AddFeatureFlagQuery = @"
         INSERT INTO {0}.FeatureFlag
-            (Name, Type, Value, FilterValue, CreatedAt, UpdatedAt)
+            (Name, Type, Value, FilterValue, Description, CreatedAt, UpdatedAt)
         VALUES
-            (@Name, @Type, @Value, @FilterValue, @CreatedAt, @UpdatedAt);
+            (@Name, @Type, @Value, @FilterValue, @Description, @CreatedAt, @UpdatedAt);
     ";
 
     public const string UpdateFeatureFlag = @"
         UPDATE {0}.FeatureFlag
         SET
-            Value = @Value, FilterValue = @FilterValue, UpdatedAt = @UpdatedAt
+            Value = @Value, FilterValue = @FilterValue, Description = @Description, UpdatedAt = @UpdatedAt
         WHERE
             Name = @Name;
     ";
@@ -49,6 +49,7 @@ public static class Queries
                 Type TINYINT NOT NULL,
                 Value BIT NOT NULL,
                 FilterValue VARCHAR(100) NULL,
+                Description VARCHAR(200) NULL,
                 CreatedAt DATETIME NOT NULL,
                 UpdatedAt DATETIME NULL
             );

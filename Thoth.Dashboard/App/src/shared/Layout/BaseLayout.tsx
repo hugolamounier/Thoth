@@ -29,7 +29,7 @@ const BaseLayout = ({ children }: { children: ReactNode }): JSX.Element => {
             items={items2}
           />
         </Sider>
-        <Layout style={{ padding: '0 24px 24px' }}>{children}</Layout>
+        <Layout>{children}</Layout>
       </Layout>
     </Layout>
   );

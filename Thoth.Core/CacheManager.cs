@@ -56,6 +56,7 @@ public class CacheManager
                 Type = featureFlag.Type,
                 Value = featureFlag.Value,
                 FilterValue = featureFlag.FilterValue,
+                Description = featureFlag.Description,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
             };
@@ -66,6 +67,7 @@ public class CacheManager
 
         cachedValue.Value = featureFlag.Value;
         cachedValue.FilterValue = featureFlag.FilterValue;
+        cachedValue.Description = featureFlag.Description;
         cachedValue.UpdatedAt = DateTime.UtcNow;
 
         _memoryCache.Remove(cacheKey);
