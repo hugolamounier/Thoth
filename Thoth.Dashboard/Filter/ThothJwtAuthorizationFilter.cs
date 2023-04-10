@@ -38,25 +38,21 @@ public class ThothJwtAuthorizationFilter: IThothDashboardAuthorizationFilter
     public async Task<bool> AuthorizeAsync(ThothDashboardContext thothDashboardContext)
     {
         string? jwtToken;
-        bool isAuthorized;
 
         if (thothDashboardContext.HttpContext.Request.Query.ContainsKey(_tokenQueryParamName))
         {
             jwtToken = thothDashboardContext.HttpContext.Request.Query[_tokenQueryParamName].FirstOrDefault();
-            isAuthorized = await IsAuthorized(jwtToken, thothDashboardContext.HttpContext);
+            var isAuthorized = await IsAuthorized(jwtToken, thothDashboardContext.HttpContext);
 
-            if(isAuthorized)
-                SetCookie(jwtToken, thothDashboardContext.HttpContext);
+            if (!isAuthorized)
+                return false;
 
-            return isAuthorized;
+            SetCookie(jwtToken, thothDashboardContext.HttpContext);
+
+            return true;
         }
 
         jwtToken = thothDashboardContext.HttpContext.Request.Cookies["_thothCookie"];
-        isAuthorized = await IsAuthorized(jwtToken, thothDashboardContext.HttpContext);
-
-        if(isAuthorized)
-            SetCookie(jwtToken, thothDashboardContext.HttpContext);
-
         return await IsAuthorized(jwtToken, thothDashboardContext.HttpContext);
     }
 

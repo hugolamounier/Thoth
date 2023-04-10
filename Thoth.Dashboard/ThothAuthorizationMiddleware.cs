@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -36,6 +37,14 @@ public class ThothAuthorizationMiddleware
                 continue;
 
             httpContext.Response.StatusCode = StatusCodes.Status403Forbidden;
+            return;
+        }
+
+        if (httpContext.Request.Query.Any())
+        {
+            thothContext.HttpContext.Response.StatusCode = StatusCodes.Status301MovedPermanently;
+            thothContext.HttpContext.Response.Headers["Location"] = _options.RoutePrefix;
+
             return;
         }
 
