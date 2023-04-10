@@ -1,17 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import BaseContent from '../../shared/Layout/BaseContent';
-import { App, Button, Form, Input, Modal, Select, Space, Switch, Table, Tag, Tooltip } from 'antd';
+import { App, Button, Modal, Space, Switch, Table, Tag, Tooltip } from 'antd';
 import {
   DeleteOutlined,
   ExclamationCircleOutlined,
-  FileAddOutlined,
   InfoCircleOutlined,
   PlusOutlined,
 } from '@ant-design/icons';
 import { FeatureFlag, FeatureFlagsTypes } from '../../models/featureFlag';
 import FeatureFlagService from '../../services/featureFlagService';
 import moment from 'moment';
-import { useForm } from 'antd/lib/form/Form';
 import CreateModal from './components/createModal';
 
 type LoadingProps = {
