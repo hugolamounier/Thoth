@@ -52,7 +52,7 @@ public class ThothJwtAuthorizationFilter: IThothDashboardAuthorizationFilter
 
             SetCookie(jwtToken, thothDashboardContext.HttpContext);
 
-            thothDashboardContext.HttpContext.Response.StatusCode = StatusCodes.Status301MovedPermanently;
+            thothDashboardContext.HttpContext.Response.StatusCode = StatusCodes.Status302Found;
             thothDashboardContext.HttpContext.Response.Headers["Location"] = _dashboardRootPath;
 
             return true;

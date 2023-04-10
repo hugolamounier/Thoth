@@ -41,7 +41,7 @@ public class ThothAuthorizationMiddleware
             return;
         }
 
-        if (httpContext.Response.StatusCode == StatusCodes.Status301MovedPermanently)
+        if (httpContext.Response.StatusCode == StatusCodes.Status302Found)
             return;
 
         await _next(httpContext);
