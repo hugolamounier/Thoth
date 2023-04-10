@@ -28,28 +28,36 @@ public class ThothJwtAuthorizationFilter: IThothDashboardAuthorizationFilter
         _tokenQueryParamName = tokenQueryParamName;
         _roleClaimName = roleClaimName;
         _allowedRoles = allowedRoles;
-        _cookieOptions = cookieOptions ??  new CookieOptions
+        _cookieOptions = cookieOptions ?? new CookieOptions
         {
-            Expires = DateTime.Now.AddDays(30),
             Secure = true,
             HttpOnly = true
         };
     }
 
-    public Task<bool> AuthorizeAsync(ThothDashboardContext thothDashboardContext)
+    public async Task<bool> AuthorizeAsync(ThothDashboardContext thothDashboardContext)
     {
         string? jwtToken;
+        bool isAuthorized;
 
         if (thothDashboardContext.HttpContext.Request.Query.ContainsKey(_tokenQueryParamName))
         {
             jwtToken = thothDashboardContext.HttpContext.Request.Query[_tokenQueryParamName].FirstOrDefault();
-            SetCookie(jwtToken, thothDashboardContext.HttpContext);
+            isAuthorized = await IsAuthorized(jwtToken, thothDashboardContext.HttpContext);
 
-            return IsAuthorized(jwtToken, thothDashboardContext.HttpContext);
+            if(isAuthorized)
+                SetCookie(jwtToken, thothDashboardContext.HttpContext);
+
+            return isAuthorized;
         }
 
         jwtToken = thothDashboardContext.HttpContext.Request.Cookies["_thothCookie"];
-        return IsAuthorized(jwtToken, thothDashboardContext.HttpContext);
+        isAuthorized = await IsAuthorized(jwtToken, thothDashboardContext.HttpContext);
+
+        if(isAuthorized)
+            SetCookie(jwtToken, thothDashboardContext.HttpContext);
+
+        return await IsAuthorized(jwtToken, thothDashboardContext.HttpContext);
     }
 
     private Task<bool> IsAuthorized(string? jwtToken, HttpContext httpContext)
@@ -62,12 +70,14 @@ public class ThothJwtAuthorizationFilter: IThothDashboardAuthorizationFilter
 
         try
         {
-            jwtSecurityToken = tokenHandler.ValidateToken(jwtToken, _tokenValidationParameters, out _);
+            jwtSecurityToken = tokenHandler.ValidateToken(jwtToken, _tokenValidationParameters, out var outToken);
+            _cookieOptions!.Expires = outToken.ValidTo;
         }
         catch
         {
             return Task.FromResult(false);
         }
+
 
         if (jwtSecurityToken is null)
             return Task.FromResult(false);
