@@ -288,6 +288,7 @@ public class ThothApiControllerTests : IntegrationTestBase<Program>
             {
                 Name = Guid.NewGuid().ToString(),
                 Type = FeatureFlagsTypes.Boolean,
+                Description = "Test",
                 Value = true
             }
         };

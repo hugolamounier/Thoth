@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import BaseContent from '../../shared/Layout/BaseContent';
-import { App, Button, Form, Input, Modal, Select, Space, Switch, Table, Tag } from 'antd';
+import { App, Button, Form, Input, Modal, Select, Space, Switch, Table, Tag, Tooltip } from 'antd';
 import {
   DeleteOutlined,
   ExclamationCircleOutlined,
   FileAddOutlined,
+  InfoCircleOutlined,
   PlusOutlined,
 } from '@ant-design/icons';
 import { FeatureFlag, FeatureFlagsTypes } from '../../models/featureFlag';
@@ -126,7 +127,25 @@ const FeatureFlags = (): JSX.Element => {
   const tableData = featureFlags?.map((featureFlag) => {
     return {
       key: featureFlag.name,
-      name: featureFlag.name,
+      name: (
+        <Space align="center">
+          {featureFlag.name}
+          {featureFlag?.description !== null ? (
+            <Tooltip className="pl-1 cursor-pointer" title="Description">
+              <InfoCircleOutlined
+                onClick={() =>
+                  Modal.info({
+                    title: `${featureFlag.name} - Description`,
+                    content: <div>{featureFlag.description}</div>,
+                    footer: null,
+                    closable: true,
+                  })
+                }
+              />
+            </Tooltip>
+          ) : null}
+        </Space>
+      ),
       type: tagType(featureFlag.type),
       value: (
         <Switch
