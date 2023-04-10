@@ -56,6 +56,7 @@ public class CacheManager
                 Type = featureFlag.Type,
                 Value = featureFlag.Value,
                 FilterValue = featureFlag.FilterValue,
+                Description = featureFlag.Description,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
             };
