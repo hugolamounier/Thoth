@@ -15,6 +15,7 @@ public class ThothJwtAuthorizationFilter: IThothDashboardAuthorizationFilter
     private readonly string _tokenQueryParamName;
     private readonly string? _roleClaimName;
     private readonly IEnumerable<string>? _allowedRoles;
+    private readonly string _dashboardRootPath;
     private readonly CookieOptions? _cookieOptions;
 
     public ThothJwtAuthorizationFilter(
@@ -22,34 +23,43 @@ public class ThothJwtAuthorizationFilter: IThothDashboardAuthorizationFilter
         string tokenQueryParamName = "accessToken",
         string? roleClaimName = ClaimTypes.Role,
         IEnumerable<string>? allowedRoles = null,
-        CookieOptions? cookieOptions = null)
+        CookieOptions? cookieOptions = null,
+        string dashboardRootPath = "/thoth")
     {
         _tokenValidationParameters = tokenValidationParameters;
         _tokenQueryParamName = tokenQueryParamName;
         _roleClaimName = roleClaimName;
         _allowedRoles = allowedRoles;
-        _cookieOptions = cookieOptions ??  new CookieOptions
+        _dashboardRootPath = dashboardRootPath;
+        _cookieOptions = cookieOptions ?? new CookieOptions
         {
-            Expires = DateTime.Now.AddDays(30),
             Secure = true,
             HttpOnly = true
         };
     }
 
-    public Task<bool> AuthorizeAsync(ThothDashboardContext thothDashboardContext)
+    public async Task<bool> AuthorizeAsync(ThothDashboardContext thothDashboardContext)
     {
         string? jwtToken;
 
         if (thothDashboardContext.HttpContext.Request.Query.ContainsKey(_tokenQueryParamName))
         {
             jwtToken = thothDashboardContext.HttpContext.Request.Query[_tokenQueryParamName].FirstOrDefault();
+            var isAuthorized = await IsAuthorized(jwtToken, thothDashboardContext.HttpContext);
+
+            if (!isAuthorized)
+                return false;
+
             SetCookie(jwtToken, thothDashboardContext.HttpContext);
 
-            return IsAuthorized(jwtToken, thothDashboardContext.HttpContext);
+            thothDashboardContext.HttpContext.Response.StatusCode = StatusCodes.Status301MovedPermanently;
+            thothDashboardContext.HttpContext.Response.Headers["Location"] = _dashboardRootPath;
+
+            return true;
         }
 
         jwtToken = thothDashboardContext.HttpContext.Request.Cookies["_thothCookie"];
-        return IsAuthorized(jwtToken, thothDashboardContext.HttpContext);
+        return await IsAuthorized(jwtToken, thothDashboardContext.HttpContext);
     }
 
     private Task<bool> IsAuthorized(string? jwtToken, HttpContext httpContext)
@@ -62,12 +72,14 @@ public class ThothJwtAuthorizationFilter: IThothDashboardAuthorizationFilter
 
         try
         {
-            jwtSecurityToken = tokenHandler.ValidateToken(jwtToken, _tokenValidationParameters, out _);
+            jwtSecurityToken = tokenHandler.ValidateToken(jwtToken, _tokenValidationParameters, out var outToken);
+            _cookieOptions!.Expires = outToken.ValidTo;
         }
         catch
         {
             return Task.FromResult(false);
         }
+
 
         if (jwtSecurityToken is null)
             return Task.FromResult(false);

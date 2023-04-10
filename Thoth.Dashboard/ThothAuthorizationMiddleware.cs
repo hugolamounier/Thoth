@@ -1,7 +1,9 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Thoth.Dashboard.Filter;
 
 namespace Thoth.Dashboard;
 
@@ -38,6 +40,9 @@ public class ThothAuthorizationMiddleware
             httpContext.Response.StatusCode = StatusCodes.Status403Forbidden;
             return;
         }
+
+        if (httpContext.Response.StatusCode == StatusCodes.Status301MovedPermanently)
+            return;
 
         await _next(httpContext);
     }

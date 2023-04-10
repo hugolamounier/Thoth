@@ -17,7 +17,6 @@ namespace Thoth.Tests;
 
 public class ThothJwtAuthorizationFilterTests: IntegrationTestBase<Program>
 {
-    private readonly string _token;
     private static readonly Mock<ILogger<FeatureFlagController>> Logger = new();
 
     public ThothJwtAuthorizationFilterTests() : base(arguments: new Dictionary<string, string>
@@ -28,11 +27,13 @@ public class ThothJwtAuthorizationFilterTests: IntegrationTestBase<Program>
         services.AddScoped<ILogger<FeatureFlagController>>(_ => Logger.Object);
     })
     {
-        _token = JwtGenerator.GenerateToken(new List<Claim>
+        var token = JwtGenerator.GenerateToken(new List<Claim>
         {
             new (ClaimTypes.NameIdentifier, Guid.NewGuid().ToString()),
             new (ClaimTypes.Email, "thotest@thotest.thoth")
         });
+
+        HttpClient.GetAsync($"/thoth?accessToken={token}").GetAwaiter().GetResult();
     }
 
     [Theory]
@@ -44,7 +45,7 @@ public class ThothJwtAuthorizationFilterTests: IntegrationTestBase<Program>
             JsonConvert.SerializeObject(featureFlag), Encoding.UTF8, "application/json");
 
         //Act
-        var response = await HttpClient.PostAsync($"/thoth-api/FeatureFlag?accessToken={_token}", postContent);
+        var response = await HttpClient.PostAsync($"/thoth-api/FeatureFlag", postContent);
 
         //Assert
         response.IsSuccessStatusCode.Should().BeTrue();
@@ -62,7 +63,7 @@ public class ThothJwtAuthorizationFilterTests: IntegrationTestBase<Program>
     public async Task Dashboard_ShouldBeAuthorized()
     {
         //Act
-        var response = await HttpClient.GetAsync($"/thoth/?accessToken={_token}");
+        var response = await HttpClient.GetAsync($"/thoth");
         var responseShouldUseCookies = await HttpClient.GetAsync($"/thoth");
 
         //Assert
