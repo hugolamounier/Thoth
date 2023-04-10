@@ -15,6 +15,7 @@ public class ThothJwtAuthorizationFilter: IThothDashboardAuthorizationFilter
     private readonly string _tokenQueryParamName;
     private readonly string? _roleClaimName;
     private readonly IEnumerable<string>? _allowedRoles;
+    private readonly string _dashboardRootPath;
     private readonly CookieOptions? _cookieOptions;
 
     public ThothJwtAuthorizationFilter(
@@ -22,12 +23,14 @@ public class ThothJwtAuthorizationFilter: IThothDashboardAuthorizationFilter
         string tokenQueryParamName = "accessToken",
         string? roleClaimName = ClaimTypes.Role,
         IEnumerable<string>? allowedRoles = null,
-        CookieOptions? cookieOptions = null)
+        CookieOptions? cookieOptions = null,
+        string dashboardRootPath = "/thoth")
     {
         _tokenValidationParameters = tokenValidationParameters;
         _tokenQueryParamName = tokenQueryParamName;
         _roleClaimName = roleClaimName;
         _allowedRoles = allowedRoles;
+        _dashboardRootPath = dashboardRootPath;
         _cookieOptions = cookieOptions ?? new CookieOptions
         {
             Secure = true,
@@ -48,6 +51,9 @@ public class ThothJwtAuthorizationFilter: IThothDashboardAuthorizationFilter
                 return false;
 
             SetCookie(jwtToken, thothDashboardContext.HttpContext);
+
+            thothDashboardContext.HttpContext.Response.StatusCode = StatusCodes.Status301MovedPermanently;
+            thothDashboardContext.HttpContext.Response.Headers["Location"] = _dashboardRootPath;
 
             return true;
         }
