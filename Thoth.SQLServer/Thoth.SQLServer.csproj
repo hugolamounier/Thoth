@@ -16,7 +16,7 @@
         <RootNamespace>Thoth.SQLServer</RootNamespace>
         <IsPackable>true</IsPackable>
         <PackageIcon>icon-64.png</PackageIcon>
-        <Version>3.0.1</Version>
+        <Version>3.0.2</Version>
     </PropertyGroup>
 
     <ItemGroup>
@@ -25,13 +25,8 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.16" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.16">
-          <PrivateAssets>all</PrivateAssets>
-          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-        </PackageReference>
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="6.0.16" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.16" />
+        <PackageReference Include="Dapper" Version="2.0.123" />
+        <PackageReference Include="Microsoft.Data.SqlClient" Version="5.1.1" />
         <PackageReference Include="Microsoft.Extensions.Options" Version="6.0.0" />
     </ItemGroup>
 

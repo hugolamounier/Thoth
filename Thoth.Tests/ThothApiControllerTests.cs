@@ -151,6 +151,34 @@ public class ThothApiControllerTests : IntegrationTestBase<Program>
     }
 
     [Fact]
+    public async Task GetByName_WithoutCache_ShouldSuccess()
+    {
+        //Arrange
+        var cacheManager = Services.GetRequiredService<CacheManager>();
+        var featureFlag = new FeatureManager
+        {
+            Name = Guid.NewGuid().ToString(),
+            Type = FeatureTypes.FeatureFlag,
+            SubType = FeatureFlagsTypes.Boolean,
+            Enabled = true
+        };
+        var postContent = new StringContent(JsonConvert.SerializeObject(featureFlag), Encoding.UTF8, "application/json");
+        await HttpClient.PostAsync("/thoth-api/FeatureFlag", postContent);
+        cacheManager.Remove(featureFlag.Name);
+
+        //Act
+        var response = await HttpClient.GetAsync($"/thoth-api/FeatureFlag/{featureFlag.Name}");
+        var content = await response.Content.ReadFromJsonAsync<FeatureManager>();
+
+        //Assert
+        response.IsSuccessStatusCode.Should().BeTrue();
+        content.Should().NotBeNull();
+        content?.Name.Should().Be(featureFlag.Name);
+        content?.Type.Should().Be(featureFlag.Type);
+        content?.Enabled.Should().Be(featureFlag.Enabled);
+    }
+
+    [Fact]
     public async Task Update_WhenValid_ShouldSuccess()
     {
         //Arrange

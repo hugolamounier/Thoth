@@ -1,117 +1,80 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
+using System.Data;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
+using Dapper;
+using Microsoft.Data.SqlClient;
 using Thoth.Core.Interfaces;
 using Thoth.Core.Models.Entities;
 
 namespace Thoth.SQLServer;
 
-public sealed class ThothSqlServerProvider : DbContext, IDatabase
+public class ThothSqlServerProvider : IDatabase
 {
-    private readonly string? _connectionString;
     private const string SchemaName = "thoth";
+    private readonly IDbConnection _dbConnection;
 
-    public ThothSqlServerProvider(DbContextOptions options) : base(options){}
-    public ThothSqlServerProvider(string? connectionString)
+    public ThothSqlServerProvider(string connectionString)
     {
-        if (string.IsNullOrWhiteSpace(connectionString))
-            throw new ArgumentNullException(connectionString);
-
-        _connectionString = connectionString;
-        Database.Migrate();
+        _dbConnection = new SqlConnection(connectionString);
+        Init();
     }
 
-    public Task<FeatureManager?> GetAsync(string featureName) =>
-        Features.FirstOrDefaultAsync(x => x.Name == featureName);
+    public Task<FeatureManager> GetAsync(string featureName)
+    {
+        return _dbConnection
+            .QueryFirstAsync<FeatureManager>(string.Format(Queries.GetQuery, SchemaName),
+                new {Name = featureName});
+    }
 
-    public Task<List<FeatureManager>> GetAllAsync() =>
-        Features.AsNoTracking().ToListAsync();
+    public Task<IEnumerable<FeatureManager>> GetAllAsync()
+    {
+        return _dbConnection.QueryAsync<FeatureManager>(string.Format(Queries.GetAllQuery, SchemaName));
+    }
 
     public async Task<bool> AddAsync(FeatureManager featureManager)
     {
-        await Features.AddAsync(featureManager);
-        return await SaveChangesAsync() > 0;
+        featureManager.CreatedAt = DateTime.UtcNow;
+        return await _dbConnection.ExecuteAsync(string.Format(Queries.AddFeatureFlagQuery, SchemaName), featureManager) > 0;
     }
 
     public async Task<bool> UpdateAsync(FeatureManager featureManager)
     {
-        var feature = await GetAsync(featureManager.Name);
-
-        if (feature is null)
-            return false;
-
-        feature.Description = featureManager.Description;
-        feature.Value = featureManager.Value;
-        feature.Enabled = featureManager.Enabled;
-
-        return await SaveChangesAsync() > 0;
+        featureManager.UpdatedAt = DateTime.UtcNow;
+        return await _dbConnection.ExecuteAsync(string.Format(Queries.UpdateFeatureFlag, SchemaName), featureManager) > 0;
     }
 
     public async Task<bool> DeleteAsync(string featureName)
     {
-        var featureToDelete = await GetAsync(featureName);
-
-        if (featureToDelete is null)
-            return false;
-
-        Features.Remove(featureToDelete);
-        return await SaveChangesAsync() > 0;
+        return await _dbConnection.ExecuteAsync(string.Format(Queries.DeleteFeatureFlagQuery, SchemaName), new {Name = featureName}) > 0;
     }
 
-    public async Task<bool> ExistsAsync(string featureName) =>
-        await GetAsync(featureName) is not null;
-
-    private DbSet<FeatureManager> Features { get; set; } = null!;
-
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    public async Task<bool> ExistsAsync(string featureName)
     {
-        optionsBuilder.UseSqlServer(_connectionString, x =>
-        {
-            x.MigrationsHistoryTable("__EFMigrationsHistory", SchemaName);
-        });
+        return await _dbConnection.QueryFirstOrDefaultAsync<FeatureManager?>(string.Format(Queries.GetQuery, SchemaName),
+            new {Name = featureName}) is not null;
     }
 
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    public void Dispose()
     {
-        base.OnModelCreating(modelBuilder);
-
-        modelBuilder.HasDefaultSchema(SchemaName);
-
-        modelBuilder.Entity<FeatureManager>(entity =>
-        {
-            entity.HasKey(p => p.Name);
-
-            entity.Property(p => p.Name).HasMaxLength(100);
-            entity.Property(p => p.Type);
-            entity.Property(p => p.SubType).IsRequired(false);
-            entity.Property(p => p.Enabled);
-            entity.Property(p => p.Description).IsRequired(false).HasMaxLength(200);
-            entity.Property(p => p.Value).IsRequired(false);
-            entity.Property(p => p.CreatedAt);
-            entity.Property(p => p.UpdatedAt).IsRequired(false);
-        });
+        Dispose(true);
+        GC.SuppressFinalize(this);
     }
 
-    public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    protected virtual void Dispose(bool disposing)
     {
-        AddTimestamps();
-        return base.SaveChangesAsync(cancellationToken);
+        if (!disposing)
+            return;
+
+        _dbConnection.Close();
+        _dbConnection.Dispose();
     }
 
-    private void AddTimestamps()
+    private void Init()
     {
-        var entities = ChangeTracker.Entries()
-            .Where(x => x is {Entity: IThothFeatureEntity, State: EntityState.Added or EntityState.Modified});
+        _dbConnection.Open();
 
-        foreach (var entity in entities)
-        {
-            if (entity.State == EntityState.Added)
-                ((IThothFeatureEntity)entity.Entity).CreatedAt = DateTime.UtcNow;
-
-            ((IThothFeatureEntity)entity.Entity).UpdatedAt = DateTime.UtcNow;
-        }
+        _dbConnection.Execute(string.Format(Queries.CreateSchemaIfNotExistsQuery, SchemaName));
+        _dbConnection.Execute(string.Format(Queries.CreateFeatureFlagTableQuery, SchemaName));
     }
 }
