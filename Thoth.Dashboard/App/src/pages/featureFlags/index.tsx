@@ -7,7 +7,7 @@ import {
   InfoCircleOutlined,
   PlusOutlined,
 } from '@ant-design/icons';
-import { FeatureFlag, FeatureFlagsTypes } from '../../models/featureFlag';
+import { FeatureFlag, FeatureFlagsTypes, FeatureTypes } from '../../models/featureFlag';
 import FeatureFlagService from '../../services/featureFlagService';
 import moment from 'moment';
 import CreateModal from './components/createModal';
@@ -18,7 +18,7 @@ type LoadingProps = {
   createLoading: boolean;
 };
 
-const FeatureFlags = (): JSX.Element => {
+const FeatureManagement = (): JSX.Element => {
   const [featureFlags, setFeatureFlags] = useState<FeatureFlag[]>([]);
   const [createModalOpen, setCreateModalOpen] = useState<boolean>(false);
   const [loading, setLoading] = useState<LoadingProps>({
@@ -70,13 +70,22 @@ const FeatureFlags = (): JSX.Element => {
     setLoading({ ...loading, createLoading: false });
   };
 
-  const tagType = (type: FeatureFlagsTypes) => {
+  const tagType = (type: FeatureTypes, subType?: FeatureFlagsTypes) => {
     switch (type) {
-      case FeatureFlagsTypes.Boolean:
-        return <Tag color="gold">{FeatureFlagsTypes[type]}</Tag>;
+      case FeatureTypes.EnvironmentVariable:
+        return <Tag color="gold">{FeatureTypes[type]}</Tag>;
 
-      case FeatureFlagsTypes.PercentageFilter:
-        return <Tag color="purple">{FeatureFlagsTypes[type]}</Tag>;
+      case FeatureTypes.FeatureFlag: {
+        switch (subType) {
+          case FeatureFlagsTypes.Boolean:
+            return <Tag color="green">Feature Flag: {FeatureFlagsTypes[subType]}</Tag>;
+
+          case FeatureFlagsTypes.PercentageFilter:
+            return <Tag color="purple">Feature Flag: {FeatureFlagsTypes[subType]}</Tag>;
+          default:
+            return <Tag color="red">Feature Flag: Unknown</Tag>;
+        }
+      }
       default:
         return <Tag color="red">Unknown</Tag>;
     }
@@ -144,7 +153,7 @@ const FeatureFlags = (): JSX.Element => {
           ) : null}
         </Space>
       ),
-      type: tagType(featureFlag.type),
+      type: tagType(featureFlag.type, featureFlag.subType),
       enabled: (
         <Switch
           checkedChildren="On"
@@ -202,4 +211,4 @@ const FeatureFlags = (): JSX.Element => {
   );
 };
 
-export default FeatureFlags;
+export default FeatureManagement;

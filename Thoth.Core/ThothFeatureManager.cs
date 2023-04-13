@@ -20,12 +20,11 @@ public class ThothFeatureManager: IThothFeatureManager
     public ThothFeatureManager(
         CacheManager cacheManager,
         ILogger<ThothFeatureManager> logger,
-        IOptions<ThothOptions> thothOptions,
-        IDatabase dbContext)
+        IOptions<ThothOptions> thothOptions)
     {
         _cacheManager = cacheManager;
         _logger = logger;
-        _dbContext = dbContext;
+        _dbContext = thothOptions.Value.DatabaseProvider;
         _thothOptions = thothOptions.Value;
     }
 

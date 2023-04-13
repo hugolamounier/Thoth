@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useForm } from 'antd/lib/form/Form';
-import { FeatureFlag, FeatureFlagsTypes } from '../../../models/featureFlag';
+import { FeatureFlag, FeatureFlagsTypes, FeatureTypes } from '../../../models/featureFlag';
 import { Form, Input, Modal, Select, Space, Switch } from 'antd';
 import { FileAddOutlined } from '@ant-design/icons';
 import TextArea from 'antd/lib/input/TextArea';
@@ -14,7 +14,8 @@ interface CreateModalInterface {
 
 const CreateModal = ({ isOpen, setIsOpen, onSubmitForm, isLoading }: CreateModalInterface) => {
   const [addFeatureFlagForm] = useForm<FeatureFlag>();
-  const [typeSelect, setTypeSelect] = useState<FeatureFlagsTypes | undefined>(undefined);
+  const [typeSelect, setTypeSelect] = useState<FeatureTypes | undefined>(undefined);
+  const [subTypeSelect, setSubTypeSelect] = useState<FeatureFlagsTypes | undefined>(undefined);
 
   return (
     <Modal
@@ -44,26 +45,52 @@ const CreateModal = ({ isOpen, setIsOpen, onSubmitForm, isLoading }: CreateModal
             showSearch
             placeholder="Select flag type"
             optionFilterProp="children"
-            onChange={(value, option) => setTypeSelect(value)}
+            onChange={(value, option) => {
+              setTypeSelect(value);
+              addFeatureFlagForm.resetFields(['value']);
+            }}
             filterOption={(input, option) =>
               (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
             }
-            options={Object.keys(FeatureFlagsTypes)
+            options={Object.keys(FeatureTypes)
               .filter((v) => isNaN(Number(v)))
               .map((key, index) => {
                 return {
-                  value: FeatureFlagsTypes[key as keyof typeof FeatureFlagsTypes],
+                  value: FeatureTypes[key as keyof typeof FeatureTypes],
                   label: key,
                 };
               })}
           />
         </Form.Item>
-        {typeSelect !== undefined && typeSelect !== FeatureFlagsTypes.Boolean ? (
-          <Form.Item name="filterValue" label="Filter value" rules={[{ required: true }]}>
+        {typeSelect !== undefined && typeSelect === FeatureTypes.FeatureFlag ? (
+          <Form.Item name="subType" label="SubType" rules={[{ required: true }]}>
+            <Select
+              showSearch
+              placeholder="Select flag type"
+              optionFilterProp="children"
+              onChange={(value, option) => setSubTypeSelect(value)}
+              filterOption={(input, option) =>
+                (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+              }
+              options={Object.keys(FeatureFlagsTypes)
+                .filter((v) => isNaN(Number(v)))
+                .map((key, index) => {
+                  return {
+                    value: FeatureFlagsTypes[key as keyof typeof FeatureFlagsTypes],
+                    label: key,
+                  };
+                })}
+            />
+          </Form.Item>
+        ) : null}
+        {typeSelect !== undefined &&
+        ((subTypeSelect !== undefined && subTypeSelect !== FeatureFlagsTypes.Boolean) ||
+          typeSelect === FeatureTypes.EnvironmentVariable) ? (
+          <Form.Item name="value" label="Value" rules={[{ required: true }]}>
             <Input />
           </Form.Item>
         ) : null}
-        <Form.Item name="value" label="Initial State" valuePropName="checked">
+        <Form.Item name="enabled" label="Initial State" valuePropName="checked">
           <Switch defaultChecked={false} unCheckedChildren="Off" checkedChildren="On" />
         </Form.Item>
         <Form.Item name="description" label="Description">

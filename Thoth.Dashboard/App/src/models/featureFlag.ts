@@ -2,7 +2,8 @@ import { Moment } from 'moment';
 
 export type FeatureFlag = {
   name: string;
-  type: FeatureFlagsTypes;
+  type: FeatureTypes;
+  subType?: FeatureFlagsTypes;
   enabled: boolean;
   value?: string;
   description?: string;
