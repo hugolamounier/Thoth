@@ -32,16 +32,16 @@ public class ThothSqlServerProvider : IDatabase
         return _dbConnection.QueryAsync<FeatureManager>(string.Format(Queries.GetAllQuery, SchemaName));
     }
 
-    public async Task<bool> AddAsync(FeatureManager featureFlag)
+    public async Task<bool> AddAsync(FeatureManager featureManager)
     {
-        featureFlag.CreatedAt = DateTime.UtcNow;
-        return await _dbConnection.ExecuteAsync(string.Format(Queries.AddFeatureFlagQuery, SchemaName), featureFlag) > 0;
+        featureManager.CreatedAt = DateTime.UtcNow;
+        return await _dbConnection.ExecuteAsync(string.Format(Queries.AddFeatureFlagQuery, SchemaName), featureManager) > 0;
     }
 
-    public async Task<bool> UpdateAsync(FeatureManager featureFlag)
+    public async Task<bool> UpdateAsync(FeatureManager featureManager)
     {
-        featureFlag.UpdatedAt = DateTime.UtcNow;
-        return await _dbConnection.ExecuteAsync(string.Format(Queries.UpdateFeatureFlag, SchemaName), featureFlag) > 0;
+        featureManager.UpdatedAt = DateTime.UtcNow;
+        return await _dbConnection.ExecuteAsync(string.Format(Queries.UpdateFeatureFlag, SchemaName), featureManager) > 0;
     }
 
     public async Task<bool> DeleteAsync(string featureName)
@@ -61,7 +61,7 @@ public class ThothSqlServerProvider : IDatabase
         GC.SuppressFinalize(this);
     }
 
-    private void Dispose(bool disposing)
+    protected virtual void Dispose(bool disposing)
     {
         if (!disposing)
             return;
