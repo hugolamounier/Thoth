@@ -11,10 +11,10 @@ namespace Thoth.SQLServer;
 
 public sealed class ThothSqlServerProvider : DbContext, IDatabase
 {
-    private readonly string? _connectionString;
+    private readonly string _connectionString;
     private const string SchemaName = "thoth";
 
-    public ThothSqlServerProvider(string? connectionString)
+    public ThothSqlServerProvider(string connectionString)
     {
         if (string.IsNullOrWhiteSpace(connectionString))
             throw new ArgumentNullException(connectionString);
@@ -24,7 +24,7 @@ public sealed class ThothSqlServerProvider : DbContext, IDatabase
     }
 
     public Task<FeatureManager?> GetAsync(string featureName) =>
-        Features.AsNoTracking().FirstOrDefaultAsync(x => x.Name == featureName);
+        Features.FirstOrDefaultAsync(x => x.Name == featureName);
 
     public Task<List<FeatureManager>> GetAllAsync() =>
         Features.AsNoTracking().ToListAsync();
@@ -37,7 +37,14 @@ public sealed class ThothSqlServerProvider : DbContext, IDatabase
 
     public async Task<bool> UpdateAsync(FeatureManager featureManager)
     {
-        Features.Update(featureManager);
+        var feature = await GetAsync(featureManager.Name);
+
+        if (feature is null)
+            return false;
+
+        feature.Description = featureManager.Description;
+        feature.Value = featureManager.Value;
+        feature.Enabled = featureManager.Enabled;
 
         return await SaveChangesAsync() > 0;
     }
@@ -61,7 +68,6 @@ public sealed class ThothSqlServerProvider : DbContext, IDatabase
     protected override void OnConfiguring(DbContextOptionsBuilder options)
     {
         options.UseSqlServer(_connectionString);
-        options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
