@@ -37,10 +37,9 @@ if (builder.Environment.IsEnvironment("Testing"))
     
     builder.Services.AddControllers();
     builder.Services.AddThoth(options =>
-        {
-            options.ConnectionString = builder.Configuration.GetConnectionString("SqlContext");
-        })
-        .UseSqlServer();
+    {
+        options.DatabaseProvider = new ThothSqlServerProvider(builder.Configuration.GetConnectionString("SqlContext"));
+    });
     
     builder.Services.AddSwaggerGen();
     
@@ -108,10 +107,9 @@ else
     // Add services to the container.
     builder.Services.AddControllers();
     builder.Services.AddThoth(options =>
-        {
-            options.ConnectionString = builder.Configuration.GetConnectionString("SqlContext");
-        })
-        .UseSqlServer();
+    {
+        options.DatabaseProvider = new ThothSqlServerProvider(builder.Configuration.GetConnectionString("SqlContext"));
+    });
 
     builder.Services.AddSwaggerGen();
 

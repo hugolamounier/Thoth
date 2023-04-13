@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Thoth.Core.Interfaces;
 using Thoth.Core.Models;
+using Thoth.Core.Models.Entities;
 
 namespace Thoth.Dashboard.Api;
 
@@ -55,19 +56,19 @@ public class FeatureFlagController
     /// <summary>
     ///     Add a new feature flag
     /// </summary>
-    /// <param name="featureFlag"></param>
+    /// <param name="featureManager"></param>
     /// <returns></returns>
-    public async Task<IResult> Create(FeatureFlag featureFlag)
+    public async Task<IResult> Create(FeatureManager featureManager)
     {
-        if (await featureFlag.IsValidAsync(out var messages) is false)
+        if (await featureManager.IsValidAsync(out var messages) is false)
             return Results.BadRequest(string.Join(Environment.NewLine, messages));
 
-        if (!await _thothFeatureManager.AddAsync(featureFlag))
+        if (!await _thothFeatureManager.AddAsync(featureManager))
             return Results.BadRequest();
 
         _logger.LogInformation("{Message}. {ClaimInfo}",
-            string.Format(Messages.INFO_ADDED_FEATURE_FLAG, featureFlag.Name, featureFlag.Value.ToString(),
-                featureFlag.FilterValue), AddUserInfoToLog());
+            string.Format(Messages.INFO_ADDED_FEATURE_FLAG, featureManager.Name, featureManager.Enabled.ToString(),
+                featureManager.Value), AddUserInfoToLog());
 
         return Results.StatusCode(201);
     }
@@ -75,18 +76,18 @@ public class FeatureFlagController
     /// <summary>
     ///     Update the feature flag
     /// </summary>
-    /// <param name="featureFlag"></param>
+    /// <param name="featureManager"></param>
     /// <returns></returns>
-    public async Task<IResult> Update(FeatureFlag featureFlag)
+    public async Task<IResult> Update(FeatureManager featureManager)
     {
-        if (await featureFlag.IsValidAsync(out var messages) is false)
+        if (await featureManager.IsValidAsync(out var messages) is false)
             return Results.BadRequest(string.Join(Environment.NewLine, messages));
 
-        if (!await _thothFeatureManager.UpdateAsync(featureFlag))
+        if (!await _thothFeatureManager.UpdateAsync(featureManager))
             return Results.BadRequest();
 
         _logger.LogInformation("{Message}. {ClaimInfo}",
-            string.Format(Messages.INFO_UPDATED_FEATURE_FLAG, featureFlag.Name, featureFlag.Value.ToString(), featureFlag.FilterValue),
+            string.Format(Messages.INFO_UPDATED_FEATURE_FLAG, featureManager.Name, featureManager.Enabled.ToString(), featureManager.Value),
             AddUserInfoToLog());
 
         return Results.Ok();

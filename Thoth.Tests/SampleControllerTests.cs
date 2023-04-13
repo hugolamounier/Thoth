@@ -1,7 +1,8 @@
 ﻿using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Thoth.Core.Interfaces;
-using Thoth.Core.Models;
+using Thoth.Core.Models.Entities;
+using Thoth.Core.Models.Enums;
 using Thoth.Tests.Base;
 
 namespace Thoth.Tests;
@@ -12,18 +13,19 @@ public class SampleControllerTests : IntegrationTestBase<Program>
 
     public SampleControllerTests() 
     {
-        _thothFeatureManager = ServiceScope.ServiceProvider.GetRequiredService<IThothFeatureManager>();;
+        _thothFeatureManager = ServiceScope.ServiceProvider.GetRequiredService<IThothFeatureManager>();
     }
 
     [Fact]
     public async Task GetSample_WhenBooleanType_ShouldSuccess()
     {
         //Arrange
-        var newFeatureFlag = new FeatureFlag
+        var newFeatureFlag = new FeatureManager
         {
             Name = Guid.NewGuid().ToString(),
-            Type = FeatureFlagsTypes.Boolean,
-            Value = true
+            Type = FeatureTypes.FeatureFlag,
+            SubType = FeatureFlagsTypes.Boolean,
+            Enabled = true
         };
         
         await _thothFeatureManager.AddAsync(newFeatureFlag);
@@ -41,12 +43,13 @@ public class SampleControllerTests : IntegrationTestBase<Program>
     public async Task GetSample_WhenPercentageFilterType_ShouldReturnEnabled_Success()
     {
         //Arrange
-        var newFeatureFlag = new FeatureFlag
+        var newFeatureFlag = new FeatureManager
         {
             Name = Guid.NewGuid().ToString(),
-            Type = FeatureFlagsTypes.PercentageFilter,
-            Value = true,
-            FilterValue = "50" 
+            Type = FeatureTypes.FeatureFlag,
+            SubType = FeatureFlagsTypes.PercentageFilter,
+            Enabled = true,
+            Value = "50"
         };
         
         await _thothFeatureManager.AddAsync(newFeatureFlag);
@@ -82,12 +85,13 @@ public class SampleControllerTests : IntegrationTestBase<Program>
     public async Task GetSample_WhenPercentageFilterType_ShouldReturnDisabled_Success(bool isActive, string validationMessage)
     {
         //Arrange
-        var newFeatureFlag = new FeatureFlag
+        var newFeatureFlag = new FeatureManager
         {
             Name = Guid.NewGuid().ToString(),
-            Type = FeatureFlagsTypes.PercentageFilter,
-            Value = isActive,
-            FilterValue = "100"
+            Type = FeatureTypes.FeatureFlag,
+            SubType = FeatureFlagsTypes.PercentageFilter,
+            Enabled = isActive,
+            Value = "100"
         };
         
         await _thothFeatureManager.AddAsync(newFeatureFlag);

@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
 using Thoth.Core;
+using Thoth.Core.Interfaces;
 using Thoth.Core.Models;
 using Thoth.Dashboard.Api;
 
@@ -16,7 +17,9 @@ namespace Thoth.Dashboard;
 [ExcludeFromCodeCoverage]
 public static class ApplicationBuilderExtensions
 {
-    public static IApplicationBuilder UseThothDashboard(this IApplicationBuilder app, Action<ThothDashboardOptions>? setupAction = null)
+    public static IApplicationBuilder UseThothDashboard(
+        this IApplicationBuilder app,
+        Action<ThothDashboardOptions>? setupAction = null)
     {
         using var scope = app.ApplicationServices.CreateScope();
         var options = (ThothDashboardOptions?) scope.ServiceProvider.GetRequiredService<IOptions<ThothDashboardOptions>>().Value;

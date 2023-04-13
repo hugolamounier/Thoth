@@ -30,12 +30,13 @@ public static class ServiceCollectionExtensions
         services.AddOptions();
         services.Configure(setupAction);
 
-        if (string.IsNullOrWhiteSpace(options.ConnectionString))
-            throw new ArgumentException(Messages.ERROR_CONNECTION_STRING);
+        if (options.DatabaseProvider == null)
+            throw new ArgumentException(Messages.ERROR_DATABASE_PROVIDER);
 
         services.AddHttpContextAccessor();
         services.TryAddSingleton<IMemoryCache, MemoryCache>();
         services.TryAddSingleton<CacheManager>();
+        services.TryAddScoped(_ => options.DatabaseProvider);
         services.TryAddSingleton<IThothFeatureManager, ThothFeatureManager>();
 
         if (options.EnableThothApi)
@@ -47,11 +48,11 @@ public static class ServiceCollectionExtensions
         var appPartManager = (ApplicationPartManager) services
             .FirstOrDefault(a => a.ServiceType == typeof(ApplicationPartManager))
             ?.ImplementationInstance!;
-        var mockingPart = appPartManager?.ApplicationParts
+        var dashboardAppPart = appPartManager?.ApplicationParts
             .FirstOrDefault(a => a.Name == "Thoth.Dashboard");
 
-        if (mockingPart != null)
-            appPartManager.ApplicationParts.Remove(mockingPart);
+        if (dashboardAppPart != null)
+            appPartManager.ApplicationParts.Remove(dashboardAppPart);
 
         return services;
     }

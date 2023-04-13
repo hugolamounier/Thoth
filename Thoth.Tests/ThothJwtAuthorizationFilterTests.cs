@@ -9,6 +9,8 @@ using Microsoft.IdentityModel.Tokens;
 using Moq;
 using Newtonsoft.Json;
 using Thoth.Core.Models;
+using Thoth.Core.Models.Entities;
+using Thoth.Core.Models.Enums;
 using Thoth.Dashboard.Api;
 using Thoth.Tests.Base;
 using Thoth.Tests.Helpers;
@@ -38,11 +40,11 @@ public class ThothJwtAuthorizationFilterTests: IntegrationTestBase<Program>
 
     [Theory]
     [MemberData(nameof(CreateValidDataGenerator))]
-    public async Task Create_ShouldBeAuthorized(FeatureFlag featureFlag)
+    public async Task Create_ShouldBeAuthorized(FeatureManager featureManager)
     {
         //Arrange
         var postContent = new StringContent(
-            JsonConvert.SerializeObject(featureFlag), Encoding.UTF8, "application/json");
+            JsonConvert.SerializeObject(featureManager), Encoding.UTF8, "application/json");
 
         //Act
         var response = await HttpClient.PostAsync($"/thoth-api/FeatureFlag", postContent);
@@ -54,7 +56,7 @@ public class ThothJwtAuthorizationFilterTests: IntegrationTestBase<Program>
                 It.Is<LogLevel>(l => l == LogLevel.Information),
                 It.IsAny<EventId>(),
                 It.Is<It.IsAnyType>((v, t) => v.ToString()!.Contains(string.Format(Messages.INFO_ACTION_MADE_BY_USER_WITH_CLAIMS, string.Empty)) &&
-                                                                     v.ToString()!.Contains(featureFlag.Name)),
+                                                                     v.ToString()!.Contains(featureManager.Name)),
                 It.IsAny<Exception>(),
                 It.Is<Func<It.IsAnyType, Exception, string>>((v, t) => true)!), Times.Once);
     }
@@ -89,21 +91,23 @@ public class ThothJwtAuthorizationFilterTests: IntegrationTestBase<Program>
     {
         yield return new object[]
         {
-            new FeatureFlag
+            new FeatureManager
             {
                 Name = Guid.NewGuid().ToString(),
-                Type = FeatureFlagsTypes.Boolean,
-                Value = true
+                Type = FeatureTypes.FeatureFlag,
+                SubType = FeatureFlagsTypes.Boolean,
+                Enabled = true
             }
         };
         yield return new object[]
         {
-            new FeatureFlag
+            new FeatureManager
             {
                 Name = Guid.NewGuid().ToString(),
-                Type = FeatureFlagsTypes.PercentageFilter,
-                FilterValue = "50",
-                Value = true
+                Type = FeatureTypes.FeatureFlag,
+                SubType = FeatureFlagsTypes.PercentageFilter,
+                Value = "50",
+                Enabled = true
             }
         };
     }

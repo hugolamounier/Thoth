@@ -25,7 +25,7 @@ const CreateModal = ({ isOpen, setIsOpen, onSubmitForm, isLoading }: CreateModal
       }}
       title={
         <Space>
-          <FileAddOutlined /> <span> Create new feature flag</span>
+          <FileAddOutlined /> <span> Create new feature manager</span>
         </Space>
       }
       open={isOpen}

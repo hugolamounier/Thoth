@@ -86,7 +86,7 @@ const FeatureFlags = (): JSX.Element => {
     setLoading({ ...loading, updateLoading: loading.updateLoading.set(name, true) });
     const featureFlag = featureFlags.findIndex((x) => x.name === name);
     const newFeatureFlags = [...featureFlags];
-    newFeatureFlags[featureFlag].value = !featureFlags[featureFlag].value;
+    newFeatureFlags[featureFlag].enabled = !featureFlags[featureFlag].enabled;
 
     setFeatureFlags(newFeatureFlags);
     const response = await FeatureFlagService.Update(newFeatureFlags[featureFlag]);
@@ -94,7 +94,7 @@ const FeatureFlags = (): JSX.Element => {
     if (!response) {
       await new Promise((resolve) => setTimeout(resolve, 2000));
       const oldFeatureFlags = [...featureFlags];
-      oldFeatureFlags[featureFlag].value = !oldFeatureFlags[featureFlag].value;
+      oldFeatureFlags[featureFlag].enabled = !oldFeatureFlags[featureFlag].enabled;
       setFeatureFlags(oldFeatureFlags);
       setLoading({ ...loading, updateLoading: loading.updateLoading.set(name, false) });
       return;
@@ -115,8 +115,8 @@ const FeatureFlags = (): JSX.Element => {
   const tableHeader: any[] = [
     { title: 'Name', key: 'name', dataIndex: 'name' },
     { title: 'Flag Type', key: 'type', dataIndex: 'type' },
-    { title: 'State', key: 'value', dataIndex: 'value' },
-    { title: 'Filter Value', key: 'filterValue', dataIndex: 'filterValue' },
+    { title: 'State', key: 'enabled', dataIndex: 'enabled' },
+    { title: 'Value', key: 'value', dataIndex: 'value' },
     { title: 'Created At', key: 'createdAt', dataIndex: 'createdAt' },
     { title: 'Updated At', key: 'updatedAt', dataIndex: 'updatedAt' },
     { title: 'Actions', key: 'actions', dataIndex: 'actions' },
@@ -145,16 +145,16 @@ const FeatureFlags = (): JSX.Element => {
         </Space>
       ),
       type: tagType(featureFlag.type),
-      value: (
+      enabled: (
         <Switch
           checkedChildren="On"
           unCheckedChildren="Off"
-          checked={featureFlag.value}
+          checked={featureFlag.enabled}
           loading={loading.updateLoading?.get(featureFlag.name) ?? false}
           onChange={() => onValueClick(featureFlag.name)}
         />
       ),
-      filterValue: featureFlag.filterValue ?? '--',
+      value: featureFlag.value ?? '--',
       createdAt: moment(featureFlag.createdAt).format('YYYY-MM-DD HH:mm:ss'),
       updatedAt:
         featureFlag.updatedAt !== null
@@ -169,7 +169,7 @@ const FeatureFlags = (): JSX.Element => {
       className="border-black border-b-2 pb-3 flex align-items-center justify-between"
       style={{ width: '100%' }}
     >
-      <h1 className="text-heading-bold-4 ">Feature Flags</h1>
+      <h1 className="text-heading-bold-4 ">Feature Management</h1>
       <Button type="primary" onClick={() => setCreateModalOpen(true)}>
         <Space>
           <PlusOutlined className="p-0 m-0" />

@@ -1,10 +1,18 @@
 using System;
-using Microsoft.Extensions.Options;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Thoth.Core.Interfaces;
+using Thoth.Core.Models.Entities;
 
 namespace Thoth.Core.Models;
 
 public class ThothOptions
 {
+    /// <summary>
+    ///     Defines the database provider that will be used to store data
+    /// </summary>
+    public IDatabase DatabaseProvider { get; set; }
+
     /// <summary>
     ///     Whether feature flags should be cached, enabled by default
     /// </summary>
@@ -14,11 +22,6 @@ public class ThothOptions
     ///     Defines if the default value to a non-existent should be false or throw
     /// </summary>
     public bool ShouldReturnFalseWhenNotExists { get; set; } = true;
-
-    /// <summary>
-    ///     SQL Server connection string
-    /// </summary>
-    public string ConnectionString { get; set; }
 
     /// <summary>
     ///     Defines for how long the feature flags will be cached in memory.
