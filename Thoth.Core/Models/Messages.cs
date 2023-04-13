@@ -21,4 +21,5 @@ public static class Messages
     public const string INFO_ACTION_MADE_BY_USER_WITH_CLAIMS = "Action performed by the user with de following set claims: {0}";
 
     public const string VALIDATION_INVALID_FIELD= "The field '{0}' is required.";
+    public const string VALIDATION_NO_SUB_TYPE = "When feature is of type '{0}', it can't have a SubType defined.";
 }

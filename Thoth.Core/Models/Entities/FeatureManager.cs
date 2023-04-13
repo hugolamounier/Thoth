@@ -28,6 +28,9 @@ public class FeatureManager: IThothFeatureEntity
         if(Type == FeatureTypes.EnvironmentVariable && string.IsNullOrWhiteSpace(Value))
             messages.Add(string.Format(Messages.VALIDATION_INVALID_FIELD, nameof(Value)));
 
+        if(Type == FeatureTypes.EnvironmentVariable && SubType != null)
+            messages.Add(string.Format(Messages.VALIDATION_NO_SUB_TYPE, "EnvironmentVariable"));
+
         if(Type == FeatureTypes.FeatureFlag && SubType is null)
             messages.Add(string.Format(Messages.VALIDATION_INVALID_FIELD, nameof(SubType)));
 

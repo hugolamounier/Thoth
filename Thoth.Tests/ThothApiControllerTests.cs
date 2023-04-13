@@ -150,8 +150,6 @@ public class ThothApiControllerTests : IntegrationTestBase<Program>
         content?.Enabled.Should().Be(featureFlag.Enabled);
     }
 
-
-
     [Fact]
     public async Task Update_WhenValid_ShouldSuccess()
     {
@@ -329,6 +327,41 @@ public class ThothApiControllerTests : IntegrationTestBase<Program>
                 SubType = FeatureFlagsTypes.Boolean
             },
             string.Format(Messages.VALIDATION_INVALID_FIELD, nameof(FeatureManager.Name))
+        };
+        yield return new object[]
+        {
+            new FeatureManager
+            {
+                Type = FeatureTypes.EnvironmentVariable,
+                SubType = FeatureFlagsTypes.Boolean
+            },
+            string.Format(Messages.VALIDATION_INVALID_FIELD, nameof(FeatureManager.Name))
+        };
+        yield return new object[]
+        {
+            new FeatureManager
+            {
+                Type = FeatureTypes.EnvironmentVariable,
+            },
+            string.Format(Messages.VALIDATION_INVALID_FIELD, nameof(FeatureManager.Value))
+        };
+        yield return new object[]
+        {
+            new FeatureManager
+            {
+                Type = FeatureTypes.FeatureFlag,
+            },
+            string.Format(Messages.VALIDATION_INVALID_FIELD, nameof(FeatureManager.SubType))
+        };
+        yield return new object[]
+        {
+            new FeatureManager
+            {
+                Type = FeatureTypes.FeatureFlag,
+                SubType = FeatureFlagsTypes.Boolean,
+                Value = "100"
+            },
+            Messages.ERROR_BOOLEAN_FEATURE_FLAGS_CANT_HAVE_VALUE
         };
         yield return new object[]
         {
