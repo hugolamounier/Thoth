@@ -150,6 +150,8 @@ public class ThothApiControllerTests : IntegrationTestBase<Program>
         content?.Enabled.Should().Be(featureFlag.Enabled);
     }
 
+
+
     [Fact]
     public async Task Update_WhenValid_ShouldSuccess()
     {
