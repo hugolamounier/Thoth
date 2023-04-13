@@ -51,8 +51,8 @@ public class ThothSqlServerProvider : IDatabase
 
     public async Task<bool> ExistsAsync(string featureName)
     {
-        return await _dbConnection.QueryFirstOrDefaultAsync<bool?>(string.Format(Queries.GetQuery, SchemaName),
-            new {Name = featureName}) != null;
+        return await _dbConnection.QueryFirstOrDefaultAsync<FeatureManager?>(string.Format(Queries.GetQuery, SchemaName),
+            new {Name = featureName}) is not null;
     }
 
     public void Dispose()
