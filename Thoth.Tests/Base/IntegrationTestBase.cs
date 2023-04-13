@@ -5,6 +5,7 @@ using Microsoft.Extensions.Hosting;
 
 namespace Thoth.Tests.Base;
 
+[Collection("Integration Test Collection")]
 public abstract class IntegrationTestBase<TEntryPoint> : WebApplicationFactory<TEntryPoint>, IDisposable where TEntryPoint : class
 {
     protected HttpClient HttpClient { get; private set; } = null!;

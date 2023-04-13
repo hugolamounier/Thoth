@@ -1,8 +1,10 @@
+#nullable enable
 using System;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using Thoth.Core.Models;
+using Thoth.Core.Models.Entities;
 
 namespace Thoth.Core;
 
@@ -17,7 +19,7 @@ public class CacheManager
         _memoryCache = memoryCache;
     }
 
-    public Task<FeatureFlag> GetOrCreateAsync(string cacheKey, Func<Task<FeatureFlag>> action)
+    public Task<FeatureManager?> GetOrCreateAsync(object cacheKey, Func<Task<FeatureManager?>> action)
     {
         if (_options.EnableCaching is false)
             return action.Invoke();
@@ -31,46 +33,29 @@ public class CacheManager
         });
     }
 
-    public FeatureFlag GetIfExistsAsync(string cacheKey)
+    public FeatureManager? GetIfExistsAsync(object cacheKey)
     {
         if (_options.EnableCaching is false)
             return null;
 
-        var cacheKeyExists = _memoryCache.TryGetValue(cacheKey, out FeatureFlag cachedValue);
+        var cacheKeyExists = _memoryCache.TryGetValue(cacheKey, out FeatureManager? cachedValue);
 
         return cacheKeyExists ? cachedValue : null;
     }
 
-    public async Task UpdateAsync(string cacheKey, FeatureFlag featureFlag)
+    public void UpdateAsync(object cacheKey, FeatureManager featureManager)
     {
         if (_options.EnableCaching is false)
             return;
 
         var cachedValue = GetIfExistsAsync(cacheKey);
 
-        if (cachedValue == null)
-        {
-            featureFlag = new FeatureFlag
-            {
-                Name = cacheKey,
-                Type = featureFlag.Type,
-                Value = featureFlag.Value,
-                FilterValue = featureFlag.FilterValue,
-                Description = featureFlag.Description,
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
-            };
+        if (cachedValue != null)
+            _memoryCache.Remove(cacheKey);
 
-            await GetOrCreateAsync(cacheKey, () => Task.FromResult(featureFlag));
-            return;
-        }
-
-        cachedValue.Value = featureFlag.Value;
-        cachedValue.FilterValue = featureFlag.FilterValue;
-        cachedValue.Description = featureFlag.Description;
+        cachedValue = featureManager;
         cachedValue.UpdatedAt = DateTime.UtcNow;
 
-        _memoryCache.Remove(cacheKey);
         _memoryCache.Set(cacheKey, cachedValue, new MemoryCacheEntryOptions
         {
             AbsoluteExpirationRelativeToNow = _options.CacheExpiration,
@@ -78,7 +63,7 @@ public class CacheManager
         });
     }
 
-    public void Remove(string cacheKey)
+    public void Remove(object cacheKey)
     {
         if (_options.EnableCaching is false)
             return;

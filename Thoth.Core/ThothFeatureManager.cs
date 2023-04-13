@@ -1,15 +1,16 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Thoth.Core.Interfaces;
 using Thoth.Core.Models;
+using Thoth.Core.Models.Entities;
+using Thoth.Core.Models.Enums;
 
 namespace Thoth.Core;
 
-public class ThothFeatureManager : IThothFeatureManager
+public class ThothFeatureManager: IThothFeatureManager
 {
     private readonly CacheManager _cacheManager;
     private readonly IDatabase _dbContext;
@@ -17,43 +18,55 @@ public class ThothFeatureManager : IThothFeatureManager
     private readonly ThothOptions _thothOptions;
 
     public ThothFeatureManager(
-        IDatabase dbContext,
         CacheManager cacheManager,
         ILogger<ThothFeatureManager> logger,
         IOptions<ThothOptions> thothOptions)
     {
-        _dbContext = dbContext;
         _cacheManager = cacheManager;
         _logger = logger;
+        _dbContext = thothOptions.Value.DatabaseProvider;
         _thothOptions = thothOptions.Value;
     }
 
-    public async Task<bool> IsEnabledAsync(string name)
+    public async Task<bool> IsEnabledAsync(string featureName)
     {
         try
         {
-            var featureFlag = await GetAsync(name);
+            var featureFlag = await GetAsync(featureName);
 
             return await EvaluateAsync(featureFlag);
         }
         catch (Exception e)
-        when (e.Message == string.Format(Messages.ERROR_FEATURE_FLAG_NOT_EXISTS, name) &&
-              _thothOptions.ShouldReturnFalseWhenNotExists)
+            when (e.Message == string.Format(Messages.ERROR_FEATURE_FLAG_NOT_EXISTS, featureName) &&
+                  _thothOptions.ShouldReturnFalseWhenNotExists)
         {
-            _logger.LogInformation("{Message}", string.Format(Messages.INFO_NON_EXISTENT_FLAG_REQUESTED, name));
+            _logger.LogInformation("{Message}", string.Format(Messages.INFO_NON_EXISTENT_FLAG_REQUESTED, featureName));
             return false;
         }
     }
 
-    public async Task<FeatureFlag> GetAsync(string name)
+    public async Task<T> GetEnvironmentValueAsync<T>(string featureName)
     {
-        if (!await CheckIfExistsAsync(name))
-            throw new ThothException(string.Format(Messages.ERROR_FEATURE_FLAG_NOT_EXISTS, name));
+        if (await IsEnabledAsync(featureName) is false)
+            throw new ThothException(Messages.ERROR_CAN_NOT_GET_DISABLED_FEATURE);
 
-        return await _cacheManager.GetOrCreateAsync(name, () => _dbContext.GetAsync(name));
+        var feature = await GetAsync(featureName);
+
+        if (feature.Type is not FeatureTypes.EnvironmentVariable)
+            throw new ThothException(string.Format(Messages.ERROR_WRONG_FEATURE_TYPE, featureName, "EnvironmentVariable"));
+
+        return (T) Convert.ChangeType(feature.Value, typeof(T));
     }
 
-    public async Task<IEnumerable<FeatureFlag>> GetAllAsync()
+    public async Task<FeatureManager> GetAsync(string featureName)
+    {
+        if (!await CheckIfExistsAsync(featureName))
+            throw new ThothException(string.Format(Messages.ERROR_FEATURE_FLAG_NOT_EXISTS, featureName));
+
+        return await _cacheManager.GetOrCreateAsync(featureName, () => _dbContext.GetAsync(featureName));
+    }
+
+    public async Task<IEnumerable<FeatureManager>> GetAllAsync()
     {
         var featureFlags = await _dbContext.GetAllAsync();
 
@@ -63,17 +76,17 @@ public class ThothFeatureManager : IThothFeatureManager
         return featureFlags;
     }
 
-    public async Task<bool> AddAsync(FeatureFlag featureFlag)
+    public async Task<bool> AddAsync(FeatureManager featureManager)
     {
         try
         {
-            if (await CheckIfExistsAsync(featureFlag.Name))
-                throw new ThothException(string.Format(Messages.ERROR_FEATURE_FLAG_ALREADY_EXISTS, featureFlag.Name));
+            if (await CheckIfExistsAsync(featureManager.Name))
+                throw new ThothException(string.Format(Messages.ERROR_FEATURE_FLAG_ALREADY_EXISTS, featureManager.Name));
 
-            var insertResult = await _dbContext.AddAsync(featureFlag);
+            var insertResult = await _dbContext.AddAsync(featureManager);
 
             if (insertResult)
-                await _cacheManager.GetOrCreateAsync(featureFlag.Name, () => Task.FromResult(featureFlag));
+                await _cacheManager.GetOrCreateAsync(featureManager.Name, () => Task.FromResult(featureManager));
 
             return insertResult;
         }
@@ -85,69 +98,69 @@ public class ThothFeatureManager : IThothFeatureManager
         }
     }
 
-    public async Task<bool> UpdateAsync(FeatureFlag featureFlag)
+    public async Task<bool> UpdateAsync(FeatureManager featureManager)
     {
         try
         {
-            var dbFeatureFlag = await GetAsync(featureFlag.Name);
+            var dbFeatureFlag = await GetAsync(featureManager.Name);
 
-            featureFlag.CreatedAt = dbFeatureFlag.CreatedAt;
-            featureFlag.UpdatedAt = DateTime.UtcNow;
+            featureManager.CreatedAt = dbFeatureFlag.CreatedAt;
+            featureManager.UpdatedAt = DateTime.UtcNow;
 
-            var updateResult = await _dbContext.UpdateAsync(featureFlag);
+            var updateResult = await _dbContext.UpdateAsync(featureManager);
 
             if (updateResult)
-                await _cacheManager.UpdateAsync(featureFlag.Name, featureFlag);
+                _cacheManager.UpdateAsync(featureManager.Name, featureManager);
 
             return updateResult;
         }
         catch (Exception e)
         {
-            _logger.LogError("{Message}: {Exception}", string.Format(Messages.ERROR_WHILE_UPDATING_FEATURE_FLAG, featureFlag.Name),
+            _logger.LogError("{Message}: {Exception}", string.Format(Messages.ERROR_WHILE_UPDATING_FEATURE_FLAG, featureManager.Name),
                 e.InnerException?.Message ?? e.Message);
             throw;
         }
     }
 
-    public async Task<bool> DeleteAsync(string name)
+    public async Task<bool> DeleteAsync(string featureName)
     {
         try
         {
-            if (!await CheckIfExistsAsync(name))
-                throw new ThothException(string.Format(Messages.ERROR_FEATURE_FLAG_NOT_EXISTS, name));
+            if (!await CheckIfExistsAsync(featureName))
+                throw new ThothException(string.Format(Messages.ERROR_FEATURE_FLAG_NOT_EXISTS, featureName));
 
-            var deleteResult = await _dbContext.DeleteAsync(name);
+            var deleteResult = await _dbContext.DeleteAsync(featureName);
 
             if (deleteResult)
-                _cacheManager.Remove(name);
+                _cacheManager.Remove(featureName);
 
             return deleteResult;
         }
         catch (Exception e)
         {
-            _logger.LogError("{Message}: {Exception}", string.Format(Messages.ERROR_WHILE_DELETING_FEATURE_FLAG, name),
+            _logger.LogError("{Message}: {Exception}", string.Format(Messages.ERROR_WHILE_DELETING_FEATURE_FLAG, featureName),
                 e.InnerException?.Message ?? e.Message);
             throw;
         }
     }
 
-    private async Task<bool> CheckIfExistsAsync(string name)
+    private async Task<bool> CheckIfExistsAsync(string featureName)
     {
-        var cachedValue = _cacheManager.GetIfExistsAsync(name);
+        var cachedValue = _cacheManager.GetIfExistsAsync(featureName);
         if (cachedValue != null)
             return true;
 
-        return await _dbContext.ExistsAsync(name);
+        return await _dbContext.ExistsAsync(featureName);
     }
 
-    private async Task<bool> EvaluateAsync(FeatureFlag featureFlag)
+    private async Task<bool> EvaluateAsync(FeatureManager featureManager)
     {
-        return featureFlag.Type switch
+        return featureManager.SubType switch
         {
-            FeatureFlagsTypes.Boolean => featureFlag.Value,
+            FeatureFlagsTypes.Boolean => featureManager.Enabled,
             FeatureFlagsTypes.PercentageFilter =>
-                featureFlag.Value && await featureFlag.EvaluatePercentageFlag(_logger),
-            _ => false
+                featureManager.Enabled && await featureManager.EvaluatePercentageFlag(_logger),
+            _ => featureManager.Enabled
         };
     }
 }

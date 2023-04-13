@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Thoth.Core.Interfaces;
-using Thoth.Core.Models;
+using Thoth.Core.Models.Entities;
 
 namespace Thoth.Dashboard.Api;
 
@@ -38,7 +38,7 @@ public static class RoutesCollection
 
             #region POST
 
-            endpoints.MapPost(basePath, async (HttpContext httpContext, [FromBody] FeatureFlag featureFlag) => 
+            endpoints.MapPost(basePath, async (HttpContext httpContext, [FromBody] FeatureManager featureFlag) =>
                 await new FeatureFlagController(featureManagementService, logger, httpContext, thothDashboardOptions).Create(featureFlag));
                 
 
@@ -46,7 +46,7 @@ public static class RoutesCollection
 
             #region PUT
 
-            endpoints.MapPut(basePath, async (HttpContext httpContext, [FromBody] FeatureFlag featureFlag) => 
+            endpoints.MapPut(basePath, async (HttpContext httpContext, [FromBody] FeatureManager featureFlag) =>
                 await new FeatureFlagController(featureManagementService, logger, httpContext, thothDashboardOptions).Update(featureFlag));
 
             #endregion

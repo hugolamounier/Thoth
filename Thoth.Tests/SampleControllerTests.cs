@@ -1,7 +1,11 @@
 ﻿using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Moq;
+using Thoth.Core;
 using Thoth.Core.Interfaces;
-using Thoth.Core.Models;
+using Thoth.Core.Models.Entities;
+using Thoth.Core.Models.Enums;
 using Thoth.Tests.Base;
 
 namespace Thoth.Tests;
@@ -9,21 +13,26 @@ namespace Thoth.Tests;
 public class SampleControllerTests : IntegrationTestBase<Program>
 {
     private readonly IThothFeatureManager _thothFeatureManager;
+    private static readonly Mock<ILogger<ThothFeatureManager>> Logger = new();
 
-    public SampleControllerTests() 
+    public SampleControllerTests(): base(serviceDelegate: services =>
     {
-        _thothFeatureManager = ServiceScope.ServiceProvider.GetRequiredService<IThothFeatureManager>();;
+        services.AddScoped<ILogger<ThothFeatureManager>>(_ => Logger.Object);
+    })
+    {
+        _thothFeatureManager = ServiceScope.ServiceProvider.GetRequiredService<IThothFeatureManager>();
     }
 
     [Fact]
     public async Task GetSample_WhenBooleanType_ShouldSuccess()
     {
         //Arrange
-        var newFeatureFlag = new FeatureFlag
+        var newFeatureFlag = new FeatureManager
         {
             Name = Guid.NewGuid().ToString(),
-            Type = FeatureFlagsTypes.Boolean,
-            Value = true
+            Type = FeatureTypes.FeatureFlag,
+            SubType = FeatureFlagsTypes.Boolean,
+            Enabled = true
         };
         
         await _thothFeatureManager.AddAsync(newFeatureFlag);
@@ -41,12 +50,13 @@ public class SampleControllerTests : IntegrationTestBase<Program>
     public async Task GetSample_WhenPercentageFilterType_ShouldReturnEnabled_Success()
     {
         //Arrange
-        var newFeatureFlag = new FeatureFlag
+        var newFeatureFlag = new FeatureManager
         {
             Name = Guid.NewGuid().ToString(),
-            Type = FeatureFlagsTypes.PercentageFilter,
-            Value = true,
-            FilterValue = "50" 
+            Type = FeatureTypes.FeatureFlag,
+            SubType = FeatureFlagsTypes.PercentageFilter,
+            Enabled = true,
+            Value = "50"
         };
         
         await _thothFeatureManager.AddAsync(newFeatureFlag);
@@ -82,12 +92,13 @@ public class SampleControllerTests : IntegrationTestBase<Program>
     public async Task GetSample_WhenPercentageFilterType_ShouldReturnDisabled_Success(bool isActive, string validationMessage)
     {
         //Arrange
-        var newFeatureFlag = new FeatureFlag
+        var newFeatureFlag = new FeatureManager
         {
             Name = Guid.NewGuid().ToString(),
-            Type = FeatureFlagsTypes.PercentageFilter,
-            Value = isActive,
-            FilterValue = "100"
+            Type = FeatureTypes.FeatureFlag,
+            SubType = FeatureFlagsTypes.PercentageFilter,
+            Enabled = isActive,
+            Value = "100"
         };
         
         await _thothFeatureManager.AddAsync(newFeatureFlag);
@@ -99,5 +110,37 @@ public class SampleControllerTests : IntegrationTestBase<Program>
 
         //Assert
         validationResult.Should().Be(validationMessage);
+    }
+
+    [Fact]
+    public async Task GetSample_WhenPercentageFilterTypeInvalid_ShouldReturnDisabled_Success()
+    {
+        //Arrange
+        var newFeatureFlag = new FeatureManager
+        {
+            Name = Guid.NewGuid().ToString(),
+            Type = FeatureTypes.FeatureFlag,
+            SubType = FeatureFlagsTypes.PercentageFilter,
+            Enabled = true,
+            Value = "0"
+        };
+
+        await _thothFeatureManager.AddAsync(newFeatureFlag);
+
+        //Act
+        var response = await HttpClient.GetAsync($"/Sample?featureFlagName={newFeatureFlag.Name}");
+        response.IsSuccessStatusCode.Should().BeTrue();
+        var validationResult = await response.Content.ReadAsStringAsync();
+
+        //Assert
+        validationResult.Should().Be("Feature Disabled");
+        Logger.Verify(
+            x => x.Log(
+                It.Is<LogLevel>(l => l == LogLevel.Warning),
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((v, t) => v.ToString()!
+                    .Contains("When using 'PercentageFilter' flag type, 'Value' must be defined and be greater than zero (0) for the feature:")),
+                It.IsAny<Exception>(),
+                It.Is<Func<It.IsAnyType, Exception, string>>((v, t) => true)!), Times.Once);
     }
 }

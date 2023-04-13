@@ -2,10 +2,6 @@ namespace Thoth.SQLServer;
 
 public static class Queries
 {
-    public const string IsEnabledQuery = @"
-        SELECT Value FROM {0}.FeatureFlag WHERE Name = @Name;
-    ";
-
     public const string GetQuery = @"
         SELECT * FROM {0}.FeatureFlag WHERE Name = @Name;
     ";
@@ -47,8 +43,9 @@ public static class Queries
             CREATE TABLE [{0}].[FeatureFlag] (
                 Name VARCHAR(100) NOT NULL PRIMARY KEY,
                 Type TINYINT NOT NULL,
-                Value BIT NOT NULL,
-                FilterValue VARCHAR(100) NULL,
+                SubType TINYINT NOT NULL,
+                Enabled BIT NOT NULL,
+                Value VARCHAR(100) NULL,
                 Description VARCHAR(200) NULL,
                 CreatedAt DATETIME NOT NULL,
                 UpdatedAt DATETIME NULL

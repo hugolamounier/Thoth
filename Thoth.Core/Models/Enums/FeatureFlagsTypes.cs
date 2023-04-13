@@ -1,4 +1,4 @@
-namespace Thoth.Core.Models;
+namespace Thoth.Core.Models.Enums;
 
 public enum FeatureFlagsTypes
 {

@@ -16,7 +16,9 @@ namespace Thoth.Dashboard;
 [ExcludeFromCodeCoverage]
 public static class ApplicationBuilderExtensions
 {
-    public static IApplicationBuilder UseThothDashboard(this IApplicationBuilder app, Action<ThothDashboardOptions>? setupAction = null)
+    public static IApplicationBuilder UseThothDashboard(
+        this IApplicationBuilder app,
+        Action<ThothDashboardOptions>? setupAction = null)
     {
         using var scope = app.ApplicationServices.CreateScope();
         var options = (ThothDashboardOptions?) scope.ServiceProvider.GetRequiredService<IOptions<ThothDashboardOptions>>().Value;

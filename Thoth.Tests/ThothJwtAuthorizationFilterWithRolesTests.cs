@@ -4,7 +4,8 @@ using System.Text;
 using FluentAssertions;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
-using Thoth.Core.Models;
+using Thoth.Core.Models.Entities;
+using Thoth.Core.Models.Enums;
 using Thoth.Tests.Base;
 using Thoth.Tests.Helpers;
 
@@ -29,11 +30,11 @@ public class ThothJwtAuthorizationFilterWithRolesTests: IntegrationTestBase<Prog
     
     [Theory]
     [MemberData(nameof(CreateValidDataGenerator))]
-    public async Task Create_ShouldBeAuthorized(FeatureFlag featureFlag)
+    public async Task Create_ShouldBeAuthorized(FeatureManager featureManager)
     {
         //Arrange
         var postContent = new StringContent(
-            JsonConvert.SerializeObject(featureFlag), Encoding.UTF8, "application/json");
+            JsonConvert.SerializeObject(featureManager), Encoding.UTF8, "application/json");
 
         //Act
         var response = await HttpClient.PostAsync($"/thoth-api/FeatureFlag?accessToken={_token}", postContent);
@@ -72,21 +73,23 @@ public class ThothJwtAuthorizationFilterWithRolesTests: IntegrationTestBase<Prog
     {
         yield return new object[]
         {
-            new FeatureFlag
+            new FeatureManager
             {
                 Name = Guid.NewGuid().ToString(),
-                Type = FeatureFlagsTypes.Boolean,
-                Value = true
+                Type = FeatureTypes.FeatureFlag,
+                SubType = FeatureFlagsTypes.Boolean,
+                Enabled = true
             }
         };
         yield return new object[]
         {
-            new FeatureFlag
+            new FeatureManager
             {
                 Name = Guid.NewGuid().ToString(),
-                Type = FeatureFlagsTypes.PercentageFilter,
-                FilterValue = "50",
-                Value = true
+                Type = FeatureTypes.FeatureFlag,
+                SubType = FeatureFlagsTypes.PercentageFilter,
+                Value = "50",
+                Enabled = true
             }
         };
     }

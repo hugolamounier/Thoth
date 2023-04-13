@@ -6,7 +6,7 @@ import { Layout, Menu, theme } from 'antd';
 const { Header, Sider } = Layout;
 
 const items2: MenuProps['items'] = [
-  { key: 1, label: 'Feature Flags', icon: <UnorderedListOutlined /> },
+  { key: 1, label: 'Feature Management', icon: <UnorderedListOutlined /> },
 ];
 
 const BaseLayout = ({ children }: { children: ReactNode }): JSX.Element => {
