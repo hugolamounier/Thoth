@@ -156,6 +156,7 @@ const FeatureManagement = (): JSX.Element => {
       type: tagType(featureFlag.type, featureFlag.subType),
       enabled: (
         <Switch
+          disabled={featureFlag.type === FeatureTypes.EnvironmentVariable}
           checkedChildren="On"
           unCheckedChildren="Off"
           checked={featureFlag.enabled}

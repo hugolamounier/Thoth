@@ -48,6 +48,11 @@ const CreateModal = ({ isOpen, setIsOpen, onSubmitForm, isLoading }: CreateModal
             onChange={(value, option) => {
               setTypeSelect(value);
               addFeatureFlagForm.resetFields(['value']);
+              if (value === FeatureTypes.EnvironmentVariable) {
+                addFeatureFlagForm.setFieldValue('enabled', true);
+              } else {
+                addFeatureFlagForm.setFieldValue('enabled', false);
+              }
             }}
             filterOption={(input, option) =>
               (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
@@ -90,7 +95,12 @@ const CreateModal = ({ isOpen, setIsOpen, onSubmitForm, isLoading }: CreateModal
             <Input />
           </Form.Item>
         ) : null}
-        <Form.Item name="enabled" label="Initial State" valuePropName="checked">
+        <Form.Item
+          name="enabled"
+          label="Initial State"
+          valuePropName="checked"
+          hidden={typeSelect === FeatureTypes.EnvironmentVariable}
+        >
           <Switch defaultChecked={false} unCheckedChildren="Off" checkedChildren="On" />
         </Form.Item>
         <Form.Item name="description" label="Description">
