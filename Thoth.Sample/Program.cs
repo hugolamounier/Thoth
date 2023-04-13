@@ -55,50 +55,51 @@ if (builder.Environment.IsEnvironment("Testing"))
     
     app.UseAuthorization();
     app.MapControllers();
-    app.UseThothDashboard(options =>
-    {
-        options.RoutePrefix = "/thoth";
-        if (args.Any(x => x.Contains("UseThothJwtAuthorization")))
+    app
+        .UseThothDashboard(options =>
         {
-            options.Authorization = new[] {new ThothJwtAuthorizationFilter(new TokenValidationParameters
+            options.RoutePrefix = "/thoth";
+            if (args.Any(x => x.Contains("UseThothJwtAuthorization")))
             {
-                ValidateIssuerSigningKey = true,
-                ValidateLifetime = true,
-                ClockSkew = TimeSpan.Zero,
-                IssuerSigningKey = new SymmetricSecurityKey
-                (
-                    Encoding.UTF8.GetBytes(JwtConfiguration.HmacKey)
-                ),
-                ValidAudience = JwtConfiguration.Audience,
-                ValidIssuer = JwtConfiguration.Issuer
-            }, cookieOptions: new CookieOptions
-            {
-                Expires = DateTime.Now.AddDays(30),
-                Secure = false,
-                HttpOnly = true
-            })};
-            options.ClaimsToRegisterOnLog = new[] { ClaimTypes.Email, ClaimTypes.NameIdentifier };
-        }
-        
-        if (args.Any(x => x.Contains("UseThothJwtAuthorizationWithRoles")))
-            options.Authorization = new[] {new ThothJwtAuthorizationFilter(new TokenValidationParameters
-            {
-                ValidateIssuerSigningKey = true,
-                ValidateLifetime = true,
-                ClockSkew = TimeSpan.Zero,
-                IssuerSigningKey = new SymmetricSecurityKey
-                (
-                    Encoding.UTF8.GetBytes(JwtConfiguration.HmacKey)
-                ),
-                ValidAudience = JwtConfiguration.Audience,
-                ValidIssuer = JwtConfiguration.Issuer
-            }, cookieOptions: new CookieOptions
-            {
-                Expires = DateTime.Now.AddDays(30),
-                Secure = false,
-                HttpOnly = true
-            }, allowedRoles: new []{ "Admin" })};
-    });
+                options.Authorization = new[] {new ThothJwtAuthorizationFilter(new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    ValidateLifetime = true,
+                    ClockSkew = TimeSpan.Zero,
+                    IssuerSigningKey = new SymmetricSecurityKey
+                    (
+                        Encoding.UTF8.GetBytes(JwtConfiguration.HmacKey)
+                    ),
+                    ValidAudience = JwtConfiguration.Audience,
+                    ValidIssuer = JwtConfiguration.Issuer
+                }, cookieOptions: new CookieOptions
+                {
+                    Expires = DateTime.Now.AddDays(30),
+                    Secure = false,
+                    HttpOnly = true
+                })};
+                options.ClaimsToRegisterOnLog = new[] { ClaimTypes.Email, ClaimTypes.NameIdentifier };
+            }
+
+            if (args.Any(x => x.Contains("UseThothJwtAuthorizationWithRoles")))
+                options.Authorization = new[] {new ThothJwtAuthorizationFilter(new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    ValidateLifetime = true,
+                    ClockSkew = TimeSpan.Zero,
+                    IssuerSigningKey = new SymmetricSecurityKey
+                    (
+                        Encoding.UTF8.GetBytes(JwtConfiguration.HmacKey)
+                    ),
+                    ValidAudience = JwtConfiguration.Audience,
+                    ValidIssuer = JwtConfiguration.Issuer
+                }, cookieOptions: new CookieOptions
+                {
+                    Expires = DateTime.Now.AddDays(30),
+                    Secure = false,
+                    HttpOnly = true
+                }, allowedRoles: new []{ "Admin" })};
+        });
     
     app.Run();
 }
@@ -120,7 +121,8 @@ else
     app.UseHttpsRedirection();
     app.UseAuthorization();
     app.MapControllers();
-    app.UseThothDashboard();
+    app
+        .UseThothDashboard();
 
     app.Run();   
 }

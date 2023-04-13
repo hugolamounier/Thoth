@@ -21,7 +21,7 @@ public sealed class ThothSqlServerProvider : DbContext, IDatabase
             throw new ArgumentNullException(connectionString);
 
         _connectionString = connectionString;
-        Init();
+        Database.Migrate();
     }
 
     public Task<FeatureManager?> GetAsync(string featureName) =>
@@ -99,11 +99,6 @@ public sealed class ThothSqlServerProvider : DbContext, IDatabase
     {
         AddTimestamps();
         return base.SaveChangesAsync(cancellationToken);
-    }
-
-    private void Init()
-    {
-        Database.Migrate();
     }
 
     private void AddTimestamps()

@@ -5,7 +5,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
 using Thoth.Core;
-using Thoth.Core.Interfaces;
 using Thoth.Core.Models;
 using Thoth.Dashboard.Api;
 
