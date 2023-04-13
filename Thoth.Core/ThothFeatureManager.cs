@@ -58,12 +58,12 @@ public class ThothFeatureManager: IThothFeatureManager
         return (T) Convert.ChangeType(feature.Value, typeof(T));
     }
 
-    public async Task<FeatureManager> GetAsync(string featureId)
+    public async Task<FeatureManager> GetAsync(string featureName)
     {
-        if (!await CheckIfExistsAsync(featureId))
-            throw new ThothException(string.Format(Messages.ERROR_FEATURE_FLAG_NOT_EXISTS, featureId));
+        if (!await CheckIfExistsAsync(featureName))
+            throw new ThothException(string.Format(Messages.ERROR_FEATURE_FLAG_NOT_EXISTS, featureName));
 
-        return await _cacheManager.GetOrCreateAsync(featureId, () => _dbContext.GetAsync(featureId));
+        return await _cacheManager.GetOrCreateAsync(featureName, () => _dbContext.GetAsync(featureName));
     }
 
     public async Task<IEnumerable<FeatureManager>> GetAllAsync()
@@ -144,13 +144,13 @@ public class ThothFeatureManager: IThothFeatureManager
         }
     }
 
-    private async Task<bool> CheckIfExistsAsync(string featureId)
+    private async Task<bool> CheckIfExistsAsync(string featureName)
     {
-        var cachedValue = _cacheManager.GetIfExistsAsync(featureId);
+        var cachedValue = _cacheManager.GetIfExistsAsync(featureName);
         if (cachedValue != null)
             return true;
 
-        return await _dbContext.ExistsAsync(featureId);
+        return await _dbContext.ExistsAsync(featureName);
     }
 
     private async Task<bool> EvaluateAsync(FeatureManager featureManager)

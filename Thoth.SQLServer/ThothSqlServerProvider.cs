@@ -11,11 +11,11 @@ namespace Thoth.SQLServer;
 
 public sealed class ThothSqlServerProvider : DbContext, IDatabase
 {
-    private readonly string _connectionString;
+    private readonly string? _connectionString;
     private const string SchemaName = "thoth";
 
     public ThothSqlServerProvider(DbContextOptions options) : base(options){}
-    public ThothSqlServerProvider(string connectionString)
+    public ThothSqlServerProvider(string? connectionString)
     {
         if (string.IsNullOrWhiteSpace(connectionString))
             throw new ArgumentNullException(connectionString);
@@ -64,11 +64,11 @@ public sealed class ThothSqlServerProvider : DbContext, IDatabase
     public async Task<bool> ExistsAsync(string featureName) =>
         await GetAsync(featureName) is not null;
 
-    private DbSet<FeatureManager> Features { get; set; }
+    private DbSet<FeatureManager> Features { get; set; } = null!;
 
-    protected override void OnConfiguring(DbContextOptionsBuilder options)
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        options.UseSqlServer(_connectionString, x =>
+        optionsBuilder.UseSqlServer(_connectionString, x =>
         {
             x.MigrationsHistoryTable("__EFMigrationsHistory", SchemaName);
         });
