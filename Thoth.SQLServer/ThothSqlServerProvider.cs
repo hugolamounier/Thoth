@@ -14,6 +14,7 @@ public sealed class ThothSqlServerProvider : DbContext, IDatabase
     private readonly string _connectionString;
     private const string SchemaName = "thoth";
 
+    public ThothSqlServerProvider(DbContextOptions options) : base(options){}
     public ThothSqlServerProvider(string connectionString)
     {
         if (string.IsNullOrWhiteSpace(connectionString))
@@ -67,12 +68,17 @@ public sealed class ThothSqlServerProvider : DbContext, IDatabase
 
     protected override void OnConfiguring(DbContextOptionsBuilder options)
     {
-        options.UseSqlServer(_connectionString);
+        options.UseSqlServer(_connectionString, x =>
+        {
+            x.MigrationsHistoryTable("__EFMigrationsHistory", SchemaName);
+        });
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+
+        modelBuilder.HasDefaultSchema(SchemaName);
 
         modelBuilder.Entity<FeatureManager>(entity =>
         {
@@ -86,8 +92,6 @@ public sealed class ThothSqlServerProvider : DbContext, IDatabase
             entity.Property(p => p.Value).IsRequired(false);
             entity.Property(p => p.CreatedAt);
             entity.Property(p => p.UpdatedAt).IsRequired(false);
-
-            entity.ToTable(nameof(FeatureManager), SchemaName);
         });
     }
 
@@ -99,7 +103,6 @@ public sealed class ThothSqlServerProvider : DbContext, IDatabase
 
     private void Init()
     {
-        Database.EnsureCreated();
         Database.Migrate();
     }
 
