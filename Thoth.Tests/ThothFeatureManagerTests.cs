@@ -5,7 +5,6 @@ using Moq;
 using Thoth.Core;
 using Thoth.Core.Interfaces;
 using Thoth.Core.Models;
-using Thoth.Core.Models.Entities;
 using Thoth.Tests.Base;
 
 namespace Thoth.Tests;
