@@ -113,7 +113,7 @@ public class MyDashboardAuthorizationFilter : IThothDashboardAuthorizationFilter
         if(isAuthorized)
             return true;
         
-        // somo code
+        // some code
         
         return false;
     }
