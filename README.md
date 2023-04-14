@@ -39,23 +39,12 @@ using Thoth.SQLServer;
 
 builder.Services.AddThoth(options =>
 {
-    options.DatabaseProvider = new ThothSqlServerProvider(builder.Configuration.GetConnectionString("SqlContext")) ; // Set database provider
+    options.DatabaseProvider = new Lazy<IDatabase>(() => new ThothSqlServerProvider(builder.Configuration.GetConnectionString("SqlContext")) ); // Set database provider
     options.ShouldReturnFalseWhenNotExists = true; // Defines if the default value to a non-existent should be false or throw
     options.EnableCaching = true; // Whether Thoth should use caching strategies to improve performance. Optional.
     options.CacheExpiration = TimeSpan.FromDays(7); // Defines for how long feature flags are going to be cached in memory. Optional.
     options.CacheSlidingExpiration = TimeSpan.FromDays(1); // Defines for how long the feature flags will be cached without being accessed. Optional.
     options.EnableThothApi = True; // Defines if the Thoth Api should be exposed. This is required true when using Dashboard.
-});
-```
-
-The Dashboard can optionally be injected to the application:
-```c#
-using Thoth.Dashboard;
-
-var app = builder.Build();
-app.UseThothDashboard(options =>
-{
-    options.RoutePrefix = "/thoth"; // Defines the route prefix to access the dashboard. Optional.
 });
 ```
 
@@ -91,6 +80,84 @@ public class MyClass
         }
     }
 }
+```
+
+## Thoth.Dashboard
+
+The Dashboard can optionally be injected to the application:
+```c#
+using Thoth.Dashboard;
+
+var app = builder.Build();
+app.UseThothDashboard(options =>
+{
+    options.RoutePrefix = "/thoth"; // Defines the route prefix to access the dashboard. Optional.
+});
+```
+
+### Authorization
+
+By default, the dashboard is not secured and can be accessed by anyone who has the URL. To add authentication and authorization to the dashboard, you can implement the **IThothDashboardAuthorizationFilter** interface. This interface allows you to control who has access to the dashboard and what actions they can perform.
+
+To implement the **IThothDashboardAuthorizationFilter** interface, you must create a class that implements the AuthorizeAsync() method. This method takes an **ThothDashboardContext** object as a parameter and returns a boolean value that indicates whether the user is authorized to access the dashboard.
+
+Here's an example implementation of the **IThothDashboardAuthorizationFilter** interface:
+
+```c#
+public class MyDashboardAuthorizationFilter : IThothDashboardAuthorizationFilter
+{
+    public Task<bool> AuthorizeAsync(ThothDashboardContext thothDashboardContext)
+    {
+        // some code
+        
+        if(isAuthorized)
+            return true;
+        
+        // somo code
+        
+        return false;
+    }
+}
+```
+
+### Usage
+Once you have implemented the **IThothDashboardAuthorizationFilter** interface, you can register your implementation with the ThothDashboardOptions object in your application's Startup class:
+
+```c#
+using Thoth.Dashboard;
+
+var app = builder.Build();
+app.UseThothDashboard(options =>
+{
+    options.Authorization = new[] { new MyDashboardAuthorizationFilter() };
+});
+```
+
+### ThothJwtAuthorizationFilter
+Additionally, Thoth.Dashboard provides a default implementation to use your application JWT Token as Authorization.
+You can even provide which Roles are allowed to access the Dashboard and add you who made changes do the features via Dashboard to your logs.
+The ThothJwtAuthorizationFilter class required you to provide a **TokenValidationParameters** object as a parameter, with your application's token configuration, as shown below:
+
+```c#
+using Thoth.Dashboard;
+
+var app = builder.Build();
+app.UseThothDashboard(options =>
+{
+    options.Authorization = new[] {new ThothJwtAuthorizationFilter(new TokenValidationParameters
+    {
+        ValidateIssuerSigningKey = true,
+        ValidateLifetime = true,
+        ClockSkew = TimeSpan.Zero,
+        IssuerSigningKey = new SymmetricSecurityKey
+        (
+            Encoding.UTF8.GetBytes(JwtConfiguration.HmacKey)
+        ),
+        ValidAudience = JwtConfiguration.Audience,
+        ValidIssuer = JwtConfiguration.Issuer
+    },
+    options.ClaimsToRegisterOnLog = new[] { ClaimTypes.Email, ClaimTypes.NameIdentifier };
+});
 ```
 
 ## Demo
