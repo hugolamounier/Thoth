@@ -134,8 +134,8 @@ app.UseThothDashboard(options =>
 ```
 
 ### ThothJwtAuthorizationFilter
-Additionally, Thoth.Dashboard provides a default implementation to use your application JWT Token as Authorization.
-You can even provide which Roles are allowed to access the Dashboard and add you who made changes do the features via Dashboard to your logs.
+Additionally, Thoth.Dashboard provides a default implementation to use your application's JWT Token as Authorization.
+You can even provide which Roles are allowed to access the Dashboard and add who made changes do the features via Dashboard to your logs.
 The ThothJwtAuthorizationFilter class required you to provide a **TokenValidationParameters** object as a parameter, with your application's token configuration, as shown below:
 
 ```c#
