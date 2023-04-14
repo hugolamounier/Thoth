@@ -160,6 +160,16 @@ app.UseThothDashboard(options =>
 });
 ```
 
+### How to access the Dashboard 
+If while setting up, you didn't change the default values, this is how you can access the dashboard:
+
+```
+myapplication.com/thoth 
+myapplication.com/thoth/?accessToken=jwtToken --> If you injected the ThothJwtAuthorizationFilter
+```
+
+The token used to access the dashboard will be stored as cookies until the token's expiration date. Thus, after providing the token the first time, you no longer need to provide it again while it is still valid.
+
 ## Demo
 A [Sample project](https://github.com/hugolamounier/Thoth/tree/master/Thoth.Sample) is available to DEMO the library.
 
