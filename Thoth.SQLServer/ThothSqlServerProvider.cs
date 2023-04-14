@@ -35,18 +35,18 @@ public class ThothSqlServerProvider : IDatabase
     public async Task<bool> AddAsync(FeatureManager featureManager)
     {
         featureManager.CreatedAt = DateTime.UtcNow;
-        return await _dbConnection.ExecuteAsync(string.Format(Queries.AddFeatureFlagQuery, SchemaName), featureManager) > 0;
+        return await _dbConnection.ExecuteAsync(string.Format(Queries.AddFeatureManagerQuery, SchemaName), featureManager) > 0;
     }
 
     public async Task<bool> UpdateAsync(FeatureManager featureManager)
     {
         featureManager.UpdatedAt = DateTime.UtcNow;
-        return await _dbConnection.ExecuteAsync(string.Format(Queries.UpdateFeatureFlag, SchemaName), featureManager) > 0;
+        return await _dbConnection.ExecuteAsync(string.Format(Queries.UpdateFeatureManager, SchemaName), featureManager) > 0;
     }
 
     public async Task<bool> DeleteAsync(string featureName)
     {
-        return await _dbConnection.ExecuteAsync(string.Format(Queries.DeleteFeatureFlagQuery, SchemaName), new {Name = featureName}) > 0;
+        return await _dbConnection.ExecuteAsync(string.Format(Queries.DeleteFeatureManagerQuery, SchemaName), new {Name = featureName}) > 0;
     }
 
     public async Task<bool> ExistsAsync(string featureName)
@@ -75,6 +75,6 @@ public class ThothSqlServerProvider : IDatabase
         _dbConnection.Open();
 
         _dbConnection.Execute(string.Format(Queries.CreateSchemaIfNotExistsQuery, SchemaName));
-        _dbConnection.Execute(string.Format(Queries.CreateFeatureFlagTableQuery, SchemaName));
+        _dbConnection.Execute(string.Format(Queries.CreateFeatureManagerTableQuery, SchemaName));
     }
 }

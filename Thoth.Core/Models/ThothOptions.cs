@@ -1,8 +1,5 @@
 using System;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using Thoth.Core.Interfaces;
-using Thoth.Core.Models.Entities;
 
 namespace Thoth.Core.Models;
 
@@ -11,7 +8,7 @@ public class ThothOptions
     /// <summary>
     ///     Defines the database provider that will be used to store data
     /// </summary>
-    public IDatabase DatabaseProvider { get; set; }
+    public Lazy<IDatabase> DatabaseProvider { get; set; }
 
     /// <summary>
     ///     Whether feature flags should be cached, enabled by default

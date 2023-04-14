@@ -36,7 +36,6 @@ public static class ServiceCollectionExtensions
         services.AddHttpContextAccessor();
         services.TryAddSingleton<IMemoryCache, MemoryCache>();
         services.TryAddSingleton<CacheManager>();
-        services.TryAddSingleton(_ => new Lazy<IDatabase>(options.DatabaseProvider).Value);
         services.TryAddSingleton<IThothFeatureManager, ThothFeatureManager>();
 
         if (options.EnableThothApi)

@@ -3,6 +3,7 @@ using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Thoth.Core;
+using Thoth.Core.Interfaces;
 using Thoth.Dashboard;
 using Thoth.Dashboard.Filter;
 using Thoth.Sample;
@@ -38,7 +39,8 @@ if (builder.Environment.IsEnvironment("Testing"))
     builder.Services.AddControllers();
     builder.Services.AddThoth(options =>
     {
-        options.DatabaseProvider = new ThothSqlServerProvider(builder.Configuration.GetConnectionString("SqlContext"));
+        options.DatabaseProvider = new Lazy<IDatabase>(() =>
+            new ThothSqlServerProvider(builder.Configuration.GetConnectionString("SqlContext")));
     });
     
     builder.Services.AddSwaggerGen();
@@ -109,7 +111,8 @@ else
     builder.Services.AddControllers();
     builder.Services.AddThoth(options =>
     {
-        options.DatabaseProvider = new ThothSqlServerProvider(builder.Configuration.GetConnectionString("SqlContext"));
+        options.DatabaseProvider = new Lazy<IDatabase>(() =>
+            new ThothSqlServerProvider(builder.Configuration.GetConnectionString("SqlContext")));
     });
 
     builder.Services.AddSwaggerGen();

@@ -10,14 +10,14 @@ public static class Queries
         SELECT * FROM {0}.FeatureManager;
     ";
 
-    public const string AddFeatureFlagQuery = @"
+    public const string AddFeatureManagerQuery = @"
         INSERT INTO {0}.FeatureManager
             (Name, Type, SubType, Enabled, Value, Description, CreatedAt, UpdatedAt)
         VALUES
             (@Name, @Type, @SubType, @Enabled, @Value, @Description, @CreatedAt, @UpdatedAt);
     ";
 
-    public const string UpdateFeatureFlag = @"
+    public const string UpdateFeatureManager = @"
         UPDATE {0}.FeatureManager
         SET
             Enabled = @Enabled, Value = @Value, Description = @Description, UpdatedAt = @UpdatedAt
@@ -25,7 +25,7 @@ public static class Queries
             Name = @Name;
     ";
 
-    public const string DeleteFeatureFlagQuery = @"
+    public const string DeleteFeatureManagerQuery = @"
         DELETE FROM {0}.FeatureManager WHERE Name = @Name;
     ";
 
@@ -36,7 +36,7 @@ public static class Queries
         END
     ";
 
-    public const string CreateFeatureFlagTableQuery = @"
+    public const string CreateFeatureManagerTableQuery = @"
         IF NOT EXISTS (SELECT * FROM sys.objects
             WHERE object_id = OBJECT_ID(N'[{0}].[FeatureManager]') AND type in (N'U'))
         BEGIN

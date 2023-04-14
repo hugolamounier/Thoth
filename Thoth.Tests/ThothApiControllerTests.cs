@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using Newtonsoft.Json;
 using Thoth.Core;
+using Thoth.Core.Interfaces;
 using Thoth.Core.Models;
 using Thoth.Core.Models.Entities;
 using Thoth.Core.Models.Enums;
@@ -32,7 +33,8 @@ public class ThothApiControllerTests : IntegrationTestBase<Program>
                 .AddEnvironmentVariables()
                 .Build();
 
-            options.DatabaseProvider = new ThothSqlServerProvider(configuration.GetConnectionString("SqlContext"));
+            options.DatabaseProvider = new Lazy<IDatabase>(() =>
+                new ThothSqlServerProvider(configuration.GetConnectionString("SqlContext")));
             options.ShouldReturnFalseWhenNotExists = false;
         });
         services.AddScoped<ILogger<FeatureFlagController>>(_ => Logger.Object);
