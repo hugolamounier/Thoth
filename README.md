@@ -62,7 +62,7 @@ public class MyClass
     
     public async void MyMethod()
     {
-        // Gets the value of an environment variable and converts to de desired type.
+        // Gets the value of an environment variable and converts to the desired type.
         // The environment variable value is saved as string on the database.
         var myEnvVariable = await _thothFeatureManager.GetEnvironmentValueAsync<int>("MyFeatureName");
         
