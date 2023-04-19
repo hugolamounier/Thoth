@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Driver;
 using Thoth.Core.Interfaces;
 using Thoth.Core.Models.Entities;
@@ -16,6 +17,10 @@ public class ThothMongoDbProvider: IDatabase
     public ThothMongoDbProvider(IMongoClient mongoClient, string databaseName, string collectionName = "thoth", ILogger<ThothMongoDbProvider> logger = null)
     {
         _logger = logger;
+
+        var conventionPack = new ConventionPack { new IgnoreExtraElementsConvention(true) };
+        ConventionRegistry.Register("IgnoreExtraElements", conventionPack, type => type == typeof(FeatureManager));
+
         _mongoCollection = mongoClient
             .GetDatabase(databaseName)
             .GetCollection<FeatureManager>(collectionName);
@@ -92,5 +97,12 @@ public class ThothMongoDbProvider: IDatabase
 
     public void Dispose()
     {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        // No cleanup needed
     }
 }

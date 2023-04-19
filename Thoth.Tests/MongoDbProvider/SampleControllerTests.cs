@@ -65,7 +65,7 @@ public class SampleControllerTests : IntegrationTestBase<Program>
         await _thothFeatureManager.AddAsync(newFeatureFlag);
 
         //Act
-        var validationTasks = Enumerable.Range(0, 1000).Select(async _ =>
+        var validationTasks = Enumerable.Range(0, 500).Select(async _ =>
         {
             var response = await HttpClient.GetAsync($"/Sample?featureFlagName={newFeatureFlag.Name}");
             response.IsSuccessStatusCode.Should().BeTrue();

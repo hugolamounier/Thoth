@@ -54,6 +54,7 @@ if (builder.Environment.IsEnvironment("Testing"))
     {
         builder.Services.AddThoth(options =>
         {
+            options.EnableCaching = false;
             options.DatabaseProvider = new Lazy<IDatabase>(() =>
                 new ThothMongoDbProvider(new MongoClient(builder.Configuration.GetConnectionString("MongoDb")), "thoth"));
         });
