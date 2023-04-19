@@ -11,10 +11,6 @@ services:
   mongo:
     image: mongo
     container_name: mongo
-    restart: always
-    environment:
-      - MONGO_INITDB_DATABASE=mongo
-      - MONGO_INITDB_ROOT_USERNAME=root
-      - MONGO_INITDB_ROOT_PASSWORD=devpassword
     ports:
       - "27017:27017"
+    command: /usr/bin/mongod --bind_ip localhost,mongo
