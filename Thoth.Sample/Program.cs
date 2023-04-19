@@ -2,10 +2,12 @@
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using MongoDB.Driver;
 using Thoth.Core;
 using Thoth.Core.Interfaces;
 using Thoth.Dashboard;
 using Thoth.Dashboard.Filter;
+using Thoth.MongoDb;
 using Thoth.Sample;
 using Thoth.SQLServer;
 
@@ -37,12 +39,26 @@ if (builder.Environment.IsEnvironment("Testing"))
     }
     
     builder.Services.AddControllers();
-    builder.Services.AddThoth(options =>
+
+
+    if(args.Any(x => x.Contains("SQLServerProvider")))
     {
-        options.DatabaseProvider = new Lazy<IDatabase>(() =>
-            new ThothSqlServerProvider(builder.Configuration.GetConnectionString("SqlContext")));
-    });
-    
+        builder.Services.AddThoth(options =>
+        {
+            options.DatabaseProvider = new Lazy<IDatabase>(() =>
+                new ThothSqlServerProvider(builder.Configuration.GetConnectionString("SqlContext")));
+        });
+    }
+
+    if(args.Any(x => x.Contains("MongoDbProvider")))
+    {
+        builder.Services.AddThoth(options =>
+        {
+            options.DatabaseProvider = new Lazy<IDatabase>(() =>
+                new ThothMongoDbProvider(new MongoClient(builder.Configuration.GetConnectionString("MongoDb")), "thoth"));
+        });
+    }
+
     builder.Services.AddSwaggerGen();
     
     var app = builder.Build();

@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <TargetFramework>net6.0</TargetFramework>
-        <Nullable>false</Nullable>
+        <Nullable>disable</Nullable>
         <Description>Thoth MongoDb storage provider.</Description>
         <LangVersion>10.0</LangVersion>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>

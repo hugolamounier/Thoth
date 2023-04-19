@@ -85,7 +85,9 @@ public class ThothMongoDbProvider: IDatabase
 
     private void Init()
     {
-        _mongoCollection.Indexes.CreateOne(new CreateIndexModel<FeatureManager>(Builders<FeatureManager>.IndexKeys.Ascending(i => i.Name)));
+        var nameIndex = Builders<FeatureManager>.IndexKeys.Ascending(i => i.Name);
+        var nameIndexOptions = new CreateIndexOptions {Unique = true};
+        _mongoCollection.Indexes.CreateOne(new CreateIndexModel<FeatureManager>(nameIndex, nameIndexOptions));
     }
 
     public void Dispose()

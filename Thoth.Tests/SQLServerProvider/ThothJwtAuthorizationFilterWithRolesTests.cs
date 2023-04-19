@@ -9,7 +9,7 @@ using Thoth.Core.Models.Enums;
 using Thoth.Tests.Base;
 using Thoth.Tests.Helpers;
 
-namespace Thoth.Tests;
+namespace Thoth.Tests.SQLServerProvider;
 
 public class ThothJwtAuthorizationFilterWithRolesTests: IntegrationTestBase<Program>
 {
@@ -17,7 +17,8 @@ public class ThothJwtAuthorizationFilterWithRolesTests: IntegrationTestBase<Prog
     
     public ThothJwtAuthorizationFilterWithRolesTests() : base(arguments: new Dictionary<string, string>
     {
-        {"auth", "UseThothJwtAuthorizationWithRoles"}
+        {"auth", "UseThothJwtAuthorizationWithRoles"},
+        {"provider", "SQLServerProvider"}
     })
     {
         _token = JwtGenerator.GenerateToken(new List<Claim>

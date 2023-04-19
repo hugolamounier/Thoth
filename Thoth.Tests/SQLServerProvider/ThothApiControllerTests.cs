@@ -16,14 +16,17 @@ using Thoth.Dashboard.Api;
 using Thoth.SQLServer;
 using Thoth.Tests.Base;
 
-namespace Thoth.Tests;
+namespace Thoth.Tests.SQLServerProvider;
 
 public class ThothApiControllerTests : IntegrationTestBase<Program>
 {
     private static readonly Mock<ILogger<FeatureFlagController>> Logger = new();
     private static readonly Mock<ILogger<ThothFeatureManager>> LoggerThothManager = new();
 
-    public ThothApiControllerTests() : base(services =>
+    public ThothApiControllerTests() : base(arguments: new Dictionary<string, string>
+    {
+        {"provider", "SQLServerProvider"}
+    },serviceDelegate: services =>
     {
         services.AddThoth(options =>
         {
