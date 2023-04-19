@@ -1,9 +1,18 @@
 version: "3.8"
 services:
   sqlserver:
-    image: mcr.microsoft.com/mssql/server:latest
+    image: mcr.microsoft.com/mssql/server
     environment:
       SA_PASSWORD: Password1
       ACCEPT_EULA: "Y"
     ports:
       - 1433:1433
+
+  mongodb:
+    image: mongo
+    restart: always
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=devpassword
+    ports:
+      - "27017:27017"
