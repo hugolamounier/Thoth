@@ -32,6 +32,7 @@ Thoth consists of the following projects:
 | Thoth.Core          | [![Nuget](https://img.shields.io/nuget/v/Thoth.Core)](https://www.nuget.org/packages/Thoth.Core/)             |
 | Thoth.SQLServer     | [![Nuget](https://img.shields.io/nuget/v/Thoth.SQLServer)](https://www.nuget.org/packages/Thoth.SQLServer/)   |
 | Thoth.Dashboard     | [![Nuget](https://img.shields.io/nuget/v/Thoth.Dashboard)](https://www.nuget.org/packages/Thoth.Dashboard/)   |
+| Thoth.MongoDb       | [![Nuget](https://img.shields.io/nuget/v/Thoth.MongoDB)](https://www.nuget.org/packages/Thoth.MongoDb/)       |
 
 
 ## Getting Started
