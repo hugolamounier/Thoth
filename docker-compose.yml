@@ -1,9 +1,17 @@
 version: "3.8"
 services:
   sqlserver:
-    image: mcr.microsoft.com/mssql/server:latest
+    image: mcr.microsoft.com/mssql/server
     environment:
       SA_PASSWORD: Password1
       ACCEPT_EULA: "Y"
     ports:
       - 1433:1433
+
+  mongo:
+    image: mongo
+    container_name: mongo
+    restart: always
+    ports:
+      - "27017:27017"
+    command: /usr/bin/mongod --bind_ip localhost,mongo

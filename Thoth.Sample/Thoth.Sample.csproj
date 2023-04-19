@@ -15,6 +15,7 @@
     <ItemGroup>
         <ProjectReference Include="..\Thoth.Core\Thoth.Core.csproj" />
         <ProjectReference Include="..\Thoth.Dashboard\Thoth.Dashboard.csproj" />
+        <ProjectReference Include="..\Thoth.MongoDb\Thoth.MongoDb.csproj" />
         <ProjectReference Include="..\Thoth.SQLServer\Thoth.SQLServer.csproj" />
     </ItemGroup>
 </Project>

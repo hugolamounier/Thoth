@@ -5,6 +5,7 @@ using FluentAssertions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using MongoDB.Driver;
 using Moq;
 using Newtonsoft.Json;
 using Thoth.Core;
@@ -13,17 +14,21 @@ using Thoth.Core.Models;
 using Thoth.Core.Models.Entities;
 using Thoth.Core.Models.Enums;
 using Thoth.Dashboard.Api;
+using Thoth.MongoDb;
 using Thoth.SQLServer;
 using Thoth.Tests.Base;
 
-namespace Thoth.Tests;
+namespace Thoth.Tests.MongoDbProvider;
 
 public class ThothApiControllerTests : IntegrationTestBase<Program>
 {
     private static readonly Mock<ILogger<FeatureFlagController>> Logger = new();
     private static readonly Mock<ILogger<ThothFeatureManager>> LoggerThothManager = new();
 
-    public ThothApiControllerTests() : base(services =>
+    public ThothApiControllerTests() : base(arguments: new Dictionary<string, string>
+    {
+        {"provider", "MongoDbProvider"}
+    },serviceDelegate: services =>
     {
         services.AddThoth(options =>
         {
@@ -34,7 +39,7 @@ public class ThothApiControllerTests : IntegrationTestBase<Program>
                 .Build();
 
             options.DatabaseProvider = new Lazy<IDatabase>(() =>
-                new ThothSqlServerProvider(configuration.GetConnectionString("SqlContext")));
+                new ThothMongoDbProvider(new MongoClient(configuration.GetConnectionString("MongoDb")), "thoth"));
             options.ShouldReturnFalseWhenNotExists = false;
         });
         services.AddScoped<ILogger<FeatureFlagController>>(_ => Logger.Object);

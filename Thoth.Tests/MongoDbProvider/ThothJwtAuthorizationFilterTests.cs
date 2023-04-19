@@ -1,5 +1,4 @@
 using System.Net;
-using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text;
 using FluentAssertions;
@@ -15,7 +14,7 @@ using Thoth.Dashboard.Api;
 using Thoth.Tests.Base;
 using Thoth.Tests.Helpers;
 
-namespace Thoth.Tests;
+namespace Thoth.Tests.MongoDbProvider;
 
 public class ThothJwtAuthorizationFilterTests: IntegrationTestBase<Program>
 {
@@ -23,7 +22,8 @@ public class ThothJwtAuthorizationFilterTests: IntegrationTestBase<Program>
 
     public ThothJwtAuthorizationFilterTests() : base(arguments: new Dictionary<string, string>
     {
-        {"auth", "UseThothJwtAuthorization"}
+        {"auth", "UseThothJwtAuthorization"},
+        {"provider", "MongoDbProvider"}
     }, serviceDelegate: services =>
     {
         services.AddScoped<ILogger<FeatureFlagController>>(_ => Logger.Object);

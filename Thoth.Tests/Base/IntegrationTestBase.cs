@@ -2,6 +2,8 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
+using Thoth.Core.Models;
 
 namespace Thoth.Tests.Base;
 
@@ -55,8 +57,9 @@ public abstract class IntegrationTestBase<TEntryPoint> : WebApplicationFactory<T
         return base.CreateHost(builder);
     }
 
-    private void AfterEachTestAsync()
+    protected virtual void AfterEachTestAsync()
     {
+        ServiceScope.ServiceProvider.GetRequiredService<IOptions<ThothOptions>>().Value.DatabaseProvider.Value.Dispose();
         HttpClient.Dispose();
         ServiceScope.Dispose();
     }

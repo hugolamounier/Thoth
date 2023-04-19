@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <Nullable>disable</Nullable>
+        <Description>Thoth MongoDb storage provider.</Description>
+        <LangVersion>10.0</LangVersion>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <Title>Thoth.MongoDb</Title>
+        <Authors>Hugo Lamounier</Authors>
+        <PackageProjectUrl>https://github.com/hugolamounier/Thoth</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/hugolamounier/Thoth</RepositoryUrl>
+        <RepositoryType>Git</RepositoryType>
+        <AssemblyName>Thoth.MongoDb</AssemblyName>
+        <RootNamespace>Thoth.MongoDb</RootNamespace>
+        <IsPackable>true</IsPackable>
+        <PackageIcon>icon-64.png</PackageIcon>
+        <Version>1.0.0</Version>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <None Include="../docs/README.md" Pack="true" PackagePath="\" />
+        <None Include="../docs/icon-64.png" Pack="true" PackagePath="\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Thoth.Core\Thoth.Core.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="MongoDB.Driver" Version="2.19.1" />
+    </ItemGroup>
+
+</Project>

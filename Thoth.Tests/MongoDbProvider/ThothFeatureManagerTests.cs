@@ -9,14 +9,17 @@ using Thoth.Core.Models.Entities;
 using Thoth.Core.Models.Enums;
 using Thoth.Tests.Base;
 
-namespace Thoth.Tests;
+namespace Thoth.Tests.MongoDbProvider;
 
 public class ThothFeatureManagerTests: IntegrationTestBase<Program>
 {
     private static readonly Mock<ILogger<ThothFeatureManager>> Logger = new();
     private readonly IThothFeatureManager _thothFeatureManager;
 
-    public ThothFeatureManagerTests() : base(serviceDelegate: services =>
+    public ThothFeatureManagerTests() : base(arguments: new Dictionary<string, string>
+    {
+        {"provider", "MongoDbProvider"}
+    }, serviceDelegate: services =>
     {
         services.AddScoped<ILogger<ThothFeatureManager>>(_ => Logger.Object);
     })
