@@ -40,47 +40,20 @@ public class ThothMongoDbProvider: IDatabase
 
     public async Task<bool> AddAsync(FeatureManager featureManager)
     {
-        try
-        {
-            await _mongoCollection.InsertOneAsync(featureManager);
-            return true;
-        }
-        catch(Exception e)
-        {
-            _logger?.Log(LogLevel.Error, e,
-                "{Provider} - The feature '{FeatureName}' could not be inserted",nameof(ThothMongoDbProvider), featureManager.Name);
-            return false;
-        }
+        await _mongoCollection.InsertOneAsync(featureManager);
+        return true;
     }
 
     public async Task<bool> UpdateAsync(FeatureManager featureManager)
     {
-        try
-        {
-            await _mongoCollection.ReplaceOneAsync(f => f.Name == featureManager.Name, featureManager);
-            return true;
-        }
-        catch(Exception e)
-        {
-            _logger?.Log(LogLevel.Error, e,
-                "{Provider} - The feature '{FeatureName}' could not be updated", nameof(ThothMongoDbProvider), featureManager.Name);
-            return false;
-        }
+        await _mongoCollection.ReplaceOneAsync(f => f.Name == featureManager.Name, featureManager);
+        return true;
     }
 
     public async Task<bool> DeleteAsync(string featureName)
     {
-        try
-        {
-            await _mongoCollection.DeleteOneAsync(f => f.Name == featureName);
-            return true;
-        }
-        catch(Exception e)
-        {
-            _logger?.Log(LogLevel.Error, e,
-                "{Provider} - The feature '{FeatureName}' could not be deleted", nameof(ThothMongoDbProvider), featureName);
-            return false;
-        }
+        await _mongoCollection.DeleteOneAsync(f => f.Name == featureName);
+        return true;
     }
 
     public async Task<bool> ExistsAsync(string featureName)
