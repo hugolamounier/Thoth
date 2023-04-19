@@ -11,6 +11,7 @@ services:
   mongo:
     image: mongo
     container_name: mongo
+    restart: always
     ports:
       - "27017:27017"
     command: /usr/bin/mongod --bind_ip localhost,mongo
