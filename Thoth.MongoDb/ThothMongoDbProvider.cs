@@ -12,12 +12,9 @@ namespace Thoth.MongoDb;
 public class ThothMongoDbProvider: IDatabase
 {
     private readonly IMongoCollection<FeatureManager> _mongoCollection;
-    private readonly ILogger<ThothMongoDbProvider> _logger;
 
-    public ThothMongoDbProvider(IMongoClient mongoClient, string databaseName, string collectionName = "thoth", ILogger<ThothMongoDbProvider> logger = null)
+    public ThothMongoDbProvider(IMongoClient mongoClient, string databaseName, string collectionName = "thoth")
     {
-        _logger = logger;
-
         var conventionPack = new ConventionPack { new IgnoreExtraElementsConvention(true) };
         ConventionRegistry.Register("IgnoreExtraElements", conventionPack, type => type == typeof(FeatureManager));
 
