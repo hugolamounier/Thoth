@@ -21,6 +21,10 @@ Thoth consists of the following projects:
 
 `Thoth.SQLServer` is a database provider for SQL Server that implements the `IDatabase` interface. It provides a simple and easy-to-use implementation for storing and retrieving feature data from a SQL Server database.
 
+### Thoth.MongoDb
+
+`Thoth.MongoDb` is a database provider for MongoDb that implements the `IDatabase` interface. It provides a simple and easy-to-use implementation for storing and retrieving feature data from a MongoDB document.
+
 ## Installation
 
 | Package name        | Nuget                                                                                                         |
@@ -40,7 +44,7 @@ using Thoth.SQLServer;
 builder.Services.AddThoth(options =>
 {
     options.DatabaseProvider = new Lazy<IDatabase>(() => new ThothSqlServerProvider(builder.Configuration.GetConnectionString("SqlContext")) ); // Set database provider
-    options.ShouldReturnFalseWhenNotExists = true; // Defines if the default value to a non-existent should be false or throw
+    options.ShouldReturnFalseWhenNotExists = true; // Defines if the default value to a non-existent feature should be false or throw
     options.EnableCaching = true; // Whether Thoth should use caching strategies to improve performance. Optional.
     options.CacheExpiration = TimeSpan.FromDays(7); // Defines for how long feature flags are going to be cached in memory. Optional.
     options.CacheSlidingExpiration = TimeSpan.FromDays(1); // Defines for how long the feature flags will be cached without being accessed. Optional.
