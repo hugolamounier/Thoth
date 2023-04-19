@@ -22,6 +22,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Thoth.Tests", "Thoth.Tests\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Thoth.Sample", "Thoth.Sample\Thoth.Sample.csproj", "{872F5990-EA72-4525-9CDC-C8E6F4F71FD0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Thoth.MongoDb", "Thoth.MongoDb\Thoth.MongoDb.csproj", "{8014BEB8-CB6D-4DE9-960D-AC0CE4393AB4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -48,5 +50,9 @@ Global
 		{872F5990-EA72-4525-9CDC-C8E6F4F71FD0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{872F5990-EA72-4525-9CDC-C8E6F4F71FD0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{872F5990-EA72-4525-9CDC-C8E6F4F71FD0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8014BEB8-CB6D-4DE9-960D-AC0CE4393AB4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8014BEB8-CB6D-4DE9-960D-AC0CE4393AB4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8014BEB8-CB6D-4DE9-960D-AC0CE4393AB4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8014BEB8-CB6D-4DE9-960D-AC0CE4393AB4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
