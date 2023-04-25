@@ -15,7 +15,7 @@
         <RootNamespace>Thoth.Core</RootNamespace>
         <IsPackable>true</IsPackable>
         <PackageIcon>icon-64.png</PackageIcon>
-        <Version>3.0.3</Version>
+        <Version>3.1.0</Version>
     </PropertyGroup>
 
     <ItemGroup>
@@ -24,7 +24,7 @@
         <PackageReference Include="Microsoft.AspNetCore.SpaServices" Version="3.1.32" />
         <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="6.0.16" />
         <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="6.0.1" />
-        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.3" />
+        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="7.0.0" />
         <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="6.0.0" />
     </ItemGroup>
 
