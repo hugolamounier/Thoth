@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
 using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Driver;
 using Thoth.Core.Interfaces;
@@ -63,16 +61,5 @@ public class ThothMongoDbProvider: IDatabase
         var nameIndex = Builders<FeatureManager>.IndexKeys.Ascending(i => i.Name);
         var nameIndexOptions = new CreateIndexOptions {Unique = true};
         _mongoCollection.Indexes.CreateOne(new CreateIndexModel<FeatureManager>(nameIndex, nameIndexOptions));
-    }
-
-    public void Dispose()
-    {
-        Dispose(true);
-        GC.SuppressFinalize(this);
-    }
-
-    protected virtual void Dispose(bool disposing)
-    {
-        // No cleanup needed
     }
 }

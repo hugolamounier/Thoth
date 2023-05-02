@@ -52,4 +52,22 @@ public static class Queries
             );
         END
     ";
+
+    public const string CreateFeatureManagerHistoryTableQuery = @"
+        IF NOT EXISTS (SELECT * FROM sys.objects
+            WHERE object_id = OBJECT_ID(N'[{0}].[FeatureManager]') AND type in (N'U'))
+        BEGIN
+            CREATE TABLE [{0}].[FeatureManager] (
+                Id 
+                Name VARCHAR(100) NOT NULL,
+                Type TINYINT NOT NULL,
+                SubType TINYINT NULL,
+                Enabled BIT NOT NULL,
+                Value VARCHAR(100) NULL,
+                Description VARCHAR(200) NULL,
+                CreatedAt DATETIME NOT NULL,
+                UpdatedAt DATETIME NULL
+            );
+        END
+    ";
 }

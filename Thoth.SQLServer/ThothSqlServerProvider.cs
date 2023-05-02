@@ -1,80 +1,63 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
-using System.Data;
+using System.Linq;
 using System.Threading.Tasks;
-using Dapper;
-using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using Thoth.Core.Interfaces;
 using Thoth.Core.Models.Entities;
 
 namespace Thoth.SQLServer;
 
-public class ThothSqlServerProvider : IDatabase
+public class ThothSqlServerProvider<TContext>: IDatabase where TContext : DbContext
 {
-    private const string SchemaName = "thoth";
-    private readonly IDbConnection _dbConnection;
+    private readonly DbSet<FeatureManager> _featureManagers;
+    private readonly TContext _dbContext;
 
-    public ThothSqlServerProvider(string connectionString)
+    public ThothSqlServerProvider(TContext dbContext)
     {
-        _dbConnection = new SqlConnection(connectionString);
-        Init();
+        _dbContext = dbContext;
+        _featureManagers = dbContext.Set<FeatureManager>();
     }
 
     public Task<FeatureManager> GetAsync(string featureName)
     {
-        return _dbConnection
-            .QueryFirstAsync<FeatureManager>(string.Format(Queries.GetQuery, SchemaName),
-                new {Name = featureName});
+        return _featureManagers.FirstAsync(x => x.Name == featureName);
     }
 
     public Task<IEnumerable<FeatureManager>> GetAllAsync()
     {
-        return _dbConnection.QueryAsync<FeatureManager>(string.Format(Queries.GetAllQuery, SchemaName));
+        return Task.FromResult(_featureManagers.AsEnumerable());
     }
 
     public async Task<bool> AddAsync(FeatureManager featureManager)
     {
         featureManager.CreatedAt = DateTime.UtcNow;
-        return await _dbConnection.ExecuteAsync(string.Format(Queries.AddFeatureManagerQuery, SchemaName), featureManager) > 0;
+        await _featureManagers.AddAsync(featureManager);
+        return await _dbContext.SaveChangesAsync() > 0;
     }
 
     public async Task<bool> UpdateAsync(FeatureManager featureManager)
     {
-        featureManager.UpdatedAt = DateTime.UtcNow;
-        return await _dbConnection.ExecuteAsync(string.Format(Queries.UpdateFeatureManager, SchemaName), featureManager) > 0;
+        var featureToUpdate = await GetAsync(featureManager.Name);
+
+        featureToUpdate.Enabled = featureManager.Enabled;
+        featureToUpdate.Value = featureManager.Value;
+        featureToUpdate.Description = featureManager.Description;
+        featureToUpdate.UpdatedAt = DateTime.UtcNow;
+
+        return await _dbContext.SaveChangesAsync() > 0;
     }
 
     public async Task<bool> DeleteAsync(string featureName)
     {
-        return await _dbConnection.ExecuteAsync(string.Format(Queries.DeleteFeatureManagerQuery, SchemaName), new {Name = featureName}) > 0;
+        var featureToRemove = await GetAsync(featureName);
+        _featureManagers.Remove(featureToRemove);
+
+        return await _dbContext.SaveChangesAsync() > 0;
     }
 
     public async Task<bool> ExistsAsync(string featureName)
     {
-        return await _dbConnection.QueryFirstOrDefaultAsync<FeatureManager?>(string.Format(Queries.GetQuery, SchemaName),
-            new {Name = featureName}) is not null;
-    }
-
-    public void Dispose()
-    {
-        Dispose(true);
-        GC.SuppressFinalize(this);
-    }
-
-    protected virtual void Dispose(bool disposing)
-    {
-        if (!disposing)
-            return;
-
-        _dbConnection.Close();
-        _dbConnection.Dispose();
-    }
-
-    private void Init()
-    {
-        _dbConnection.Open();
-
-        _dbConnection.Execute(string.Format(Queries.CreateSchemaIfNotExistsQuery, SchemaName));
-        _dbConnection.Execute(string.Format(Queries.CreateFeatureManagerTableQuery, SchemaName));
+        return await _featureManagers.FirstOrDefaultAsync(x => x.Name == featureName) is not null;
     }
 }
