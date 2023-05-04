@@ -1,15 +1,12 @@
 using System;
+using System.Collections.Generic;
+using Microsoft.Extensions.DependencyInjection;
 using Thoth.Core.Interfaces;
 
 namespace Thoth.Core.Models;
 
 public class ThothOptions
 {
-    /// <summary>
-    ///     Defines the database provider that will be used to store data
-    /// </summary>
-    public Lazy<IDatabase> DatabaseProvider { get; set; }
-
     /// <summary>
     ///     Whether feature flags should be cached, enabled by default
     /// </summary>
@@ -37,4 +34,6 @@ public class ThothOptions
     ///     This is required true when using Dashboard.
     /// </summary>
     public bool EnableThothApi { get; set; } = true;
+
+    public List<Action<IServiceCollection>> Extensions { get; } = new ();
 }

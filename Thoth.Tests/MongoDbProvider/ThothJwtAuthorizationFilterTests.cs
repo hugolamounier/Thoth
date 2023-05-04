@@ -18,7 +18,7 @@ namespace Thoth.Tests.MongoDbProvider;
 
 public class ThothJwtAuthorizationFilterTests: IntegrationTestBase<Program>
 {
-    private static readonly Mock<ILogger<FeatureFlagController>> Logger = new();
+    private static readonly Mock<ILogger<FeatureManagerController>> Logger = new();
 
     public ThothJwtAuthorizationFilterTests() : base(arguments: new Dictionary<string, string>
     {
@@ -26,7 +26,7 @@ public class ThothJwtAuthorizationFilterTests: IntegrationTestBase<Program>
         {"provider", "MongoDbProvider"}
     }, serviceDelegate: services =>
     {
-        services.AddScoped<ILogger<FeatureFlagController>>(_ => Logger.Object);
+        services.AddScoped<ILogger<FeatureManagerController>>(_ => Logger.Object);
     })
     {
         var token = JwtGenerator.GenerateToken(new List<Claim>

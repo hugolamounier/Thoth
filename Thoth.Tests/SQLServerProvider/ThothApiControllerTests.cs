@@ -13,6 +13,7 @@ using Thoth.Core.Models;
 using Thoth.Core.Models.Entities;
 using Thoth.Core.Models.Enums;
 using Thoth.Dashboard.Api;
+using Thoth.Sample.Contexts;
 using Thoth.SQLServer;
 using Thoth.Tests.Base;
 
@@ -20,7 +21,7 @@ namespace Thoth.Tests.SQLServerProvider;
 
 public class ThothApiControllerTests : IntegrationTestBase<Program>
 {
-    private static readonly Mock<ILogger<FeatureFlagController>> Logger = new();
+    private static readonly Mock<ILogger<FeatureManagerController>> Logger = new();
     private static readonly Mock<ILogger<ThothFeatureManager>> LoggerThothManager = new();
 
     public ThothApiControllerTests() : base(arguments: new Dictionary<string, string>
@@ -36,11 +37,10 @@ public class ThothApiControllerTests : IntegrationTestBase<Program>
                 .AddEnvironmentVariables()
                 .Build();
 
-            options.DatabaseProvider = new Lazy<IDatabase>(() =>
-                new ThothSqlServerProvider(configuration.GetConnectionString("SqlContext")));
+            options.UseEntityFramework<SqlContext>();
             options.ShouldReturnFalseWhenNotExists = false;
         });
-        services.AddScoped<ILogger<FeatureFlagController>>(_ => Logger.Object);
+        services.AddScoped<ILogger<FeatureManagerController>>(_ => Logger.Object);
         services.AddScoped<ILogger<ThothFeatureManager>>(_ => LoggerThothManager.Object);
     }) { }
 

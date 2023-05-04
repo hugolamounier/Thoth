@@ -59,7 +59,6 @@ public abstract class IntegrationTestBase<TEntryPoint> : WebApplicationFactory<T
 
     protected virtual void AfterEachTestAsync()
     {
-        ServiceScope.ServiceProvider.GetRequiredService<IOptions<ThothOptions>>().Value.DatabaseProvider.Value.Dispose();
         HttpClient.Dispose();
         ServiceScope.Dispose();
     }

@@ -1,17 +1,22 @@
 ﻿using System.Security.Claims;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using MongoDB.Driver;
 using Thoth.Core;
-using Thoth.Core.Interfaces;
 using Thoth.Dashboard;
+using Thoth.Dashboard.Audit;
 using Thoth.Dashboard.Filter;
-using Thoth.MongoDb;
 using Thoth.Sample;
+using Thoth.Sample.Contexts;
 using Thoth.SQLServer;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddDbContext<SqlContext>(options =>
+{
+    options.UseSqlServer(builder.Configuration.GetConnectionString("SqlContext"));
+});
 
 //Testing container
 if (builder.Environment.IsEnvironment("Testing"))
@@ -45,8 +50,7 @@ if (builder.Environment.IsEnvironment("Testing"))
     {
         builder.Services.AddThoth(options =>
         {
-            options.DatabaseProvider = new Lazy<IDatabase>(() =>
-                new ThothSqlServerProvider(builder.Configuration.GetConnectionString("SqlContext")));
+            options.UseEntityFramework<SqlContext>();
         });
     }
 
@@ -54,14 +58,15 @@ if (builder.Environment.IsEnvironment("Testing"))
     {
         builder.Services.AddThoth(options =>
         {
-            options.DatabaseProvider = new Lazy<IDatabase>(() =>
-                new ThothMongoDbProvider(new MongoClient(builder.Configuration.GetConnectionString("MongoDb")), "thoth"));
+            // none
         });
     }
 
     builder.Services.AddSwaggerGen();
     
     var app = builder.Build();
+    var scope = app.Services.CreateScope();
+    var httpContextAccessor = scope.ServiceProvider.GetRequiredService<IHttpContextAccessor>();
     
     app.UseSwagger();
     app.UseSwaggerUI();
@@ -79,7 +84,7 @@ if (builder.Environment.IsEnvironment("Testing"))
             options.RoutePrefix = "/thoth";
             if (args.Any(x => x.Contains("UseThothJwtAuthorization")))
             {
-                options.Authorization = new[] {new ThothJwtAuthorizationFilter(new TokenValidationParameters
+                options.Authorization = new ThothJwtAuthorizationFilter(new TokenValidationParameters
                 {
                     ValidateIssuerSigningKey = true,
                     ValidateLifetime = true,
@@ -95,12 +100,12 @@ if (builder.Environment.IsEnvironment("Testing"))
                     Expires = DateTime.Now.AddDays(30),
                     Secure = false,
                     HttpOnly = true
-                })};
-                options.ClaimsToRegisterOnLog = new[] { ClaimTypes.Email, ClaimTypes.NameIdentifier };
+                });
+                options.AuditExtras = new ThothJwtAudit(httpContextAccessor, new[] {ClaimTypes.Email, ClaimTypes.NameIdentifier});
             }
 
             if (args.Any(x => x.Contains("UseThothJwtAuthorizationWithRoles")))
-                options.Authorization = new[] {new ThothJwtAuthorizationFilter(new TokenValidationParameters
+                options.Authorization = new ThothJwtAuthorizationFilter(new TokenValidationParameters
                 {
                     ValidateIssuerSigningKey = true,
                     ValidateLifetime = true,
@@ -116,9 +121,9 @@ if (builder.Environment.IsEnvironment("Testing"))
                     Expires = DateTime.Now.AddDays(30),
                     Secure = false,
                     HttpOnly = true
-                }, allowedRoles: new []{ "Admin" })};
+                }, allowedRoles: new []{ "Admin" });
         });
-    
+
     app.Run();
 }
 else
@@ -127,8 +132,7 @@ else
     builder.Services.AddControllers();
     builder.Services.AddThoth(options =>
     {
-        options.DatabaseProvider = new Lazy<IDatabase>(() =>
-            new ThothSqlServerProvider(builder.Configuration.GetConnectionString("SqlContext")));
+        options.UseEntityFramework<SqlContext>();
     });
 
     builder.Services.AddSwaggerGen();

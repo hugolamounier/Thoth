@@ -15,6 +15,7 @@ public class FeatureManager: IThothFeatureEntity
     public bool Enabled { get; set; }
     public string Value { get; set; }
     public string Description { get; set; }
+    public string Extras { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
     
