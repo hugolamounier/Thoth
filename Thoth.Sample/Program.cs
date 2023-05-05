@@ -3,10 +3,12 @@ using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using MongoDB.Driver;
 using Thoth.Core;
 using Thoth.Dashboard;
 using Thoth.Dashboard.Audit;
 using Thoth.Dashboard.Filter;
+using Thoth.MongoDb;
 using Thoth.Sample;
 using Thoth.Sample.Contexts;
 using Thoth.SQLServer;
@@ -17,6 +19,9 @@ builder.Services.AddDbContext<SqlContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("SqlContext"));
 });
+
+builder.Services.AddSingleton<IMongoClient>(_ => 
+    new MongoClient(builder.Configuration.GetConnectionString("MongoDb")));
 
 //Testing container
 if (builder.Environment.IsEnvironment("Testing"))
@@ -58,7 +63,7 @@ if (builder.Environment.IsEnvironment("Testing"))
     {
         builder.Services.AddThoth(options =>
         {
-            // none
+            options.UseMongoDb("thoth");
         });
     }
 

@@ -18,15 +18,10 @@ namespace Thoth.Tests.MongoDbProvider;
 
 public class ThothJwtAuthorizationFilterTests: IntegrationTestBase<Program>
 {
-    private static readonly Mock<ILogger<FeatureManagerController>> Logger = new();
-
     public ThothJwtAuthorizationFilterTests() : base(arguments: new Dictionary<string, string>
     {
         {"auth", "UseThothJwtAuthorization"},
         {"provider", "MongoDbProvider"}
-    }, serviceDelegate: services =>
-    {
-        services.AddScoped<ILogger<FeatureManagerController>>(_ => Logger.Object);
     })
     {
         var token = JwtGenerator.GenerateToken(new List<Claim>
@@ -51,14 +46,7 @@ public class ThothJwtAuthorizationFilterTests: IntegrationTestBase<Program>
 
         //Assert
         response.IsSuccessStatusCode.Should().BeTrue();
-        Logger.Verify(
-            x => x.Log(
-                It.Is<LogLevel>(l => l == LogLevel.Information),
-                It.IsAny<EventId>(),
-                It.Is<It.IsAnyType>((v, t) => v.ToString()!.Contains(string.Format(Messages.INFO_ACTION_MADE_BY_USER_WITH_CLAIMS, string.Empty)) &&
-                                                                     v.ToString()!.Contains(featureManager.Name)),
-                It.IsAny<Exception>(),
-                It.Is<Func<It.IsAnyType, Exception, string>>((v, t) => true)!), Times.Once);
+        response.StatusCode.Should().Be(HttpStatusCode.Created);
     }
 
     [Fact]

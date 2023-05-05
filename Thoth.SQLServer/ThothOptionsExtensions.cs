@@ -5,7 +5,7 @@ using IDatabase = Thoth.Core.Interfaces.IDatabase;
 
 namespace Thoth.SQLServer;
 
-public static class ThothOptionsEfCoreExtensions
+public static class ThothOptionsExtensions
 {
     /// <summary>
     ///     Register Thoth to use EF Core as its database provider

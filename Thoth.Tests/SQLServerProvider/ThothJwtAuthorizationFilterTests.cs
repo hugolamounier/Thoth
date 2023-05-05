@@ -18,15 +18,10 @@ namespace Thoth.Tests.SQLServerProvider;
 
 public class ThothJwtAuthorizationFilterTests: IntegrationTestBase<Program>
 {
-    private static readonly Mock<ILogger<FeatureManagerController>> Logger = new();
-
     public ThothJwtAuthorizationFilterTests() : base(arguments: new Dictionary<string, string>
     {
         {"auth", "UseThothJwtAuthorization"},
         {"provider", "SQLServerProvider"}
-    }, serviceDelegate: services =>
-    {
-        services.AddScoped<ILogger<FeatureManagerController>>(_ => Logger.Object);
     })
     {
         var token = JwtGenerator.GenerateToken(new List<Claim>

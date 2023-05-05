@@ -11,14 +11,14 @@ public class ThothMongoDbProvider: IDatabase
 {
     private readonly IMongoCollection<FeatureManager> _mongoCollection;
 
-    public ThothMongoDbProvider(IMongoClient mongoClient, string databaseName, string collectionName = "thoth")
+    public ThothMongoDbProvider(IMongoClient mongoClient)
     {
         var conventionPack = new ConventionPack { new IgnoreExtraElementsConvention(true) };
         ConventionRegistry.Register("IgnoreExtraElements", conventionPack, type => type == typeof(FeatureManager));
 
         _mongoCollection = mongoClient
-            .GetDatabase(databaseName)
-            .GetCollection<FeatureManager>(collectionName);
+            .GetDatabase(ThothMongoDbOptions.DatabaseName)
+            .GetCollection<FeatureManager>(ThothMongoDbOptions.CollectionName);
 
         Init();
     }
