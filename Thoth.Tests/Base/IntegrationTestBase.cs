@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Options;
-using Thoth.Core.Models;
+using Thoth.Sample.Contexts;
 
 namespace Thoth.Tests.Base;
 
@@ -26,6 +26,9 @@ public abstract class IntegrationTestBase<TEntryPoint> : WebApplicationFactory<T
     {
         HttpClient = CreateClient();
         ServiceScope = Services.CreateScope();
+
+        var context = ServiceScope.ServiceProvider.GetRequiredService<SqlContext>();
+        context.Database.Migrate();
     }
 
     protected override IHost CreateHost(IHostBuilder builder)

@@ -35,7 +35,7 @@ public static class ServiceCollectionExtensions
         services.AddHttpContextAccessor();
         services.TryAddSingleton<IMemoryCache, MemoryCache>();
         services.TryAddSingleton<CacheManager>();
-        services.TryAddSingleton<IThothFeatureManager, ThothFeatureManager>();
+        services.TryAddScoped<IThothFeatureManager, ThothFeatureManager>();
 
         if (options.EnableThothApi)
             services.AddSpaStaticFiles();
