@@ -51,6 +51,6 @@ public static class ApplicationBuilderExtensions
 
         app.UseMiddleware<ThothExceptionMiddleware>();
 
-        return app.InjectThothDashboardRoutes(scope, options);
+        return app.InjectThothDashboardRoutes(options);
     }
 }

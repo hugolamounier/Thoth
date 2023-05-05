@@ -12,18 +12,17 @@ public static class RoutesCollection
 {
     public static IApplicationBuilder InjectThothDashboardRoutes(
         this IApplicationBuilder app,
-        IServiceScope scope,
         ThothDashboardOptions thothDashboardOptions)
     {
-        var basePath = $"{thothDashboardOptions.RoutePrefix}-api/FeatureFlag";
-        var featureManagementService = scope.ServiceProvider.GetRequiredService<IThothFeatureManager>();
-        var logger = scope.ServiceProvider.GetRequiredService<ILogger<FeatureManagerController>>();
-        var controller = new FeatureManagerController(featureManagementService, logger, thothDashboardOptions);
-
         app.UseRouting();
 
         app.UseEndpoints(endpoints =>
         {
+            var basePath = $"{thothDashboardOptions.RoutePrefix}-api/FeatureFlag";
+            var featureManagementService = endpoints.ServiceProvider.GetRequiredService<IThothFeatureManager>();
+            var logger = endpoints.ServiceProvider.GetRequiredService<ILogger<FeatureManagerController>>();
+            var controller = new FeatureManagerController(featureManagementService, logger, thothDashboardOptions);
+            
             #region GET
 
             endpoints.MapGet(basePath, async () =>

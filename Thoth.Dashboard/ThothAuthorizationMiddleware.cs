@@ -32,11 +32,9 @@ public class ThothAuthorizationMiddleware
             return;
         }
 
-        if (_options.Authorization is not null)
+        if (_options.Authorization is not null && 
+            await _options.Authorization.AuthorizeAsync(thothContext) is false)
         {
-            if (await _options.Authorization.AuthorizeAsync(thothContext))
-                return;
-
             httpContext.Response.StatusCode = StatusCodes.Status403Forbidden;
             return;
         }
