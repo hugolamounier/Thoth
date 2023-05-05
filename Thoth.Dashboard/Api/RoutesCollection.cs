@@ -1,8 +1,6 @@
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Thoth.Core.Interfaces;
 using Thoth.Core.Models.Entities;
 
@@ -20,15 +18,11 @@ public static class RoutesCollection
         {
             var basePath = $"{thothDashboardOptions.RoutePrefix}-api/FeatureFlag";
             var featureManagementService = endpoints.ServiceProvider.GetRequiredService<IThothFeatureManager>();
-            var logger = endpoints.ServiceProvider.GetRequiredService<ILogger<FeatureManagerController>>();
-            var controller = new FeatureManagerController(featureManagementService, logger, thothDashboardOptions);
+            var controller = new FeatureManagerController(featureManagementService);
             
             #region GET
 
-            endpoints.MapGet(basePath, async () =>
-            {
-                return await controller.GetAll();
-            });
+            endpoints.MapGet(basePath, async () => await controller.GetAll());
 
             endpoints.MapGet(basePath+ "/{name}", async (string name) =>
                 await controller.GetByName(name));

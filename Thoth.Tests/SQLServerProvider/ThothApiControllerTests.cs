@@ -21,7 +21,6 @@ namespace Thoth.Tests.SQLServerProvider;
 
 public class ThothApiControllerTests : IntegrationTestBase<Program>
 {
-    private static readonly Mock<ILogger<FeatureManagerController>> Logger = new();
     private static readonly Mock<ILogger<ThothFeatureManager>> LoggerThothManager = new();
 
     public ThothApiControllerTests() : base(arguments: new Dictionary<string, string>
@@ -31,16 +30,9 @@ public class ThothApiControllerTests : IntegrationTestBase<Program>
     {
         services.AddThoth(options =>
         {
-            var configuration = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false)
-                .AddEnvironmentVariables()
-                .Build();
-
             options.UseEntityFramework<SqlContext>();
             options.ShouldReturnFalseWhenNotExists = false;
         });
-        services.AddScoped<ILogger<FeatureManagerController>>(_ => Logger.Object);
         services.AddScoped<ILogger<ThothFeatureManager>>(_ => LoggerThothManager.Object);
     }) { }
 
@@ -57,15 +49,7 @@ public class ThothApiControllerTests : IntegrationTestBase<Program>
 
         //Assert
         response.IsSuccessStatusCode.Should().BeTrue();
-        Logger.Verify(
-            x => x.Log(
-                It.Is<LogLevel>(l => l == LogLevel.Information),
-                It.IsAny<EventId>(),
-                It.Is<It.IsAnyType>((v, t) => v.ToString()!.Contains(string.Format(Messages.INFO_ADDED_FEATURE_FLAG, featureManager.Name,
-                    featureManager.Enabled.ToString(),
-                    featureManager.Value))),
-                It.IsAny<Exception>(),
-                It.Is<Func<It.IsAnyType, Exception, string>>((v, t) => true)!), Times.Once);
+        response.StatusCode.Should().Be(HttpStatusCode.Created);
     }
 
     [Theory]
@@ -215,15 +199,6 @@ public class ThothApiControllerTests : IntegrationTestBase<Program>
         content?.Enabled.Should().Be(featureFlag.Enabled);
         content?.Description.Should().Be(featureFlag.Description);
         content?.UpdatedAt.Should().NotBeNull();
-        Logger.Verify(
-            x => x.Log(
-                It.Is<LogLevel>(l => l == LogLevel.Information),
-                It.IsAny<EventId>(),
-                It.Is<It.IsAnyType>((v, t) => v.ToString()!.Contains(string.Format(Messages.INFO_UPDATED_FEATURE_FLAG, featureFlag.Name,
-                    featureFlag.Enabled.ToString(),
-                    featureFlag.Value))),
-                It.IsAny<Exception>(),
-                It.Is<Func<It.IsAnyType, Exception, string>>((v, t) => true)!), Times.Once);
     }
 
     [Theory]

@@ -11,17 +11,11 @@ namespace Thoth.Dashboard.Api;
 public class FeatureManagerController
 {
     private readonly IThothFeatureManager _thothFeatureManager;
-    private readonly ThothDashboardOptions _dashboardOptions;
-    private readonly ILogger<FeatureManagerController> _logger;
 
     public FeatureManagerController(
-        IThothFeatureManager thothFeatureManager,
-        ILogger<FeatureManagerController> logger,
-        ThothDashboardOptions dashboardOptions)
+        IThothFeatureManager thothFeatureManager)
     {
         _thothFeatureManager = thothFeatureManager;
-        _logger = logger;
-        _dashboardOptions = dashboardOptions;
     }
 
     /// <summary>
@@ -60,10 +54,6 @@ public class FeatureManagerController
         if (!await _thothFeatureManager.AddAsync(featureManager))
             return Results.BadRequest();
 
-        _logger.LogInformation("{Message}. {ClaimInfo}",
-            string.Format(Messages.INFO_ADDED_FEATURE_FLAG, featureManager.Name, featureManager.Enabled.ToString(),
-                featureManager.Value), _dashboardOptions.AuditExtras?.AddAuditExtras() ?? string.Empty );
-
         return Results.StatusCode(201);
     }
 
@@ -80,13 +70,6 @@ public class FeatureManagerController
         if (!await _thothFeatureManager.UpdateAsync(featureManager))
             return Results.BadRequest();
 
-        _logger.LogInformation("{Message}. {ClaimInfo}",
-            string.Format(Messages.INFO_UPDATED_FEATURE_FLAG,
-                featureManager.Name,
-                featureManager.Enabled.ToString(),
-                featureManager.Value),
-            _dashboardOptions.AuditExtras?.AddAuditExtras() ?? string.Empty);
-
         return Results.Ok();
     }
 
@@ -99,10 +82,6 @@ public class FeatureManagerController
     {
         if (!await _thothFeatureManager.DeleteAsync(name))
             return Results.BadRequest();
-
-        _logger.LogInformation("{Message}. {ClaimInfo}",
-            string.Format(Messages.INFO_DELETED_FEATURE_FLAG, name),
-            _dashboardOptions.AuditExtras?.AddAuditExtras() ?? string.Empty);
 
         return Results.Ok();
     }
