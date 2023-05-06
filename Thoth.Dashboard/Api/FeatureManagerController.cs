@@ -55,8 +55,6 @@ public class FeatureManagerController
         if (_dashboardOptions.ThothManagerAudit is not null)
             featureManager.Extras = _dashboardOptions.ThothManagerAudit.AddAuditExtras();
 
-        featureManager.Extras = "Testeeeee";
-
         if (!await _thothFeatureManager.AddAsync(featureManager))
             return Results.BadRequest();
 
@@ -75,8 +73,6 @@ public class FeatureManagerController
 
         if (_dashboardOptions.ThothManagerAudit is not null)
             featureManager.Extras = _dashboardOptions.ThothManagerAudit.AddAuditExtras();
-        
-        featureManager.Extras = "Testeeeee";
 
         if (!await _thothFeatureManager.UpdateAsync(featureManager))
             return Results.BadRequest();
