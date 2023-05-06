@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Extensions.DependencyInjection;
-using Thoth.Core.Interfaces;
 
 namespace Thoth.Core.Models;
 

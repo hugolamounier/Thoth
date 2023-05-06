@@ -1,9 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
 using Thoth.Core.Interfaces;
-using Thoth.Core.Models;
 using Thoth.Core.Models.Entities;
 
 namespace Thoth.Dashboard.Api;
@@ -11,11 +9,14 @@ namespace Thoth.Dashboard.Api;
 public class FeatureManagerController
 {
     private readonly IThothFeatureManager _thothFeatureManager;
+    private readonly ThothDashboardOptions _dashboardOptions;
 
     public FeatureManagerController(
-        IThothFeatureManager thothFeatureManager)
+        IThothFeatureManager thothFeatureManager,
+        ThothDashboardOptions dashboardOptions)
     {
         _thothFeatureManager = thothFeatureManager;
+        _dashboardOptions = dashboardOptions;
     }
 
     /// <summary>
@@ -51,6 +52,9 @@ public class FeatureManagerController
         if (await featureManager.IsValidAsync(out var messages) is false)
             return Results.BadRequest(string.Join(Environment.NewLine, messages));
 
+        if (_dashboardOptions.ThothManagerAudit is not null)
+            featureManager.Extras = _dashboardOptions.ThothManagerAudit.AddAuditExtras();
+
         if (!await _thothFeatureManager.AddAsync(featureManager))
             return Results.BadRequest();
 
@@ -66,6 +70,9 @@ public class FeatureManagerController
     {
         if (await featureManager.IsValidAsync(out var messages) is false)
             return Results.BadRequest(string.Join(Environment.NewLine, messages));
+        
+        if (_dashboardOptions.ThothManagerAudit is not null)
+            featureManager.Extras = _dashboardOptions.ThothManagerAudit.AddAuditExtras();
 
         if (!await _thothFeatureManager.UpdateAsync(featureManager))
             return Results.BadRequest();

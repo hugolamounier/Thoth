@@ -106,7 +106,7 @@ if (builder.Environment.IsEnvironment("Testing"))
                     Secure = false,
                     HttpOnly = true
                 });
-                options.AuditExtras = new ThothJwtAudit(httpContextAccessor, new[] {ClaimTypes.Email, ClaimTypes.NameIdentifier});
+                options.ThothManagerAudit = new ThothJwtAudit(httpContextAccessor, new[] {ClaimTypes.Email, ClaimTypes.NameIdentifier});
             }
 
             if (args.Any(x => x.Contains("UseThothJwtAuthorizationWithRoles")))
@@ -143,14 +143,17 @@ else
     builder.Services.AddSwaggerGen();
 
     var app = builder.Build();
+    using var scope = app.Services.CreateScope();
 
     app.UseSwagger();
     app.UseSwaggerUI();
     app.UseHttpsRedirection();
     app.UseAuthorization();
     app.MapControllers();
-    app
-        .UseThothDashboard();
+    app.UseThothDashboard();
+    
+    var context = scope.ServiceProvider.GetRequiredService<SqlContext>();
+    context.Database.Migrate();
 
     app.Run();   
 }

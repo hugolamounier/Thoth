@@ -16,9 +16,10 @@ public static class RoutesCollection
 
         app.UseEndpoints(endpoints =>
         {
+            var scope = endpoints.ServiceProvider.CreateScope();
             var basePath = $"{thothDashboardOptions.RoutePrefix}-api/FeatureFlag";
-            var featureManagementService = endpoints.ServiceProvider.GetRequiredService<IThothFeatureManager>();
-            var controller = new FeatureManagerController(featureManagementService);
+            var featureManagementService = scope.ServiceProvider.GetRequiredService<IThothFeatureManager>();
+            var controller = new FeatureManagerController(featureManagementService, thothDashboardOptions);
             
             #region GET
 

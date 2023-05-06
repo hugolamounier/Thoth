@@ -1,4 +1,5 @@
 using System.Net;
+using System.Net.Http.Json;
 using System.Security.Claims;
 using System.Text;
 using FluentAssertions;
@@ -35,18 +36,37 @@ public class ThothJwtAuthorizationFilterTests: IntegrationTestBase<Program>
 
     [Theory]
     [MemberData(nameof(CreateValidDataGenerator))]
-    public async Task Create_ShouldBeAuthorized(FeatureManager featureManager)
+    public async Task CreateAndUpdate_ShouldBeAuthorizedAndAudit(FeatureManager featureManager)
     {
         //Arrange
         var postContent = new StringContent(
             JsonConvert.SerializeObject(featureManager), Encoding.UTF8, "application/json");
+        featureManager.Enabled = !featureManager.Enabled;
+        var putContent = new StringContent(
+            JsonConvert.SerializeObject(featureManager), Encoding.UTF8, "application/json");
 
         //Act
-        var response = await HttpClient.PostAsync($"/thoth-api/FeatureFlag", postContent);
+        var responseCreate = await HttpClient.PostAsync($"/thoth-api/FeatureFlag", postContent);
+        var createdFeature = await HttpClient.GetAsync($"/thoth-api/FeatureFlag/{featureManager.Name}");
+        var responseUpdate = await HttpClient.PutAsync($"/thoth-api/FeatureFlag", putContent);
+        var updatedFeature = await HttpClient.GetAsync($"/thoth-api/FeatureFlag/{featureManager.Name}");
+        var createdContent = await createdFeature.Content.ReadFromJsonAsync<FeatureManager>();
+        var updatedContent = await updatedFeature.Content.ReadFromJsonAsync<FeatureManager>();
+
 
         //Assert
-        response.IsSuccessStatusCode.Should().BeTrue();
-        response.StatusCode.Should().Be(HttpStatusCode.Created);
+        responseCreate.IsSuccessStatusCode.Should().BeTrue();
+        responseCreate.StatusCode.Should().Be(HttpStatusCode.Created);
+        responseUpdate.IsSuccessStatusCode.Should().BeTrue();
+        responseUpdate.StatusCode.Should().Be(HttpStatusCode.OK);
+        createdFeature.IsSuccessStatusCode.Should().BeTrue();
+        updatedFeature.IsSuccessStatusCode.Should().BeTrue();
+        createdContent.Should().NotBeNull();
+        createdContent?.Extras.Should().NotBeEmpty().And.Contain("thotest@thotest.thoth");
+        updatedContent.Should().NotBeNull();
+        updatedContent?.Extras.Should().NotBeEmpty();
+        updatedContent?.Enabled.Should().Be(featureManager.Enabled);
+        updatedContent?.Extras.Should().NotBeEmpty().And.Contain("thotest@thotest.thoth");
     }
 
     [Fact]

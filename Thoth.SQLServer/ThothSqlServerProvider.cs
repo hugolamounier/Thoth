@@ -43,6 +43,7 @@ public class ThothSqlServerProvider<TContext>: IDatabase where TContext : DbCont
         featureToUpdate.Enabled = featureManager.Enabled;
         featureToUpdate.Value = featureManager.Value;
         featureToUpdate.Description = featureManager.Description;
+        featureToUpdate.Extras = featureManager.Extras;
         featureToUpdate.UpdatedAt = DateTime.UtcNow;
 
         return await _dbContext.SaveChangesAsync() > 0;
