@@ -26,6 +26,9 @@ public abstract class IntegrationTestBase<TEntryPoint> : WebApplicationFactory<T
     {
         HttpClient = CreateClient();
         ServiceScope = Services.CreateScope();
+
+        var context = ServiceScope.ServiceProvider.GetRequiredService<SqlContext>();
+        context.Database.Migrate();
     }
 
     protected override IHost CreateHost(IHostBuilder builder)
