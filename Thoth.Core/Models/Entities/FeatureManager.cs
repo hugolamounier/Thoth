@@ -1,25 +1,19 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
-using Thoth.Core.Interfaces;
 using Thoth.Core.Models.Enums;
 
 namespace Thoth.Core.Models.Entities;
 
-public class FeatureManager : IThothFeatureEntity
+public class FeatureManager : BaseFeatureManager
 {
-    public string Name { get; set; }
-    public FeatureTypes Type { get; set; }
-    public FeatureFlagsTypes? SubType { get; set; }
-    public bool Enabled { get; set; }
-    public string Value { get; set; }
-    public string Description { get; set; }
-    public string Extras { get; set; }
-    public DateTime CreatedAt { get; set; }
-    public DateTime? UpdatedAt { get; set; }
+    [NotMapped] public List<FeatureManagerHistory> Histories { get; set; } = new();
+    [NotMapped] public DateTime? DeletedAt { get; set; }
+    [NotMapped] public DateTime? ExpiresAt { get; set; }
 
-    public Task<bool> IsValidAsync(out List<string> messages)
+    public override Task<bool> IsValidAsync(out List<string> messages)
     {
         messages = new List<string>();
 

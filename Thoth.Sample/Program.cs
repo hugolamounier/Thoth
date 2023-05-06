@@ -130,7 +130,10 @@ else
 {
     // Add services to the container.
     builder.Services.AddControllers();
-    builder.Services.AddThoth(options => { options.UseEntityFramework<SqlContext>(); });
+    builder.Services.AddThoth(options =>
+    {
+        options.UseMongoDb("thoth", deletedFeaturesTtl: TimeSpan.FromSeconds(10));
+    });
 
     builder.Services.AddSwaggerGen();
 

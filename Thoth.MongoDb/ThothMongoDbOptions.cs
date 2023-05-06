@@ -7,6 +7,7 @@ internal static class ThothMongoDbOptions
     private static string _databaseName;
 
     public static string CollectionName { get; set; }
+    public static TimeSpan? DeletedFeaturesTtl { get; set; }
 
     public static string DatabaseName
     {

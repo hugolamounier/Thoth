@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Driver;
@@ -25,29 +26,41 @@ public class ThothMongoDbProvider : IDatabase
 
     public async Task<FeatureManager> GetAsync(string featureName)
     {
-        return await _mongoCollection.Find(c => c.Name == featureName).FirstOrDefaultAsync();
+        return await _mongoCollection.Find(c => c.Name == featureName &&
+                                                c.DeletedAt == null).FirstOrDefaultAsync();
     }
 
     public async Task<IEnumerable<FeatureManager>> GetAllAsync()
     {
-        return await _mongoCollection.Find(_ => true).ToListAsync();
+        return await _mongoCollection.Find(f => f.DeletedAt == null).ToListAsync();
     }
 
     public async Task<bool> AddAsync(FeatureManager featureManager)
     {
+        featureManager.CreatedAt = DateTime.UtcNow;
         await _mongoCollection.InsertOneAsync(featureManager);
         return true;
     }
 
     public async Task<bool> UpdateAsync(FeatureManager featureManager)
     {
-        await _mongoCollection.ReplaceOneAsync(f => f.Name == featureManager.Name, featureManager);
+        var feature = await GetAsync(featureManager.Name);
+        featureManager.Histories.Add(new FeatureManagerHistory(feature));
+        
+        await _mongoCollection.ReplaceOneAsync(f => f.Name == featureManager.Name &&
+                                                    f.DeletedAt == null, featureManager);
         return true;
     }
 
     public async Task<bool> DeleteAsync(string featureName)
     {
-        await _mongoCollection.DeleteOneAsync(f => f.Name == featureName);
+        var feature = await GetAsync(featureName);
+        feature.DeletedAt = DateTime.UtcNow;
+        
+        if(ThothMongoDbOptions.DeletedFeaturesTtl is not null)
+            feature.ExpiresAt = feature.DeletedAt + ThothMongoDbOptions.DeletedFeaturesTtl;
+
+        await _mongoCollection.ReplaceOneAsync(f => f.Name == featureName, feature);
         return true;
     }
 
@@ -58,8 +71,12 @@ public class ThothMongoDbProvider : IDatabase
 
     private void Init()
     {
-        var nameIndex = Builders<FeatureManager>.IndexKeys.Ascending(i => i.Name);
-        var nameIndexOptions = new CreateIndexOptions { Unique = true };
-        _mongoCollection.Indexes.CreateOne(new CreateIndexModel<FeatureManager>(nameIndex, nameIndexOptions));
+        _mongoCollection.Indexes.CreateOne(new CreateIndexModel<FeatureManager>(
+            Builders<FeatureManager>.IndexKeys.Ascending(i => i.Name),
+            new CreateIndexOptions { Unique = true }));
+        
+        _mongoCollection.Indexes.CreateOne(new CreateIndexModel<FeatureManager>(
+            Builders<FeatureManager>.IndexKeys.Ascending(i => i.ExpiresAt),
+            new CreateIndexOptions { ExpireAfter = new TimeSpan(0) }));
     }
 }
