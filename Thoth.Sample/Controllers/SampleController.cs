@@ -19,7 +19,7 @@ public class SampleController : ControllerBase
     {
         if (await _thothFeatureManager.IsEnabledAsync(featureFlagName))
             return Ok("Feature Enabled");
-        
+
         return Ok("Feature Disabled");
     }
 }

@@ -20,12 +20,12 @@ public static class RoutesCollection
             var basePath = $"{thothDashboardOptions.RoutePrefix}-api/FeatureFlag";
             var featureManagementService = scope.ServiceProvider.GetRequiredService<IThothFeatureManager>();
             var controller = new FeatureManagerController(featureManagementService, thothDashboardOptions);
-            
+
             #region GET
 
             endpoints.MapGet(basePath, async () => await controller.GetAll());
 
-            endpoints.MapGet(basePath+ "/{name}", async (string name) =>
+            endpoints.MapGet(basePath + "/{name}", async (string name) =>
                 await controller.GetByName(name));
 
             #endregion

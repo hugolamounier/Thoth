@@ -5,10 +5,10 @@ using Newtonsoft.Json;
 
 namespace Thoth.Dashboard.Audit;
 
-public class ThothJwtAudit: IThothManagerAudit
+public class ThothJwtAudit : IThothManagerAudit
 {
-    private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IEnumerable<string> _claimsToLog;
+    private readonly IHttpContextAccessor _httpContextAccessor;
 
     public ThothJwtAudit(IHttpContextAccessor httpContextAccessor, IEnumerable<string> claimsToLog)
     {
@@ -26,7 +26,7 @@ public class ThothJwtAudit: IThothManagerAudit
         foreach (var claimName in _claimsToLog)
         {
             var claim = _httpContextAccessor.HttpContext?.User.Claims.FirstOrDefault(x => x.Type == claimName);
-            if(claim is not null)
+            if (claim is not null)
                 info.Add(claimName, claim.Value);
         }
 

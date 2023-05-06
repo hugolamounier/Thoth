@@ -16,7 +16,7 @@ public static class ThothOptionsExtensions
     {
         ThothMongoDbOptions.DatabaseName = databaseName;
         ThothMongoDbOptions.CollectionName = collectionName;
-        
+
         static void ThothDatabaseSetup(IServiceCollection services)
         {
             services.AddScoped<IDatabase, ThothMongoDbProvider>();

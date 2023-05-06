@@ -20,7 +20,7 @@ builder.Services.AddDbContext<SqlContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("SqlContext"));
 });
 
-builder.Services.AddSingleton<IMongoClient>(_ => 
+builder.Services.AddSingleton<IMongoClient>(_ =>
     new MongoClient(builder.Configuration.GetConnectionString("MongoDb")));
 
 //Testing container
@@ -42,45 +42,39 @@ if (builder.Environment.IsEnvironment("Testing"))
                     ValidAudience = JwtConfiguration.Audience,
                     ValidateIssuerSigningKey = true,
                     ValidateIssuer = true,
-                    ValidateAudience = false,
+                    ValidateAudience = false
                 };
             });
         builder.Services.AddAuthorization();
     }
-    
+
     builder.Services.AddControllers();
 
 
-    if(args.Any(x => x.Contains("SQLServerProvider")))
+    if (args.Any(x => x.Contains("SQLServerProvider")))
     {
-        builder.Services.AddThoth(options =>
-        {
-            options.UseEntityFramework<SqlContext>();
-        });
+        builder.Services.AddThoth(options => { options.UseEntityFramework<SqlContext>(); });
     }
 
-    if(args.Any(x => x.Contains("MongoDbProvider")))
+    if (args.Any(x => x.Contains("MongoDbProvider")))
     {
-        builder.Services.AddThoth(options =>
-        {
-            options.UseMongoDb("thoth");
-        });
+        builder.Services.AddThoth(options => { options.UseMongoDb("thoth"); });
     }
 
     builder.Services.AddSwaggerGen();
-    
+
     var app = builder.Build();
     var scope = app.Services.CreateScope();
     var httpContextAccessor = scope.ServiceProvider.GetRequiredService<IHttpContextAccessor>();
-    
+
     app.UseSwagger();
     app.UseSwaggerUI();
-    
+
     app.UseHttpsRedirection();
-    
+
     if (args.Any(x => x.Contains("UseThothJwtAuthorization") || x.Contains("UseThothJwtAuthorizationWithRoles")))
         app.UseAuthentication();
-    
+
     app.UseAuthorization();
     app.MapControllers();
     app
@@ -106,7 +100,8 @@ if (builder.Environment.IsEnvironment("Testing"))
                     Secure = false,
                     HttpOnly = true
                 });
-                options.ThothManagerAudit = new ThothJwtAudit(httpContextAccessor, new[] {ClaimTypes.Email, ClaimTypes.NameIdentifier});
+                options.ThothManagerAudit = new ThothJwtAudit(httpContextAccessor,
+                    new[] { ClaimTypes.Email, ClaimTypes.NameIdentifier });
             }
 
             if (args.Any(x => x.Contains("UseThothJwtAuthorizationWithRoles")))
@@ -126,7 +121,7 @@ if (builder.Environment.IsEnvironment("Testing"))
                     Expires = DateTime.Now.AddDays(30),
                     Secure = false,
                     HttpOnly = true
-                }, allowedRoles: new []{ "Admin" });
+                }, allowedRoles: new[] { "Admin" });
         });
 
     app.Run();
@@ -135,10 +130,7 @@ else
 {
     // Add services to the container.
     builder.Services.AddControllers();
-    builder.Services.AddThoth(options =>
-    {
-        options.UseEntityFramework<SqlContext>();
-    });
+    builder.Services.AddThoth(options => { options.UseEntityFramework<SqlContext>(); });
 
     builder.Services.AddSwaggerGen();
 
@@ -151,11 +143,11 @@ else
     app.UseAuthorization();
     app.MapControllers();
     app.UseThothDashboard();
-    
+
     var context = scope.ServiceProvider.GetRequiredService<SqlContext>();
     context.Database.Migrate();
 
-    app.Run();   
+    app.Run();
 }
 
 public abstract partial class Program

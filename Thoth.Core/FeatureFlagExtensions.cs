@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Thoth.Core.Models;
 using Thoth.Core.Models.Entities;
 using Thoth.Core.Utils;
 
@@ -9,7 +8,8 @@ namespace Thoth.Core;
 
 public static class FeatureFlagExtensions
 {
-    public static Task<bool> EvaluatePercentageFlag(this FeatureManager featureManager, ILogger<ThothFeatureManager> logger)
+    public static Task<bool> EvaluatePercentageFlag(this FeatureManager featureManager,
+        ILogger<ThothFeatureManager> logger)
     {
         if (Convert.ToDouble(featureManager.Value) > 0)
             return Task.FromResult(RandomGenerator.NextDouble() * 100.0 < Convert.ToDouble(featureManager.Value));

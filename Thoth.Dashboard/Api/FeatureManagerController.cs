@@ -8,8 +8,8 @@ namespace Thoth.Dashboard.Api;
 
 public class FeatureManagerController
 {
-    private readonly IThothFeatureManager _thothFeatureManager;
     private readonly ThothDashboardOptions _dashboardOptions;
+    private readonly IThothFeatureManager _thothFeatureManager;
 
     public FeatureManagerController(
         IThothFeatureManager thothFeatureManager,
@@ -70,7 +70,7 @@ public class FeatureManagerController
     {
         if (await featureManager.IsValidAsync(out var messages) is false)
             return Results.BadRequest(string.Join(Environment.NewLine, messages));
-        
+
         if (_dashboardOptions.ThothManagerAudit is not null)
             featureManager.Extras = _dashboardOptions.ThothManagerAudit.AddAuditExtras();
 

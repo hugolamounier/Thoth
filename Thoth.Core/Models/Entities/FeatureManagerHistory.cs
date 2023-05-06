@@ -6,7 +6,7 @@ using Thoth.Core.Models.Enums;
 
 namespace Thoth.Core.Models.Entities;
 
-public class FeatureManagerHistory: IThothFeatureEntity
+public class FeatureManagerHistory : IThothFeatureEntity
 {
     public string Name { get; set; }
     public FeatureTypes Type { get; set; }

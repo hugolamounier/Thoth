@@ -5,17 +5,12 @@ using FluentAssertions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using MongoDB.Driver;
 using Moq;
 using Newtonsoft.Json;
 using Thoth.Core;
-using Thoth.Core.Interfaces;
 using Thoth.Core.Models;
 using Thoth.Core.Models.Entities;
 using Thoth.Core.Models.Enums;
-using Thoth.Dashboard.Api;
-using Thoth.MongoDb;
-using Thoth.SQLServer;
 using Thoth.Tests.Base;
 
 namespace Thoth.Tests.MongoDbProvider;
@@ -26,21 +21,23 @@ public class ThothApiControllerTests : IntegrationTestBase<Program>
 
     public ThothApiControllerTests() : base(arguments: new Dictionary<string, string>
     {
-        {"provider", "MongoDbProvider"}
-    },serviceDelegate: services =>
+        { "provider", "MongoDbProvider" }
+    }, serviceDelegate: services =>
     {
         services.AddThoth(options =>
         {
             var configuration = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false)
+                .AddJsonFile("appsettings.json", false, false)
                 .AddEnvironmentVariables()
                 .Build();
 
             options.ShouldReturnFalseWhenNotExists = false;
         });
         services.AddScoped<ILogger<ThothFeatureManager>>(_ => LoggerThothManager.Object);
-    }) { }
+    })
+    {
+    }
 
     [Theory]
     [MemberData(nameof(CreateValidDataGenerator))]
@@ -130,7 +127,8 @@ public class ThothApiControllerTests : IntegrationTestBase<Program>
             SubType = FeatureFlagsTypes.Boolean,
             Enabled = true
         };
-        var postContent = new StringContent(JsonConvert.SerializeObject(featureFlag), Encoding.UTF8, "application/json");
+        var postContent =
+            new StringContent(JsonConvert.SerializeObject(featureFlag), Encoding.UTF8, "application/json");
         await HttpClient.PostAsync("/thoth-api/FeatureFlag", postContent);
 
         //Act
@@ -157,7 +155,8 @@ public class ThothApiControllerTests : IntegrationTestBase<Program>
             SubType = FeatureFlagsTypes.Boolean,
             Enabled = true
         };
-        var postContent = new StringContent(JsonConvert.SerializeObject(featureFlag), Encoding.UTF8, "application/json");
+        var postContent =
+            new StringContent(JsonConvert.SerializeObject(featureFlag), Encoding.UTF8, "application/json");
         await HttpClient.PostAsync("/thoth-api/FeatureFlag", postContent);
         cacheManager.Remove(featureFlag.Name);
 
@@ -185,12 +184,14 @@ public class ThothApiControllerTests : IntegrationTestBase<Program>
             Enabled = true
         };
 
-        var postContent = new StringContent(JsonConvert.SerializeObject(featureFlag), Encoding.UTF8, "application/json");
+        var postContent =
+            new StringContent(JsonConvert.SerializeObject(featureFlag), Encoding.UTF8, "application/json");
         await HttpClient.PostAsync("/thoth-api/FeatureFlag", postContent);
 
         featureFlag.Enabled = false;
         featureFlag.Description = "test";
-        var updateContent = new StringContent(JsonConvert.SerializeObject(featureFlag), Encoding.UTF8, "application/json");
+        var updateContent =
+            new StringContent(JsonConvert.SerializeObject(featureFlag), Encoding.UTF8, "application/json");
 
         //Act
         await HttpClient.PutAsync("/thoth-api/FeatureFlag", updateContent);
@@ -213,7 +214,8 @@ public class ThothApiControllerTests : IntegrationTestBase<Program>
     {
         //Arrange
         featureManager.Enabled = false;
-        var updateContent = new StringContent(JsonConvert.SerializeObject(featureManager), Encoding.UTF8, "application/json");
+        var updateContent =
+            new StringContent(JsonConvert.SerializeObject(featureManager), Encoding.UTF8, "application/json");
 
         //Act
         var response = await HttpClient.PutAsync("/thoth-api/FeatureFlag", updateContent);
@@ -233,7 +235,8 @@ public class ThothApiControllerTests : IntegrationTestBase<Program>
             Name = Guid.NewGuid().ToString()
         };
 
-        var updateContent = new StringContent(JsonConvert.SerializeObject(featureFlag), Encoding.UTF8, "application/json");
+        var updateContent =
+            new StringContent(JsonConvert.SerializeObject(featureFlag), Encoding.UTF8, "application/json");
 
         //Act
         var response = await HttpClient.PutAsync("/thoth-api/FeatureFlag", updateContent);
@@ -246,7 +249,9 @@ public class ThothApiControllerTests : IntegrationTestBase<Program>
             x => x.Log(
                 It.Is<LogLevel>(l => l == LogLevel.Error),
                 It.IsAny<EventId>(),
-                It.Is<It.IsAnyType>((v, t) => v.ToString()!.Contains(string.Format(Messages.ERROR_WHILE_UPDATING_FEATURE_FLAG, featureFlag.Name))),
+                It.Is<It.IsAnyType>((v, t) =>
+                    v.ToString()!.Contains(string.Format(Messages.ERROR_WHILE_UPDATING_FEATURE_FLAG,
+                        featureFlag.Name))),
                 It.IsAny<Exception>(),
                 It.Is<Func<It.IsAnyType, Exception, string>>((v, t) => true)!), Times.Once);
     }
@@ -262,7 +267,8 @@ public class ThothApiControllerTests : IntegrationTestBase<Program>
             SubType = FeatureFlagsTypes.Boolean,
             Enabled = true
         };
-        var postContent = new StringContent(JsonConvert.SerializeObject(featureFlag), Encoding.UTF8, "application/json");
+        var postContent =
+            new StringContent(JsonConvert.SerializeObject(featureFlag), Encoding.UTF8, "application/json");
         await HttpClient.PostAsync("/thoth-api/FeatureFlag", postContent);
 
         //Act
@@ -300,7 +306,9 @@ public class ThothApiControllerTests : IntegrationTestBase<Program>
             x => x.Log(
                 It.Is<LogLevel>(l => l == LogLevel.Error),
                 It.IsAny<EventId>(),
-                It.Is<It.IsAnyType>((v, t) => v.ToString()!.Contains(string.Format(Messages.ERROR_WHILE_DELETING_FEATURE_FLAG, featureFlag.Name))),
+                It.Is<It.IsAnyType>((v, t) =>
+                    v.ToString()!.Contains(string.Format(Messages.ERROR_WHILE_DELETING_FEATURE_FLAG,
+                        featureFlag.Name))),
                 It.IsAny<Exception>(),
                 It.Is<Func<It.IsAnyType, Exception, string>>((v, t) => true)!), Times.Once);
     }
@@ -355,7 +363,7 @@ public class ThothApiControllerTests : IntegrationTestBase<Program>
         {
             new FeatureManager
             {
-                Type = FeatureTypes.EnvironmentVariable,
+                Type = FeatureTypes.EnvironmentVariable
             },
             string.Format(Messages.VALIDATION_INVALID_FIELD, nameof(FeatureManager.Value))
         };
@@ -363,7 +371,7 @@ public class ThothApiControllerTests : IntegrationTestBase<Program>
         {
             new FeatureManager
             {
-                Type = FeatureTypes.FeatureFlag,
+                Type = FeatureTypes.FeatureFlag
             },
             string.Format(Messages.VALIDATION_INVALID_FIELD, nameof(FeatureManager.SubType))
         };

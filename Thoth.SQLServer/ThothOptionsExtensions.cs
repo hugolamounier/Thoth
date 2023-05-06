@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Thoth.Core.Interfaces;
 using Thoth.Core.Models;
-using IDatabase = Thoth.Core.Interfaces.IDatabase;
 
 namespace Thoth.SQLServer;
 

@@ -14,6 +14,5 @@ public class ThothException : Exception
 
     protected ThothException(SerializationInfo info, StreamingContext context) : base(info, context)
     {
-
     }
 }

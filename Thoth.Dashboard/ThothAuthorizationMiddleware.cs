@@ -11,7 +11,8 @@ public class ThothAuthorizationMiddleware
     private readonly RequestDelegate _next;
     private readonly ThothDashboardOptions _options;
 
-    public ThothAuthorizationMiddleware(RequestDelegate next, ThothDashboardOptions options, IWebHostEnvironment environment)
+    public ThothAuthorizationMiddleware(RequestDelegate next, ThothDashboardOptions options,
+        IWebHostEnvironment environment)
     {
         _next = next ?? throw new ArgumentNullException(nameof(next));
         _options = options;
@@ -30,7 +31,7 @@ public class ThothAuthorizationMiddleware
             return;
         }
 
-        if (_options.Authorization is not null && 
+        if (_options.Authorization is not null &&
             await _options.Authorization.AuthorizeAsync(thothContext) is false)
         {
             httpContext.Response.StatusCode = StatusCodes.Status403Forbidden;

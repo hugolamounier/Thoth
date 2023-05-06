@@ -40,7 +40,7 @@ public static class ServiceCollectionExtensions
         if (options.EnableThothApi)
             services.AddSpaStaticFiles();
 
-        var appPartManager = (ApplicationPartManager) services
+        var appPartManager = (ApplicationPartManager)services
             .FirstOrDefault(a => a.ServiceType == typeof(ApplicationPartManager))
             ?.ImplementationInstance!;
         var dashboardAppPart = appPartManager?.ApplicationParts

@@ -3,32 +3,27 @@ using System.Net.Http.Json;
 using System.Security.Claims;
 using System.Text;
 using FluentAssertions;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
-using Moq;
 using Newtonsoft.Json;
-using Thoth.Core.Models;
 using Thoth.Core.Models.Entities;
 using Thoth.Core.Models.Enums;
-using Thoth.Dashboard.Api;
 using Thoth.Tests.Base;
 using Thoth.Tests.Helpers;
 
 namespace Thoth.Tests.SQLServerProvider;
 
-public class ThothJwtAuthorizationFilterTests: IntegrationTestBase<Program>
+public class ThothJwtAuthorizationFilterTests : IntegrationTestBase<Program>
 {
     public ThothJwtAuthorizationFilterTests() : base(arguments: new Dictionary<string, string>
     {
-        {"auth", "UseThothJwtAuthorization"},
-        {"provider", "SQLServerProvider"}
+        { "auth", "UseThothJwtAuthorization" },
+        { "provider", "SQLServerProvider" }
     })
     {
         var token = JwtGenerator.GenerateToken(new List<Claim>
         {
-            new (ClaimTypes.NameIdentifier, Guid.NewGuid().ToString()),
-            new (ClaimTypes.Email, "thotest@thotest.thoth")
+            new(ClaimTypes.NameIdentifier, Guid.NewGuid().ToString()),
+            new(ClaimTypes.Email, "thotest@thotest.thoth")
         });
 
         HttpClient.GetAsync($"/thoth?accessToken={token}").GetAwaiter().GetResult();
@@ -46,9 +41,9 @@ public class ThothJwtAuthorizationFilterTests: IntegrationTestBase<Program>
             JsonConvert.SerializeObject(featureManager), Encoding.UTF8, "application/json");
 
         //Act
-        var responseCreate = await HttpClient.PostAsync($"/thoth-api/FeatureFlag", postContent);
+        var responseCreate = await HttpClient.PostAsync("/thoth-api/FeatureFlag", postContent);
         var createdFeature = await HttpClient.GetAsync($"/thoth-api/FeatureFlag/{featureManager.Name}");
-        var responseUpdate = await HttpClient.PutAsync($"/thoth-api/FeatureFlag", putContent);
+        var responseUpdate = await HttpClient.PutAsync("/thoth-api/FeatureFlag", putContent);
         var updatedFeature = await HttpClient.GetAsync($"/thoth-api/FeatureFlag/{featureManager.Name}");
         var createdContent = await createdFeature.Content.ReadFromJsonAsync<FeatureManager>();
         var updatedContent = await updatedFeature.Content.ReadFromJsonAsync<FeatureManager>();
@@ -73,8 +68,8 @@ public class ThothJwtAuthorizationFilterTests: IntegrationTestBase<Program>
     public async Task Dashboard_ShouldBeAuthorized()
     {
         //Act
-        var response = await HttpClient.GetAsync($"/thoth");
-        var responseShouldUseCookies = await HttpClient.GetAsync($"/thoth");
+        var response = await HttpClient.GetAsync("/thoth");
+        var responseShouldUseCookies = await HttpClient.GetAsync("/thoth");
 
         //Assert
         response.IsSuccessStatusCode.Should().BeTrue();
@@ -87,12 +82,11 @@ public class ThothJwtAuthorizationFilterTests: IntegrationTestBase<Program>
     {
         //Act
         var response = await HttpClient.GetAsync($"/thoth?accessToken={token}");
-        
+
 
         //Assert
         response.IsSuccessStatusCode.Should().BeFalse();
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
-        
     }
 
     public static IEnumerable<object[]> CreateValidDataGenerator()
@@ -122,16 +116,19 @@ public class ThothJwtAuthorizationFilterTests: IntegrationTestBase<Program>
 
     public static IEnumerable<object[]> InvalidTokenDataGenerator()
     {
-        yield return new object[] { JwtGenerator.GenerateToken(new List<Claim>
+        yield return new object[]
         {
-            new (ClaimTypes.NameIdentifier, Guid.NewGuid().ToString()),
-            new (ClaimTypes.Email, "thotest@thotest.thoth")
-        }, 1, "hhh", "tttt", new SigningCredentials
-        (
-            new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Guid.NewGuid().ToString())),
-            SecurityAlgorithms.HmacSha256Signature
-        ))};
+            JwtGenerator.GenerateToken(new List<Claim>
+            {
+                new(ClaimTypes.NameIdentifier, Guid.NewGuid().ToString()),
+                new(ClaimTypes.Email, "thotest@thotest.thoth")
+            }, 1, "hhh", "tttt", new SigningCredentials
+            (
+                new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Guid.NewGuid().ToString())),
+                SecurityAlgorithms.HmacSha256Signature
+            ))
+        };
 
-        yield return new object[] {""};
+        yield return new object[] { "" };
     }
 }

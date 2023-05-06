@@ -8,10 +8,10 @@ using Thoth.Core.Models.Entities;
 
 namespace Thoth.SQLServer;
 
-public class ThothSqlServerProvider<TContext>: IDatabase where TContext : DbContext
+public class ThothSqlServerProvider<TContext> : IDatabase where TContext : DbContext
 {
-    private readonly DbSet<FeatureManager> _featureManagers;
     private readonly TContext _dbContext;
+    private readonly DbSet<FeatureManager> _featureManagers;
 
     public ThothSqlServerProvider(TContext dbContext)
     {

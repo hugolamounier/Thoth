@@ -20,16 +20,16 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <None Include="../docs/README.md" Pack="true" PackagePath="\" />
-        <None Include="../docs/icon-64.png" Pack="true" PackagePath="\" />
+        <None Include="../docs/README.md" Pack="true" PackagePath="\"/>
+        <None Include="../docs/icon-64.png" Pack="true" PackagePath="\"/>
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Thoth.Core\Thoth.Core.csproj" />
+        <ProjectReference Include="..\Thoth.Core\Thoth.Core.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="MongoDB.Driver" Version="2.19.1" />
+        <PackageReference Include="MongoDB.Driver" Version="2.19.1"/>
     </ItemGroup>
 
 </Project>

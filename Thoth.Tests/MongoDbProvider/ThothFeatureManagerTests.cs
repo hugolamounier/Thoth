@@ -11,18 +11,15 @@ using Thoth.Tests.Base;
 
 namespace Thoth.Tests.MongoDbProvider;
 
-public class ThothFeatureManagerTests: IntegrationTestBase<Program>
+public class ThothFeatureManagerTests : IntegrationTestBase<Program>
 {
     private static readonly Mock<ILogger<ThothFeatureManager>> Logger = new();
     private readonly IThothFeatureManager _thothFeatureManager;
 
     public ThothFeatureManagerTests() : base(arguments: new Dictionary<string, string>
     {
-        {"provider", "MongoDbProvider"}
-    }, serviceDelegate: services =>
-    {
-        services.AddScoped<ILogger<ThothFeatureManager>>(_ => Logger.Object);
-    })
+        { "provider", "MongoDbProvider" }
+    }, serviceDelegate: services => { services.AddScoped<ILogger<ThothFeatureManager>>(_ => Logger.Object); })
     {
         _thothFeatureManager = ServiceScope.ServiceProvider.GetRequiredService<IThothFeatureManager>();
     }
@@ -39,13 +36,13 @@ public class ThothFeatureManagerTests: IntegrationTestBase<Program>
         //Assert
         result.Should().BeFalse();
         Logger.Verify(
-        x => x.Log(
-            It.Is<LogLevel>(l => l == LogLevel.Information),
-            It.IsAny<EventId>(),
-            It.Is<It.IsAnyType>((v, t) => v.ToString()!
-                .Contains(string.Format(Messages.INFO_NON_EXISTENT_FLAG_REQUESTED, flagName))),
-            It.IsAny<Exception>(),
-            It.Is<Func<It.IsAnyType, Exception, string>>((v, t) => true)!), Times.Once);
+            x => x.Log(
+                It.Is<LogLevel>(l => l == LogLevel.Information),
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((v, t) => v.ToString()!
+                    .Contains(string.Format(Messages.INFO_NON_EXISTENT_FLAG_REQUESTED, flagName))),
+                It.IsAny<Exception>(),
+                It.Is<Func<It.IsAnyType, Exception, string>>((v, t) => true)!), Times.Once);
     }
 
     [Fact]
@@ -68,7 +65,6 @@ public class ThothFeatureManagerTests: IntegrationTestBase<Program>
         //Assert
         feature.Should().BeOfType(typeof(int));
         feature.Should().Be(int.Parse(featureManager.Value));
-
     }
 
     [Fact]
@@ -118,5 +114,4 @@ public class ThothFeatureManagerTests: IntegrationTestBase<Program>
             .ThrowAsync<ThothException>()
             .WithMessage(Messages.ERROR_CAN_NOT_GET_DISABLED_FEATURE);
     }
-
 }

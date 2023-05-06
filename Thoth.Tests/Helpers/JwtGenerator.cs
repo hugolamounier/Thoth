@@ -14,7 +14,6 @@ public static class JwtGenerator
         string? issuer = null,
         SigningCredentials? signingCredentials = null)
     {
-
         var tokenHandler = new JwtSecurityTokenHandler();
         var tokenDescriptor = new SecurityTokenDescriptor
         {

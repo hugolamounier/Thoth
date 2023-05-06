@@ -27,12 +27,12 @@ public class ThothOptions
     ///     Distributed applications should set shorten durations.
     /// </summary>
     public TimeSpan CacheSlidingExpiration { get; set; } = TimeSpan.FromDays(1);
-    
+
     /// <summary>
     ///     Defines if the Thoth Api should be exposed.
     ///     This is required true when using Dashboard.
     /// </summary>
     public bool EnableThothApi { get; set; } = true;
 
-    public List<Action<IServiceCollection>> Extensions { get; } = new ();
+    public List<Action<IServiceCollection>> Extensions { get; } = new();
 }
