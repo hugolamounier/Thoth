@@ -6,7 +6,8 @@ namespace Thoth.Core.Models.Entities;
 
 public class FeatureManagerHistory : BaseFeatureManager
 {
-    public FeatureManagerHistory(BaseFeatureManager featureManager)
+    public FeatureManagerHistory() { }
+    public FeatureManagerHistory(FeatureManager featureManager)
     {
         Name = featureManager.Name;
         Type = featureManager.Type;
@@ -20,7 +21,7 @@ public class FeatureManagerHistory : BaseFeatureManager
         PeriodStart = featureManager.UpdatedAt ?? featureManager.CreatedAt;
         PeriodEnd = DateTime.UtcNow;
     }
-    
+
     public DateTime PeriodEnd { get; set; }
     public DateTime PeriodStart { get; set; }
     
