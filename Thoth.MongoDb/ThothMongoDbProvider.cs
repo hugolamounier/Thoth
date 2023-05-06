@@ -16,9 +16,8 @@ public class ThothMongoDbProvider : IDatabase
     {
         var conventionPack = new ConventionPack { new IgnoreExtraElementsConvention(true) };
         ConventionRegistry.Register("IgnoreExtraElements", conventionPack, type => type == typeof(FeatureManager));
-
-        _mongoCollection = mongoClient
-            .GetDatabase(ThothMongoDbOptions.DatabaseName)
+        
+        _mongoCollection = mongoClient.GetDatabase(ThothMongoDbOptions.DatabaseName)
             .GetCollection<FeatureManager>(ThothMongoDbOptions.CollectionName);
 
         Init();
@@ -45,7 +44,12 @@ public class ThothMongoDbProvider : IDatabase
     public async Task<bool> UpdateAsync(FeatureManager featureManager)
     {
         var feature = await GetAsync(featureManager.Name);
-        featureManager.Histories.Add(new FeatureManagerHistory(feature));
+        var featureHistory = new FeatureManagerHistory(feature);
+        
+        if(ThothMongoDbOptions.FeatureHistoryTtl is not null)
+            featureHistory.ExpiresAt = DateTime.UtcNow + ThothMongoDbOptions.FeatureHistoryTtl;
+        
+        featureManager.Histories.Add(featureHistory);
         
         await _mongoCollection.ReplaceOneAsync(f => f.Name == featureManager.Name &&
                                                     f.DeletedAt == null, featureManager);

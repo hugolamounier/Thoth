@@ -13,15 +13,24 @@ public static class ThothOptionsExtensions
     /// <param name="thothOptions"></param>
     /// <param name="databaseName">The name of the MongoDb database</param>
     /// <param name="collectionName">The name of the collection thoth is going to use</param>
-    public static void UseMongoDb(this ThothOptions thothOptions, string databaseName, string collectionName = "thoth", TimeSpan? deletedFeaturesTtl = null)
+    /// <param name="deletedFeaturesTtl"></param>
+    /// <param name="featureHistoryTtl"></param>
+    public static void UseMongoDb(this ThothOptions thothOptions, 
+        string databaseName, 
+        string collectionName = "thoth", 
+        TimeSpan? deletedFeaturesTtl = null,
+        TimeSpan? featureHistoryTtl = null)
     {
         ThothMongoDbOptions.DatabaseName = databaseName;
         ThothMongoDbOptions.CollectionName = collectionName;
         ThothMongoDbOptions.DeletedFeaturesTtl = deletedFeaturesTtl;
+        ThothMongoDbOptions.FeatureHistoryTtl = featureHistoryTtl;
 
         static void ThothDatabaseSetup(IServiceCollection services)
         {
             services.AddScoped<IDatabase, ThothMongoDbProvider>();
+            if (ThothMongoDbOptions.FeatureHistoryTtl is not null)
+                services.AddHostedService<ThothMongoHistoryPurger>();
         }
 
         thothOptions.Extensions.Add(ThothDatabaseSetup);

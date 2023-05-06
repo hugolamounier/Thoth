@@ -8,6 +8,7 @@ internal static class ThothMongoDbOptions
 
     public static string CollectionName { get; set; }
     public static TimeSpan? DeletedFeaturesTtl { get; set; }
+    public static TimeSpan? FeatureHistoryTtl { get; set; }
 
     public static string DatabaseName
     {

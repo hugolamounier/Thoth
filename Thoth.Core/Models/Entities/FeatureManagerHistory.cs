@@ -24,6 +24,7 @@ public class FeatureManagerHistory : BaseFeatureManager
 
     public DateTime PeriodEnd { get; set; }
     public DateTime PeriodStart { get; set; }
+    public DateTime? ExpiresAt { get; set; }
     
     public override Task<bool> IsValidAsync(out List<string> messages)
     {
