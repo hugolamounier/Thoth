@@ -7,5 +7,5 @@ public class ThothDashboardOptions
 {
     public string RoutePrefix { get; set; } = "/thoth";
     public IThothManagerAudit? ThothManagerAudit { get; set; }
-    public IThothDashboardAuthorizationFilter? Authorization { get; set; } = new ThothLocalOnlyAuthorizationFilter();
+    public IThothDashboardAuthorizationFilter? Authorization { get; set; }
 }
