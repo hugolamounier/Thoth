@@ -20,16 +20,16 @@ public class ThothSqlServerProvider : IDatabase
         Init();
     }
 
-    public Task<FeatureManager> GetAsync(string featureName)
+    public async Task<FeatureManager> GetAsync(string featureName)
     {
-        return _dbConnection
+        return await _dbConnection
             .QueryFirstAsync<FeatureManager>(string.Format(Queries.GetQuery, SchemaName),
                 new {Name = featureName});
     }
 
-    public Task<IEnumerable<FeatureManager>> GetAllAsync()
+    public async Task<IEnumerable<FeatureManager>> GetAllAsync()
     {
-        return _dbConnection.QueryAsync<FeatureManager>(string.Format(Queries.GetAllQuery, SchemaName));
+        return await _dbConnection.QueryAsync<FeatureManager>(string.Format(Queries.GetAllQuery, SchemaName));
     }
 
     public async Task<bool> AddAsync(FeatureManager featureManager)
