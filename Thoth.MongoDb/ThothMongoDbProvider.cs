@@ -45,10 +45,7 @@ public class ThothMongoDbProvider : IDatabase
     {
         var feature = await GetAsync(featureManager.Name);
         var featureHistory = new FeatureManagerHistory(feature);
-        
-        if(ThothMongoDbOptions.FeatureHistoryTtl is not null)
-            featureHistory.ExpiresAt = DateTime.UtcNow + ThothMongoDbOptions.FeatureHistoryTtl;
-        
+
         featureManager.Histories.Add(featureHistory);
         
         await _mongoCollection.ReplaceOneAsync(f => f.Name == featureManager.Name &&
