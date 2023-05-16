@@ -19,14 +19,14 @@ public class ThothSqlServerProvider<TContext> : IDatabase where TContext : DbCon
         _featureManagers = dbContext.Set<FeatureManager>();
     }
 
-    public Task<FeatureManager> GetAsync(string featureName)
+    public async Task<FeatureManager> GetAsync(string featureName)
     {
-        return _featureManagers.FirstAsync(x => x.Name == featureName);
+        return await _featureManagers.FirstAsync(x => x.Name == featureName);
     }
 
-    public Task<IEnumerable<FeatureManager>> GetAllAsync()
+    public async Task<IEnumerable<FeatureManager>> GetAllAsync()
     {
-        return Task.FromResult(_featureManagers.AsEnumerable());
+        return (await _featureManagers.ToListAsync()).AsEnumerable();
     }
 
     public async Task<bool> AddAsync(FeatureManager featureManager)
