@@ -16,7 +16,7 @@
         <RootNamespace>Thoth.SQLServer</RootNamespace>
         <IsPackable>true</IsPackable>
         <PackageIcon>icon-64.png</PackageIcon>
-        <Version>3.1.4</Version>
+        <Version>3.1.5</Version>
     </PropertyGroup>
 
     <ItemGroup>
