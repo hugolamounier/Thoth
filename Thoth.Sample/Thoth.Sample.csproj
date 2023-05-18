@@ -10,12 +10,9 @@
     <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.16" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <ProjectReference Include="..\Thoth.Core\Thoth.Core.csproj" />
-        <ProjectReference Include="..\Thoth.Dashboard\Thoth.Dashboard.csproj" />
-        <ProjectReference Include="..\Thoth.MongoDb\Thoth.MongoDb.csproj" />
-        <ProjectReference Include="..\Thoth.SQLServer\Thoth.SQLServer.csproj" />
+        <PackageReference Include="Thoth.Core" Version="3.1.3" />
+        <PackageReference Include="Thoth.SQLServer" Version="3.1.3" />
+        <PackageReference Include="Thoth.MongoDb" Version="3.1.3" />
+        <PackageReference Include="Thoth.Dashboard" Version="3.1.3" />
     </ItemGroup>
 </Project>
