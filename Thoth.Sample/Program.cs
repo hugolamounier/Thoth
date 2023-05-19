@@ -53,7 +53,12 @@ if (builder.Environment.IsEnvironment("Testing"))
 
     if (args.Any(x => x.Contains("SQLServerProvider")))
     {
-        builder.Services.AddThoth(options => { options.UseEntityFramework<SqlContext>(); });
+        builder.Services.AddThoth(options =>
+        {
+            options.UseEntityFramework<SqlContext>();
+            if (args.Any(x => x.Contains("NoCaching")))
+                options.EnableCaching = false;
+        });
     }
 
     if (args.Any(x => x.Contains("MongoDbProvider")))
