@@ -3,7 +3,6 @@ using System.Net.Http.Json;
 using System.Security.Claims;
 using System.Text;
 using FluentAssertions;
-using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using Thoth.Core.Models.Entities;
 using Thoth.Core.Models.Enums;
@@ -12,11 +11,11 @@ using Thoth.Tests.Helpers;
 
 namespace Thoth.Tests.SQLServerProvider;
 
-public class ThothJwtAuthorizationFilterTests : IntegrationTestBase<Program>
+public class ThothJwtAuditTests: IntegrationTestBase<Program>
 {
-    public ThothJwtAuthorizationFilterTests() : base(arguments: new Dictionary<string, string>
+    public ThothJwtAuditTests() : base(arguments: new Dictionary<string, string>
     {
-        { "auth", "UseThothJwtAuthorization" },
+        { "auth", "NoClaimsToLogAudit" },
         { "provider", "SQLServerProvider" }
     })
     {
@@ -57,35 +56,10 @@ public class ThothJwtAuthorizationFilterTests : IntegrationTestBase<Program>
         createdFeature.IsSuccessStatusCode.Should().BeTrue();
         updatedFeature.IsSuccessStatusCode.Should().BeTrue();
         createdContent.Should().NotBeNull();
-        createdContent?.Extras.Should().NotBeEmpty().And.Contain("thotest@thotest.thoth");
+        createdContent?.Extras.Should().BeEmpty();
         updatedContent.Should().NotBeNull();
+        updatedContent?.Extras.Should().BeEmpty();
         updatedContent?.Enabled.Should().Be(featureManager.Enabled);
-        updatedContent?.Extras.Should().NotBeEmpty().And.Contain("thotest@thotest.thoth");
-    }
-
-    [Fact]
-    public async Task Dashboard_ShouldBeAuthorized()
-    {
-        //Act
-        var response = await HttpClient.GetAsync("/thoth");
-        var responseShouldUseCookies = await HttpClient.GetAsync("/thoth");
-
-        //Assert
-        response.IsSuccessStatusCode.Should().BeTrue();
-        responseShouldUseCookies.IsSuccessStatusCode.Should().BeTrue();
-    }
-
-    [Theory]
-    [MemberData(nameof(InvalidTokenDataGenerator))]
-    public async Task Dashboard_ShouldBeForbidden(string token)
-    {
-        //Act
-        var response = await HttpClient.GetAsync($"/thoth?accessToken={token}");
-
-
-        //Assert
-        response.IsSuccessStatusCode.Should().BeFalse();
-        response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
 
     public static IEnumerable<object[]> CreateValidDataGenerator()
@@ -107,27 +81,9 @@ public class ThothJwtAuthorizationFilterTests : IntegrationTestBase<Program>
                 Name = Guid.NewGuid().ToString(),
                 Type = FeatureTypes.FeatureFlag,
                 SubType = FeatureFlagsTypes.PercentageFilter,
-                Value = "50",
+                Value = "70",
                 Enabled = true
             }
         };
-    }
-
-    public static IEnumerable<object[]> InvalidTokenDataGenerator()
-    {
-        yield return new object[]
-        {
-            JwtGenerator.GenerateToken(new List<Claim>
-            {
-                new(ClaimTypes.NameIdentifier, Guid.NewGuid().ToString()),
-                new(ClaimTypes.Email, "thotest@thotest.thoth")
-            }, 1, "hhh", "tttt", new SigningCredentials
-            (
-                new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Guid.NewGuid().ToString())),
-                SecurityAlgorithms.HmacSha256Signature
-            ))
-        };
-
-        yield return new object[] { "" };
     }
 }

@@ -58,7 +58,8 @@ if (builder.Environment.IsEnvironment("Testing"))
 
     if (args.Any(x => x.Contains("MongoDbProvider")))
     {
-        builder.Services.AddThoth(options => { options.UseMongoDb("thoth"); });
+        builder.Services.AddThoth(options => { options.UseMongoDb("thoth",
+            deletedFeaturesTtl: TimeSpan.FromDays(30)); });
     }
 
     builder.Services.AddSwaggerGen();
@@ -81,6 +82,28 @@ if (builder.Environment.IsEnvironment("Testing"))
         .UseThothDashboard(options =>
         {
             options.RoutePrefix = "/thoth";
+            if (args.Any(x => x.Contains("NoClaimsToLogAudit")))
+            {
+                options.Authorization = new ThothJwtAuthorizationFilter(new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    ValidateLifetime = true,
+                    ClockSkew = TimeSpan.Zero,
+                    IssuerSigningKey = new SymmetricSecurityKey
+                    (
+                        Encoding.UTF8.GetBytes(JwtConfiguration.HmacKey)
+                    ),
+                    ValidAudience = JwtConfiguration.Audience,
+                    ValidIssuer = JwtConfiguration.Issuer
+                }, cookieOptions: new CookieOptions
+                {
+                    Expires = DateTime.Now.AddDays(30),
+                    Secure = false,
+                    HttpOnly = true
+                });
+                options.ThothManagerAudit = new ThothJwtAudit(httpContextAccessor, Array.Empty<string>());
+            }
+
             if (args.Any(x => x.Contains("UseThothJwtAuthorization")))
             {
                 options.Authorization = new ThothJwtAuthorizationFilter(new TokenValidationParameters
@@ -132,7 +155,7 @@ else
     builder.Services.AddControllers();
     builder.Services.AddThoth(options =>
     {
-        options.UseMongoDb("thoth", deletedFeaturesTtl: TimeSpan.FromSeconds(10));
+        builder.Services.AddThoth(op => { op.UseEntityFramework<SqlContext>(); });
     });
 
     builder.Services.AddSwaggerGen();

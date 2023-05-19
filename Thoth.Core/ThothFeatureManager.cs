@@ -113,7 +113,7 @@ public class ThothFeatureManager : IThothFeatureManager
             var updateResult = await _dbContext.UpdateAsync(featureManager);
 
             if (updateResult)
-                _cacheManager.UpdateAsync(featureManager.Name, featureManager);
+                _cacheManager.Update(featureManager.Name, featureManager);
 
             return updateResult;
         }
@@ -151,7 +151,7 @@ public class ThothFeatureManager : IThothFeatureManager
 
     private async Task<bool> CheckIfExistsAsync(string featureName)
     {
-        var cachedValue = _cacheManager.GetIfExistsAsync(featureName);
+        var cachedValue = _cacheManager.GetIfExists(featureName);
         if (cachedValue != null)
             return true;
 
