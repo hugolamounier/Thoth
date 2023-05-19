@@ -59,7 +59,7 @@ if (builder.Environment.IsEnvironment("Testing"))
     if (args.Any(x => x.Contains("MongoDbProvider")))
     {
         builder.Services.AddThoth(options => { options.UseMongoDb("thoth",
-            deletedFeaturesTtl: TimeSpan.FromDays(30)); });
+            deletedFeaturesTtl: TimeSpan.FromSeconds(5)); });
     }
 
     builder.Services.AddSwaggerGen();

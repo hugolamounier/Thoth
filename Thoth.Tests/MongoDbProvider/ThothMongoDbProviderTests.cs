@@ -52,7 +52,7 @@ public class ThothMongoDbProviderTests : IntegrationTestBase<Program>
     }
 
     [Fact]
-    public async Task Delete_ShouldUpdateExpiresAt_Success()
+    public async Task Delete_ShouldUpdateExpiresAtAndShouldExpireAfterTtl_Success()
     {
         //Act
         await _thothFeatureManager.DeleteAsync(_featureFlagName);
@@ -62,6 +62,13 @@ public class ThothMongoDbProviderTests : IntegrationTestBase<Program>
 
         //Assert
         feature.Should().NotBeNull();
-        feature?.ExpiresAt.Should().NotBeNull().And.Be(feature.DeletedAt + TimeSpan.FromDays(30));
+        feature?.ExpiresAt.Should().NotBeNull().And.Be(feature.DeletedAt + TimeSpan.FromSeconds(5));
+
+        await Task.Delay(6000);
+        feature = await _mongoCollection
+            .Find(c => c.Name == _featureFlagName)
+            .FirstOrDefaultAsync();
+
+        feature.Should().BeNull();
     }
 }
