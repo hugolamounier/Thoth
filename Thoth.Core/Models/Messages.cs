@@ -25,17 +25,6 @@ public static class Messages
     public const string INFO_NON_EXISTENT_FLAG_REQUESTED =
         "Non-existent feature flag '{0}' requested, returning false (Option 'ShouldReturnFalseWhenNotExists' enabled)";
 
-    public const string INFO_ADDED_FEATURE_FLAG =
-        "The feature flag '{0}' was successfully added with the initial state '{1}' and Value '{2}'.";
-
-    public const string INFO_UPDATED_FEATURE_FLAG =
-        "The feature flag '{0}' was successfully updated with the state {1} and Value {2}.";
-
-    public const string INFO_DELETED_FEATURE_FLAG = "The feature flag '{0}' was successfully deleted.";
-
-    public const string INFO_ACTION_MADE_BY_USER_WITH_CLAIMS =
-        "Action performed by the user with de following set claims: {0}";
-
     public const string VALIDATION_INVALID_FIELD = "The field '{0}' is required.";
     public const string VALIDATION_NO_SUB_TYPE = "When feature is of type '{0}', it can't have a SubType defined.";
 }
