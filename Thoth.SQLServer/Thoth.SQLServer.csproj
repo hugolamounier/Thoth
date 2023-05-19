@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFrameworks>net6.0;net7.0</TargetFrameworks>
+        <TargetFramework>net6.0</TargetFramework>
         <Nullable>enable</Nullable>
         <Description>Thoth SQLServer database storage.</Description>
         <LangVersion>10.0</LangVersion>
@@ -16,7 +16,7 @@
         <RootNamespace>Thoth.SQLServer</RootNamespace>
         <IsPackable>true</IsPackable>
         <PackageIcon>icon-64.png</PackageIcon>
-        <Version>3.2.1</Version>
+        <Version>3.3.0</Version>
     </PropertyGroup>
 
     <ItemGroup>
@@ -24,17 +24,10 @@
         <None Include="../docs/icon-64.png" Pack="true" PackagePath="\" />
     </ItemGroup>
 
-    <ItemGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
-        <PackageReference Include="Microsoft.Extensions.Options" Version="6.0.0" />
-    </ItemGroup>
-
-    <ItemGroup Condition=" '$(TargetFramework)' == 'net7.0' ">
-        <PackageReference Include="Microsoft.Extensions.Options" Version="7.0.1" />
-    </ItemGroup>
-
     <ItemGroup>
         <PackageReference Include="Dapper" Version="2.0.123" />
         <PackageReference Include="Microsoft.Data.SqlClient" Version="5.1.1" />
+        <PackageReference Include="Microsoft.Extensions.Options" Version="6.0.0" />
     </ItemGroup>
 
     <ItemGroup>
