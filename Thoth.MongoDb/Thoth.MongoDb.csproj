@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net6.0</TargetFramework>
+        <TargetFrameworks>net6.0;net7.0</TargetFrameworks>
         <Nullable>disable</Nullable>
         <Description>Thoth MongoDb storage provider.</Description>
         <LangVersion>10.0</LangVersion>
@@ -16,7 +16,7 @@
         <RootNamespace>Thoth.MongoDb</RootNamespace>
         <IsPackable>true</IsPackable>
         <PackageIcon>icon-64.png</PackageIcon>
-        <Version>3.1.5</Version>
+        <Version>3.2.0</Version>
     </PropertyGroup>
 
     <ItemGroup>
