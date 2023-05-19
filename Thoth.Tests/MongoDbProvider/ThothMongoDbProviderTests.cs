@@ -62,7 +62,7 @@ public class ThothMongoDbProviderTests : IntegrationTestBase<Program>
 
         //Assert
         feature.Should().NotBeNull();
-        feature?.ExpiresAt.Should().NotBeNull().And.Be(feature.DeletedAt + TimeSpan.FromSeconds(5));
+        feature?.ExpiresAt.Should().NotBeNull().And.Be(feature.DeletedAt + TimeSpan.FromSeconds(2));
 
         await Task.Delay(15000);
         feature = await _mongoCollection
