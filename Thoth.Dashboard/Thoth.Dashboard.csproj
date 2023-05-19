@@ -16,7 +16,7 @@
         <RootNamespace>Thoth.Dashboard</RootNamespace>
         <IsPackable>true</IsPackable>
         <PackageIcon>icon-64.png</PackageIcon>
-        <Version>3.2.0</Version>
+        <Version>3.2.1</Version>
     </PropertyGroup>
 
     <ItemGroup>
@@ -45,7 +45,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.30.1" />
+        <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.28.1" />
     </ItemGroup>
 
     <ItemGroup>
