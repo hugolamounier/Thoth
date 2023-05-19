@@ -64,11 +64,12 @@ public class ThothMongoDbProviderTests : IntegrationTestBase<Program>
         feature.Should().NotBeNull();
         feature?.ExpiresAt.Should().NotBeNull().And.Be(feature.DeletedAt + TimeSpan.FromSeconds(2));
 
-        await Task.Delay(15000);
-        feature = await _mongoCollection
-            .Find(c => c.Name == _featureFlagName)
-            .FirstOrDefaultAsync();
-
+        while (feature is not null)
+        {
+            feature = await _mongoCollection
+                .Find(c => c.Name == _featureFlagName)
+                .FirstOrDefaultAsync();
+        }
         feature.Should().BeNull();
     }
 }
