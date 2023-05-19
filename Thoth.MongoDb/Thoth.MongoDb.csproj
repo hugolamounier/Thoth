@@ -16,7 +16,7 @@
         <RootNamespace>Thoth.MongoDb</RootNamespace>
         <IsPackable>true</IsPackable>
         <PackageIcon>icon-64.png</PackageIcon>
-        <Version>1.1.0</Version>
+        <Version>3.3.0</Version>
     </PropertyGroup>
 
     <ItemGroup>
@@ -25,11 +25,11 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Thoth.Core\Thoth.Core.csproj" />
+        <PackageReference Include="MongoDB.Driver" Version="2.19.1" />
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="MongoDB.Driver" Version="2.19.1" />
+        <ProjectReference Include="..\Thoth.Core\Thoth.Core.csproj" />
     </ItemGroup>
 
 </Project>
