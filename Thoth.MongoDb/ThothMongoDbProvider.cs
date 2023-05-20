@@ -53,11 +53,12 @@ public class ThothMongoDbProvider : IDatabase
         return true;
     }
 
-    public async Task<bool> DeleteAsync(string featureName)
+    public async Task<bool> DeleteAsync(string featureName, string auditExtras = "")
     {
         var feature = await GetAsync(featureName);
         feature.DeletedAt = DateTime.UtcNow;
-        
+        feature.Extras = auditExtras;
+
         if(ThothMongoDbOptions.DeletedFeaturesTtl is not null)
             feature.ExpiresAt = feature.DeletedAt + ThothMongoDbOptions.DeletedFeaturesTtl;
 

@@ -12,7 +12,7 @@ using Thoth.Sample.Contexts;
 namespace Thoth.Sample.Migrations
 {
     [DbContext(typeof(SqlContext))]
-    [Migration("20230505142043_InitDatabase")]
+    [Migration("20230520032245_InitDatabase")]
     partial class InitDatabase
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -34,6 +34,9 @@ namespace Thoth.Sample.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("getdate()");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");

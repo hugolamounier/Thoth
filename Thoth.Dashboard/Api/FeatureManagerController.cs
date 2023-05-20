@@ -87,7 +87,12 @@ public class FeatureManagerController
     /// <returns></returns>
     public async Task<IResult> Delete(string name)
     {
-        if (!await _thothFeatureManager.DeleteAsync(name))
+        var extras = string.Empty;
+
+        if (_dashboardOptions.ThothManagerAudit is not null)
+            extras = _dashboardOptions.ThothManagerAudit.AddAuditExtras();
+
+        if (!await _thothFeatureManager.DeleteAsync(name, extras))
             return Results.BadRequest();
 
         return Results.Ok();

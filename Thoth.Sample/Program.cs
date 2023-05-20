@@ -160,7 +160,7 @@ else
     builder.Services.AddControllers();
     builder.Services.AddThoth(options =>
     {
-        builder.Services.AddThoth(op => { op.UseEntityFramework<SqlContext>(); });
+        options.UseEntityFramework<SqlContext>();
     });
 
     builder.Services.AddSwaggerGen();

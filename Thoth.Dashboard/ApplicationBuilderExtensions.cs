@@ -16,7 +16,7 @@ namespace Thoth.Dashboard;
 [ExcludeFromCodeCoverage]
 public static class ApplicationBuilderExtensions
 {
-    public static IApplicationBuilder UseThothDashboard(
+    public static void UseThothDashboard(
         this IApplicationBuilder app,
         Action<ThothDashboardOptions>? setupAction = null)
     {
@@ -52,7 +52,6 @@ public static class ApplicationBuilderExtensions
         });
 
         app.UseMiddleware<ThothExceptionMiddleware>();
-
-        return app.InjectThothDashboardRoutes(options);
+        app.InjectThothDashboardRoutes(options);
     }
 }

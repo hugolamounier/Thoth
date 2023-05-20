@@ -20,6 +20,7 @@ public static class Mappings
             entity.Property(p => p.Description).IsRequired(false);
             entity.Property(p => p.CreatedAt).IsRequired().HasDefaultValueSql("getdate()");
             entity.Property(p => p.UpdatedAt).IsRequired(false);
+            entity.Property(p => p.DeletedAt).IsRequired(false);
 
             entity.ToTable(nameof(FeatureManager), "thoth", b => b.IsTemporal());
         });

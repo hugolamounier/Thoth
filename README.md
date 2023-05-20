@@ -134,13 +134,14 @@ using Thoth.Dashboard;
 var app = builder.Build();
 app.UseThothDashboard(options =>
 {
-    options.Authorization = new[] { new MyDashboardAuthorizationFilter() };
+    options.Authorization = new MyDashboardAuthorizationFilter();
 });
 ```
 
 ### ThothJwtAuthorizationFilter
 Additionally, Thoth.Dashboard provides a default implementation to use your application's JWT Token as Authorization.
 You can even provide which Roles are allowed to access the Dashboard and add who made changes do the features via Dashboard to your logs.
+The implementation `ThothJwtAudit` of IThothManagerAudit allows you to audit changes and save them to database. You need to provide the httpContextAccessor to the implementation `ThothJwtAudit`.
 The ThothJwtAuthorizationFilter class requires you to provide a **TokenValidationParameters** object as a parameter, with your application's token configuration, as shown below:
 
 ```c#
@@ -149,7 +150,7 @@ using Thoth.Dashboard;
 var app = builder.Build();
 app.UseThothDashboard(options =>
 {
-    options.Authorization = new[] {new ThothJwtAuthorizationFilter(new TokenValidationParameters
+    options.Authorization = new ThothJwtAuthorizationFilter(new TokenValidationParameters
     {
         ValidateIssuerSigningKey = true,
         ValidateLifetime = true,
@@ -160,8 +161,8 @@ app.UseThothDashboard(options =>
         ),
         ValidAudience = JwtConfiguration.Audience,
         ValidIssuer = JwtConfiguration.Issuer
-    },
-    options.ClaimsToRegisterOnLog = new[] { ClaimTypes.Email, ClaimTypes.NameIdentifier };
+    }, allowedRoles: new[] { "Admin" }));
+    options.ThothManagerAudit = new ThothJwtAudit(httpContextAccessor, new[] { ClaimTypes.Email, ClaimTypes.NameIdentifier });
 });
 ```
 

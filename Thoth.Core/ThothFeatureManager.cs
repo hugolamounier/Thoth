@@ -126,14 +126,14 @@ public class ThothFeatureManager : IThothFeatureManager
         }
     }
 
-    public async Task<bool> DeleteAsync(string featureName)
+    public async Task<bool> DeleteAsync(string featureName, string auditExtras = "")
     {
         try
         {
             if (!await CheckIfExistsAsync(featureName))
                 throw new ThothException(string.Format(Messages.ERROR_FEATURE_FLAG_NOT_EXISTS, featureName));
 
-            var deleteResult = await _dbContext.DeleteAsync(featureName);
+            var deleteResult = await _dbContext.DeleteAsync(featureName, auditExtras);
 
             if (deleteResult)
                 _cacheManager.Remove(featureName);

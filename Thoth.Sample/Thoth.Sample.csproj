@@ -11,6 +11,10 @@
         <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.16" />
         <PackageReference Include="MongoDB.Driver" Version="2.19.1" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.16">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
     </ItemGroup>
 
     <ItemGroup>
@@ -18,5 +22,9 @@
         <ProjectReference Include="..\Thoth.Dashboard\Thoth.Dashboard.csproj" />
         <ProjectReference Include="..\Thoth.MongoDb\Thoth.MongoDb.csproj" />
         <ProjectReference Include="..\Thoth.SQLServer\Thoth.SQLServer.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Migrations\" />
     </ItemGroup>
 </Project>
