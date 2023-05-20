@@ -55,6 +55,7 @@ public class ThothSqlServerProvider<TContext> : IDatabase
     {
         try
         {
+            await _dbContext.Database.BeginTransactionAsync();
             var featureToRemove = await GetAsync(featureName);
 
             _featureManagers.Remove(featureToRemove);
@@ -63,9 +64,7 @@ public class ThothSqlServerProvider<TContext> : IDatabase
 
             await _dbContext.Database.ExecuteSqlRawAsync("ALTER TABLE thoth.FeatureManager SET (SYSTEM_VERSIONING = OFF);");
 
-            if (!string.IsNullOrEmpty(auditExtras))
-            {
-                await _dbContext.Database.ExecuteSqlRawAsync(@"    
+            await _dbContext.Database.ExecuteSqlRawAsync(@"    
                     UPDATE 
                         thoth.FeatureManagerHistory 
                     SET 
@@ -73,8 +72,7 @@ public class ThothSqlServerProvider<TContext> : IDatabase
                     WHERE 
                         Name = {2} AND 
                         PeriodEnd = (SELECT TOP 1 PeriodEnd FROM thoth.FeatureManagerHistory WHERE Name = {2} ORDER BY PeriodEnd DESC)",
-                        DateTime.UtcNow, auditExtras, featureName);
-            }
+                DateTime.UtcNow, auditExtras, featureName);
 
             await _dbContext.Database.ExecuteSqlRawAsync(@"
                 ALTER TABLE 
@@ -86,17 +84,12 @@ public class ThothSqlServerProvider<TContext> : IDatabase
                     );
                 ");
 
+            await _dbContext.Database.CommitTransactionAsync();
             return true;
         }
         catch
         {
-            var restoreFeature = await _featureManagers
-                .TemporalAll()
-                .Where(x => x.Name == featureName)
-                .OrderBy(x => EF.Property<DateTime>(x, "PeriodEnd"))
-                .LastAsync();
-            await _featureManagers.AddAsync(restoreFeature);
-            await _dbContext.SaveChangesAsync();
+            await _dbContext.Database.RollbackTransactionAsync();
             return false;
         }
     }
