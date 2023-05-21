@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Driver;
@@ -31,7 +32,17 @@ public class ThothMongoDbProvider : IDatabase
 
     public async Task<IEnumerable<FeatureManager>> GetAllAsync()
     {
-        return await _mongoCollection.Find(f => f.DeletedAt == null).ToListAsync();
+        var features = await _mongoCollection
+            .Find(f => f.DeletedAt == null)
+            .ToListAsync();
+
+        var orderedFeatures = features.Select(x =>
+        {
+            x.Histories = x.Histories.OrderByDescending(f => f.PeriodEnd).ToList();
+            return x;
+        });
+
+        return orderedFeatures.OrderByDescending(f => f.CreatedAt);
     }
 
     public async Task<bool> AddAsync(FeatureManager featureManager)

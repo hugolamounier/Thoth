@@ -15,10 +15,10 @@ const HistoryModal = ({ isOpen, setIsOpen, feature }: HistoryModalInterface) => 
   const tableHeader: any[] = [
     { title: 'State', key: 'enabled', dataIndex: 'enabled' },
     { title: 'Value', key: 'value', dataIndex: 'value' },
-    { title: 'Description', key: 'description', dataIndex: 'description', width: 250 },
     { title: 'Period Start', key: 'periodStart', dataIndex: 'periodStart' },
     { title: 'Period End', key: 'periodEnd', dataIndex: 'periodEnd' },
-    { title: 'Audit Extras', key: 'extras', dataIndex: 'extras', width: 400 },
+    { title: 'Description', key: 'description', dataIndex: 'description' },
+    { title: 'Audit Extras', key: 'extras', dataIndex: 'extras' },
   ];
 
   const getTableData = () => {

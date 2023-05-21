@@ -190,7 +190,7 @@ const FeatureManagement = (): JSX.Element => {
       >
         {feature.description ? (
           <Tooltip title="Feature description">
-            <InfoCircleOutlined className="icon" />
+            <InfoCircleOutlined className="icon text-yellow-800" />
           </Tooltip>
         ) : (
           <Tooltip title="See History">
