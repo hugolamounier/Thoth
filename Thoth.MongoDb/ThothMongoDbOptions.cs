@@ -6,7 +6,14 @@ internal static class ThothMongoDbOptions
 {
     private static string _databaseName;
 
+    /// <summary>
+    ///     Defines the collection name to be used by Thoth
+    /// </summary>
     public static string CollectionName { get; set; }
+
+    /// <summary>
+    ///     Defines the TTL of deleted features
+    /// </summary>
     public static TimeSpan? DeletedFeaturesTtl { get; set; }
 
     public static string DatabaseName
