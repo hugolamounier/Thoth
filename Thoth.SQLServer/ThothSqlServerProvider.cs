@@ -71,7 +71,7 @@ public class ThothSqlServerProvider<TContext> : IDatabase
 
         var currentFeatures = features
             .AsParallel()
-            .Where(x => x.ValidTo == DateTime.MaxValue)
+            .Where(x => x.ValidTo < DateTime.MaxValue)
             .Select(x => x.Feature).ToList();
 
         var resultFeatures = currentFeatures.AsParallel().Select(x =>

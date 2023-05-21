@@ -51,7 +51,7 @@ const HistoryModal = ({ isOpen, setIsOpen, feature }: HistoryModalInterface) => 
       };
     });
 
-    if (tableData && feature) {
+    if (tableData && feature && !feature.deletedAt) {
       tableData.unshift({
         key: feature.name,
         current: true,

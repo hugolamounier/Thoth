@@ -117,6 +117,38 @@ public class ThothApiControllerTests : IntegrationTestBase<Program>
     }
 
     [Fact]
+    public async Task GetAllDeleted_ShouldSuccess()
+    {
+        //Arrange
+        var featureFlag = new FeatureManager
+        {
+            Name = Guid.NewGuid().ToString(),
+            Type = FeatureTypes.FeatureFlag,
+            SubType = FeatureFlagsTypes.Boolean,
+            Enabled = true
+        };
+        var postContent =
+            new StringContent(JsonConvert.SerializeObject(featureFlag), Encoding.UTF8, "application/json");
+        await HttpClient.PostAsync("/thoth-api/FeatureFlag", postContent);
+
+        //Act
+        var response = await HttpClient.DeleteAsync($"/thoth-api/FeatureFlag/{featureFlag.Name}");
+        var res = await HttpClient.GetAsync($"/thoth-api/FeatureFlag/{featureFlag.Name}");
+        var content = await res.Content.ReadAsStringAsync();
+        var error = string.Format(Messages.ERROR_FEATURE_FLAG_NOT_EXISTS, featureFlag.Name);
+        var getDeletedResponse = await HttpClient.GetAsync($"/thoth-api/FeatureFlag/Deleted");
+        var deletedContent = await getDeletedResponse.Content.ReadFromJsonAsync<List<FeatureManager>>();
+
+        //Assert
+        response.IsSuccessStatusCode.Should().BeTrue();
+        res.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        content.Should().Be(error);
+        getDeletedResponse.IsSuccessStatusCode.Should().BeTrue();
+        deletedContent.Should().NotBeEmpty();
+        deletedContent?.Any(x => x.Name == featureFlag.Name).Should().BeTrue();
+    }
+
+    [Fact]
     public async Task GetByName_ShouldSuccess()
     {
         //Arrange
