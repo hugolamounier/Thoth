@@ -26,15 +26,20 @@ const HistoryModal = ({ isOpen, setIsOpen, feature }: HistoryModalInterface) => 
         key: feature.name,
         current: false,
         enabled: (
-          <Switch
-            disabled={true}
-            checkedChildren="On"
-            unCheckedChildren="Off"
-            checked={feature.enabled}
-          />
+          <Space>
+            <Tag className="text-gray-500 border-gray-500" color="#f3f4f6">
+              Obsolete
+            </Tag>
+            <Switch
+              disabled={true}
+              checkedChildren="On"
+              unCheckedChildren="Off"
+              checked={feature.enabled}
+            />
+          </Space>
         ),
         value: feature.value ?? '--',
-        periodEnd: <span>{moment(feature.periodEnd).format('YYYY-MM-DD HH:mm:ss')}</span>,
+        periodEnd: moment(feature.periodEnd).format('YYYY-MM-DD HH:mm:ss'),
         periodStart: moment(feature.periodStart).format('YYYY-MM-DD HH:mm:ss'),
         extras: feature.extras ? (
           <div className="break-all">{JSON.stringify(JSON.parse(feature.extras), null, 10)}</div>
@@ -49,15 +54,18 @@ const HistoryModal = ({ isOpen, setIsOpen, feature }: HistoryModalInterface) => 
         key: feature.name,
         current: true,
         enabled: (
-          <Switch
-            disabled={true}
-            checkedChildren="On"
-            unCheckedChildren="Off"
-            checked={feature.enabled}
-          />
+          <Space>
+            <Tag color="green">Current</Tag>
+            <Switch
+              disabled={true}
+              checkedChildren="On"
+              unCheckedChildren="Off"
+              checked={feature.enabled}
+            />
+          </Space>
         ),
         value: feature.value ?? '--',
-        periodEnd: <Tag color="green">Current</Tag>,
+        periodEnd: '--',
         periodStart: moment(feature.updatedAt).format('YYYY-MM-DD HH:mm:ss'),
         extras: feature.extras ? (
           <div className="break-all">{JSON.stringify(JSON.parse(feature.extras), null, 10)}</div>
@@ -77,7 +85,7 @@ const HistoryModal = ({ isOpen, setIsOpen, feature }: HistoryModalInterface) => 
       title={
         <Space className="pb-2">
           <HistoryOutlined />
-          History
+          Feature History
         </Space>
       }
       open={isOpen}
@@ -90,7 +98,12 @@ const HistoryModal = ({ isOpen, setIsOpen, feature }: HistoryModalInterface) => 
         </span>
         {feature?.type ? TypeTagHelper.TagType(feature!.type, feature?.subType) : null}
       </Space>
-      <Table columns={tableHeader} dataSource={getTableData()} scroll={{ x: 1000 }} />
+      <Table
+        columns={tableHeader}
+        dataSource={getTableData()}
+        rowClassName={(row) => (row.current ? 'border-black border-t-5' : '')}
+        scroll={{ x: 1000 }}
+      />
     </Modal>
   );
 };
