@@ -80,7 +80,7 @@ public class ThothFeatureManager : IThothFeatureManager
 
     public async Task<IEnumerable<FeatureManager>> GetAllDeletedAsync()
     {
-        return await _dbContext.GetAllDeletedAsync();;
+        return await _dbContext.GetAllDeletedAsync();
     }
 
     public async Task<bool> AddAsync(FeatureManager featureManager)

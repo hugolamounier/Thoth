@@ -160,8 +160,7 @@ else
     builder.Services.AddControllers();
     builder.Services.AddThoth(options =>
     {
-        // options.UseEntityFramework<SqlContext>();
-        options.UseMongoDb("thoth");
+        options.UseEntityFramework<SqlContext>();
     });
 
     builder.Services.AddSwaggerGen();
