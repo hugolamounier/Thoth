@@ -57,7 +57,13 @@ const HistoryModal = ({ isOpen, setIsOpen, feature }: HistoryModalInterface) => 
         current: true,
         enabled: (
           <Space>
-            <Tag color="green">Current</Tag>
+            {feature.deletedAt ? (
+              <Tag className="text-gray-500 border-gray-300" color="#f3f4f6">
+                Obsolete
+              </Tag>
+            ) : (
+              <Tag color="green">Current</Tag>
+            )}
             <Switch
               disabled={true}
               checkedChildren="On"

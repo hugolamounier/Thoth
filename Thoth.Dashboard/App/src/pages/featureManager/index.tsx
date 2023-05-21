@@ -244,7 +244,9 @@ const FeatureManagement = ({ listingFeatures }: FeatureManagementProps): JSX.Ele
       type: TypeTagHelper.TagType(feature.type, feature.subType),
       enabled: (
         <Switch
-          disabled={feature.type === FeatureTypes.EnvironmentVariable}
+          disabled={
+            feature.type === FeatureTypes.EnvironmentVariable || listingFeatures === 'deleted'
+          }
           checkedChildren="On"
           unCheckedChildren="Off"
           checked={feature.enabled}
@@ -257,7 +259,16 @@ const FeatureManagement = ({ listingFeatures }: FeatureManagementProps): JSX.Ele
       updatedAt:
         feature.updatedAt !== null ? moment(feature.updatedAt).format('YYYY-MM-DD HH:mm:ss') : '--',
       deletedAt: moment(feature.deletedAt).format('YYYY-MM-DD HH:mm:ss'),
-      actions: actions(feature),
+      actions:
+        listingFeatures === 'active' ? (
+          actions(feature)
+        ) : (
+          <Button
+            icon={<HistoryOutlined />}
+            shape="circle"
+            onClick={() => openFeatureHistory(feature)}
+          />
+        ),
     };
   });
 
@@ -266,13 +277,17 @@ const FeatureManagement = ({ listingFeatures }: FeatureManagementProps): JSX.Ele
       className="border-black border-b-2 pb-3 flex align-items-center justify-between"
       style={{ width: '100%' }}
     >
-      <h1 className="text-heading-bold-4 ">Feature Management</h1>
-      <Button type="primary" onClick={() => setModalOpen({ ...modalOpen, createModal: true })}>
-        <Space>
-          <PlusOutlined />
-          <span>Create</span>
-        </Space>
-      </Button>
+      <h1 className="text-heading-bold-4 ">
+        {listingFeatures === 'active' ? 'Active Features' : 'Deleted Features'}
+      </h1>
+      {listingFeatures === 'active' ? (
+        <Button type="primary" onClick={() => setModalOpen({ ...modalOpen, createModal: true })}>
+          <Space>
+            <PlusOutlined />
+            <span>Create</span>
+          </Space>
+        </Button>
+      ) : null}
     </Space>
   );
 

@@ -73,6 +73,7 @@ public class ThothMongoDbProvider : IDatabase
         var feature = await GetAsync(featureManager.Name);
         var featureHistory = new FeatureManagerHistory(feature);
 
+        featureManager.Histories = feature.Histories;
         featureManager.Histories.Add(featureHistory);
         
         await _mongoCollection.ReplaceOneAsync(f => f.Name == featureManager.Name, featureManager);
