@@ -8,10 +8,52 @@ services:
     ports:
       - 1433:1433
 
-  mongo:
-    image: mongo
-    container_name: mongo
-    restart: always
+  mongo1:
+    image: mongo:6
+    container_name: mongo1
     ports:
-      - "27017:27017"
-    command: /usr/bin/mongod --bind_ip localhost,mongo
+      - 27017:27017
+    restart: always
+    networks:
+      - mongoCluster
+    command: /usr/bin/mongod --replSet myReplicaSet --bind_ip localhost,mongo1
+
+  mongo2:
+    image: mongo:6
+    container_name: mongo2
+    ports:
+      - 27018:27017
+    networks:
+      - mongoCluster
+    command: /usr/bin/mongod --replSet myReplicaSet --bind_ip localhost,mongo2
+
+  mongo3:
+    image: mongo:6
+    container_name: mongo3
+    ports:
+      - 27019:27017
+    networks:
+      - mongoCluster
+    command: /usr/bin/mongod --replSet myReplicaSet --bind_ip localhost,mongo3
+
+  mongoclustersetup:
+    image: mongo:6
+    container_name: mongoclustersetup
+    depends_on:
+      - mongo1
+      - mongo2
+      - mongo3
+    networks:
+      - mongoCluster
+    entrypoint: [ "bash", "-c", "sleep 10 && mongosh --host mongo1:27017 --eval 'rs.initiate({
+      _id: \"myReplicaSet\",
+      members: [
+        {_id: 0, host: \"mongo1\"},
+        {_id: 1, host: \"mongo2\"},
+        {_id: 2, host: \"mongo3\"}
+      ]
+      })'" ]
+
+networks:
+  mongoCluster:
+    driver: bridge
