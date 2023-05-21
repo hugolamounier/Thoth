@@ -4,6 +4,7 @@ import type { MenuProps } from 'antd';
 import { Layout, Menu, theme } from 'antd';
 import { AppContext } from '../Contexts/AppContext';
 import FeatureManager from '../../pages/featureManager';
+import _ from 'lodash';
 
 const { Header, Sider } = Layout;
 
@@ -12,10 +13,6 @@ const BaseLayout = ({ children }: { children: ReactNode }): JSX.Element => {
   const {
     token: { colorBgContainer },
   } = theme.useToken();
-
-  useEffect(() => {
-    console.log(currentPage);
-  }, []);
 
   const items2: MenuProps['items'] = [
     {
@@ -27,14 +24,16 @@ const BaseLayout = ({ children }: { children: ReactNode }): JSX.Element => {
           key: 'activeFeatures',
           label: 'Active Features',
           onClick: () => {
-            setCurrentPage(<FeatureManager listingFeatures="active" />);
+            const key = _.uniqueId();
+            setCurrentPage(<FeatureManager key={key} listingFeatures="active" />);
           },
         },
         {
           key: 'deletedFeatures',
           label: 'Deleted Features',
           onClick: () => {
-            setCurrentPage(<FeatureManager listingFeatures="deleted" />);
+            const key = _.uniqueId();
+            setCurrentPage(<FeatureManager key={key} listingFeatures="deleted" />);
           },
         },
       ],

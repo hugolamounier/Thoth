@@ -292,12 +292,6 @@ const FeatureManagement = ({ listingFeatures }: FeatureManagementProps): JSX.Ele
     getFeatureFlags().finally(() => setLoading({ ...loading, loading: false }));
   }, []);
 
-  useEffect(() => {
-    Modal.info({}).destroy();
-    setLoading({ ...loading, loading: true });
-    getFeatureFlags().finally(() => setLoading({ ...loading, loading: false }));
-  }, [listingFeatures]);
-
   return (
     <BaseContent title={titleHeader}>
       <Space className="w-full" direction="vertical">
