@@ -5,3 +5,8 @@
 body, html {
     overflow: hidden;
 }
+
+.icon {
+    top: -2px;
+    position: relative;
+}

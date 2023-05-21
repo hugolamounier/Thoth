@@ -11,7 +11,7 @@ export default class TypeTagHelper {
       case FeatureTypes.FeatureFlag: {
         switch (subType) {
           case FeatureFlagsTypes.Boolean:
-            return <Tag color="green">Feature Flag: {FeatureFlagsTypes[subType]}</Tag>;
+            return <Tag color="blue">Feature Flag: {FeatureFlagsTypes[subType]}</Tag>;
 
           case FeatureFlagsTypes.PercentageFilter:
             return <Tag color="purple">Feature Flag: {FeatureFlagsTypes[subType]}</Tag>;

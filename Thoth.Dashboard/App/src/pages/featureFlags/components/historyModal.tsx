@@ -15,9 +15,10 @@ const HistoryModal = ({ isOpen, setIsOpen, feature }: HistoryModalInterface) => 
   const tableHeader: any[] = [
     { title: 'State', key: 'enabled', dataIndex: 'enabled' },
     { title: 'Value', key: 'value', dataIndex: 'value' },
+    { title: 'Description', key: 'description', dataIndex: 'description', width: 250 },
     { title: 'Period Start', key: 'periodStart', dataIndex: 'periodStart' },
     { title: 'Period End', key: 'periodEnd', dataIndex: 'periodEnd' },
-    { title: 'Audit Extras', key: 'extras', dataIndex: 'extras', width: 500 },
+    { title: 'Audit Extras', key: 'extras', dataIndex: 'extras', width: 400 },
   ];
 
   const getTableData = () => {
@@ -27,7 +28,7 @@ const HistoryModal = ({ isOpen, setIsOpen, feature }: HistoryModalInterface) => 
         current: false,
         enabled: (
           <Space>
-            <Tag className="text-gray-500 border-gray-500" color="#f3f4f6">
+            <Tag className="text-gray-500 border-gray-300" color="#f3f4f6">
               Obsolete
             </Tag>
             <Switch
@@ -38,6 +39,7 @@ const HistoryModal = ({ isOpen, setIsOpen, feature }: HistoryModalInterface) => 
             />
           </Space>
         ),
+        description: <div className="break-all">{feature.description ?? '--'}</div>,
         value: feature.value ?? '--',
         periodEnd: moment(feature.periodEnd).format('YYYY-MM-DD HH:mm:ss'),
         periodStart: moment(feature.periodStart).format('YYYY-MM-DD HH:mm:ss'),
@@ -64,9 +66,10 @@ const HistoryModal = ({ isOpen, setIsOpen, feature }: HistoryModalInterface) => 
             />
           </Space>
         ),
+        description: <div className="break-all">{feature.description ?? '--'}</div>,
         value: feature.value ?? '--',
         periodEnd: '--',
-        periodStart: moment(feature.updatedAt).format('YYYY-MM-DD HH:mm:ss'),
+        periodStart: moment(feature.updatedAt ?? feature.createdAt).format('YYYY-MM-DD HH:mm:ss'),
         extras: feature.extras ? (
           <div className="break-all">{JSON.stringify(JSON.parse(feature.extras), null, 10)}</div>
         ) : (

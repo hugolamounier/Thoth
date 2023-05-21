@@ -4,11 +4,13 @@ import { App, Button, Dropdown, MenuProps, Modal, Space, Switch, Table, Tag, Too
 import {
   DeleteOutlined,
   EditFilled,
+  EditOutlined,
   EllipsisOutlined,
   ExclamationCircleOutlined,
   HistoryOutlined,
   InfoCircleOutlined,
   PlusOutlined,
+  SearchOutlined,
 } from '@ant-design/icons';
 import { FeatureManager, FeatureFlagsTypes, FeatureTypes } from '../../models/featureManager';
 import FeatureFlagService from '../../services/featureFlagService';
@@ -136,22 +138,30 @@ const FeatureManagement = (): JSX.Element => {
     setLoading({ ...loading, updateLoading: loading.updateLoading.set(name, false) });
   };
 
-  const actions = (name: string) => {
+  const actions = (feature: FeatureManager) => {
     const items: MenuProps['items'] = [
       {
-        label: 'History',
-        key: '1',
-        icon: <HistoryOutlined />,
-        onClick: () => openFeatureHistory(name),
+        label: 'Edit',
+        key: '2',
+        icon: <EditOutlined />,
+        onClick: () => {},
       },
       {
         label: 'Delete',
-        key: '2',
+        key: '3',
         icon: <DeleteOutlined />,
         danger: true,
-        onClick: () => confirmDelete(name),
+        onClick: () => confirmDelete(feature.name),
       },
     ];
+
+    if (feature.description)
+      items.unshift({
+        label: 'History',
+        key: '1',
+        icon: <HistoryOutlined />,
+        onClick: () => openFeatureHistory(feature.name),
+      });
 
     return (
       <Dropdown.Button
@@ -159,10 +169,34 @@ const FeatureManagement = (): JSX.Element => {
         icon={<EllipsisOutlined className="rotate-90" />}
         menu={{ items }}
         trigger={['click']}
+        onClick={() =>
+          !feature.description
+            ? openFeatureHistory(feature.name)
+            : Modal.info({
+                title: 'Feature Description',
+                content: (
+                  <Space direction="vertical">
+                    <span>
+                      <b>Name:</b> {feature.name}
+                    </span>
+                    <div className="break-all">{feature.description}</div>
+                  </Space>
+                ),
+                footer: null,
+                closable: true,
+                width: 600,
+              })
+        }
       >
-        <Tooltip title="Edit feature">
-          <EditFilled />
-        </Tooltip>
+        {feature.description ? (
+          <Tooltip title="Feature description">
+            <InfoCircleOutlined className="icon" />
+          </Tooltip>
+        ) : (
+          <Tooltip title="See History">
+            <HistoryOutlined className="icon" />
+          </Tooltip>
+        )}
       </Dropdown.Button>
     );
   };
@@ -180,25 +214,7 @@ const FeatureManagement = (): JSX.Element => {
   const tableData = filteredFeatures?.map((feature) => {
     return {
       key: feature.name,
-      name: (
-        <Space align="center">
-          {feature.name}
-          {feature?.description !== null ? (
-            <Tooltip className="pl-1 cursor-pointer" title="Description">
-              <InfoCircleOutlined
-                onClick={() =>
-                  Modal.info({
-                    title: `${feature.name} - Description`,
-                    content: <div>{feature.description}</div>,
-                    footer: null,
-                    closable: true,
-                  })
-                }
-              />
-            </Tooltip>
-          ) : null}
-        </Space>
-      ),
+      name: feature.name,
       type: TypeTagHelper.TagType(feature.type, feature.subType),
       enabled: (
         <Switch
@@ -214,7 +230,7 @@ const FeatureManagement = (): JSX.Element => {
       createdAt: moment(feature.createdAt).format('YYYY-MM-DD HH:mm:ss'),
       updatedAt:
         feature.updatedAt !== null ? moment(feature.updatedAt).format('YYYY-MM-DD HH:mm:ss') : '--',
-      actions: actions(feature.name),
+      actions: actions(feature),
     };
   });
 
@@ -226,7 +242,7 @@ const FeatureManagement = (): JSX.Element => {
       <h1 className="text-heading-bold-4 ">Feature Management</h1>
       <Button type="primary" onClick={() => setModalOpen({ ...modalOpen, createModal: true })}>
         <Space>
-          <PlusOutlined className="p-0 m-0" />
+          <PlusOutlined />
           <span>Create</span>
         </Space>
       </Button>
@@ -240,6 +256,7 @@ const FeatureManagement = (): JSX.Element => {
   };
 
   useEffect(() => {
+    Modal.info({}).destroy();
     setLoading({ ...loading, loading: true });
     getFeatureFlags().finally(() => setLoading({ ...loading, loading: false }));
   }, []);
@@ -248,6 +265,7 @@ const FeatureManagement = (): JSX.Element => {
     <BaseContent title={titleHeader}>
       <Space className="w-full" direction="vertical">
         <Search
+          type="default"
           className="my-2 w-1/2"
           onChange={(e) => onSearchFeature(e.target.value.toLowerCase())}
           placeholder="Search for feature by name"

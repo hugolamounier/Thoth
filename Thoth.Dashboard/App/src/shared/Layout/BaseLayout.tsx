@@ -1,7 +1,7 @@
 import React, { ReactNode } from 'react';
 import { UnorderedListOutlined } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
-import { Layout, Menu, theme } from 'antd';
+import { Layout, Menu, Space, theme } from 'antd';
 
 const { Header, Sider } = Layout;
 
@@ -17,7 +17,9 @@ const BaseLayout = ({ children }: { children: ReactNode }): JSX.Element => {
   return (
     <Layout style={{ height: '100vh' }}>
       <Header className="flex align-items-center">
-        <span className="text-logo text-white">Thoth</span>
+        <Space>
+          <span className="text-logo text-white">Thoth</span>
+        </Space>
       </Header>
       <Layout>
         <Sider className="shadow-1" width={230} style={{ background: colorBgContainer }}>
