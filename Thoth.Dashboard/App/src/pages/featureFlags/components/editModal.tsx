@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useForm } from 'antd/lib/form/Form';
-import { FeatureManager, FeatureFlagsTypes, FeatureTypes } from '../../../models/featureManager';
-import { Form, Input, Modal, Select, Space, Switch } from 'antd';
-import { FileAddOutlined } from '@ant-design/icons';
+import { FeatureFlagsTypes, FeatureManager, FeatureTypes } from '../../../models/featureManager';
+import { Form, Input, Modal, Space, Switch } from 'antd';
+import { FileTextOutlined } from '@ant-design/icons';
 import TextArea from 'antd/lib/input/TextArea';
 
 interface EditModalInterface {
@@ -10,101 +10,65 @@ interface EditModalInterface {
   setIsOpen: (state: boolean) => void;
   onSubmitForm: (values: any) => void;
   isLoading: boolean;
+  feature?: FeatureManager;
 }
 
-const EditModal = ({ isOpen, setIsOpen, onSubmitForm, isLoading }: EditModalInterface) => {
-  const [addFeatureFlagForm] = useForm<FeatureManager>();
-  const [typeSelect, setTypeSelect] = useState<FeatureTypes | undefined>(undefined);
-  const [subTypeSelect, setSubTypeSelect] = useState<FeatureFlagsTypes | undefined>(undefined);
+const EditModal = ({ isOpen, setIsOpen, onSubmitForm, isLoading, feature }: EditModalInterface) => {
+  const [editFeatureForm] = useForm<FeatureManager>();
 
   return (
     <Modal
       destroyOnClose
       afterClose={() => {
-        addFeatureFlagForm.resetFields();
-        setTypeSelect(undefined);
+        editFeatureForm.resetFields();
       }}
       title={
         <Space>
-          <FileAddOutlined /> <span> Create new feature manager</span>
+          <FileTextOutlined /> <span>Edit Feature</span>
         </Space>
       }
       open={isOpen}
       okButtonProps={{ loading: isLoading }}
-      onOk={() => addFeatureFlagForm.submit()}
+      onOk={() => editFeatureForm.submit()}
       onCancel={() => setIsOpen(false)}
-      okText="Create"
+      okText="Edit"
       width={700}
     >
-      <Form form={addFeatureFlagForm} className="py-4" layout="vertical" onFinish={onSubmitForm}>
-        <Form.Item name="name" label="Name" rules={[{ required: true }]}>
-          <Input />
+      <Form
+        form={editFeatureForm}
+        className="py-4"
+        layout="vertical"
+        onFinish={(data: FeatureManager) => {
+          data.subType = feature?.subType;
+          data.type = feature!.type;
+          onSubmitForm(data);
+        }}
+      >
+        <Form.Item label="Name" initialValue={feature?.name}>
+          <Input value={feature?.name} defaultValue={feature?.name} disabled />
         </Form.Item>
-        <Form.Item name="type" label="Type" rules={[{ required: true }]}>
-          <Select
-            showSearch
-            placeholder="Select flag type"
-            optionFilterProp="children"
-            onChange={(value, option) => {
-              setTypeSelect(value);
-              addFeatureFlagForm.resetFields(['value']);
-              if (value === FeatureTypes.EnvironmentVariable) {
-                addFeatureFlagForm.setFieldValue('enabled', true);
-              } else {
-                addFeatureFlagForm.setFieldValue('enabled', false);
-              }
-            }}
-            filterOption={(input, option) =>
-              (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
-            }
-            options={Object.keys(FeatureTypes)
-              .filter((v) => isNaN(Number(v)))
-              .map((key, index) => {
-                return {
-                  value: FeatureTypes[key as keyof typeof FeatureTypes],
-                  label: key,
-                };
-              })}
-          />
-        </Form.Item>
-        {typeSelect !== undefined && typeSelect === FeatureTypes.FeatureFlag ? (
-          <Form.Item name="subType" label="SubType" rules={[{ required: true }]}>
-            <Select
-              showSearch
-              placeholder="Select flag type"
-              optionFilterProp="children"
-              onChange={(value, option) => setSubTypeSelect(value)}
-              filterOption={(input, option) =>
-                (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
-              }
-              options={Object.keys(FeatureFlagsTypes)
-                .filter((v) => isNaN(Number(v)))
-                .map((key, index) => {
-                  return {
-                    value: FeatureFlagsTypes[key as keyof typeof FeatureFlagsTypes],
-                    label: key,
-                  };
-                })}
-            />
-          </Form.Item>
-        ) : null}
-        {typeSelect !== undefined &&
-        ((subTypeSelect !== undefined && subTypeSelect !== FeatureFlagsTypes.Boolean) ||
-          typeSelect === FeatureTypes.EnvironmentVariable) ? (
-          <Form.Item name="value" label="Value" rules={[{ required: true }]}>
-            <Input />
+        {feature?.type === FeatureTypes.EnvironmentVariable ||
+        feature?.subType === FeatureFlagsTypes.PercentageFilter ? (
+          <Form.Item
+            name="value"
+            label="Value"
+            initialValue={feature.value}
+            rules={[{ required: true }]}
+          >
+            <Input defaultValue={feature.value} />
           </Form.Item>
         ) : null}
         <Form.Item
           name="enabled"
           label="Initial State"
+          initialValue={feature?.enabled}
           valuePropName="checked"
-          hidden={typeSelect === FeatureTypes.EnvironmentVariable}
+          hidden={feature?.type === FeatureTypes.EnvironmentVariable}
         >
-          <Switch defaultChecked={false} unCheckedChildren="Off" checkedChildren="On" />
+          <Switch defaultChecked={feature?.enabled} unCheckedChildren="Off" checkedChildren="On" />
         </Form.Item>
-        <Form.Item name="description" label="Description">
-          <TextArea />
+        <Form.Item name="description" label="Description" initialValue={feature?.description}>
+          <TextArea defaultValue={feature?.description} />
         </Form.Item>
       </Form>
     </Modal>

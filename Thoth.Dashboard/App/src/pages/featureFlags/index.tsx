@@ -1,16 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import BaseContent from '../../shared/Layout/BaseContent';
-import { App, Button, Dropdown, MenuProps, Modal, Space, Switch, Table, Tag, Tooltip } from 'antd';
+import { App, Button, Dropdown, MenuProps, Modal, Space, Switch, Table, Tooltip } from 'antd';
 import {
   DeleteOutlined,
-  EditFilled,
   EditOutlined,
   EllipsisOutlined,
   ExclamationCircleOutlined,
   HistoryOutlined,
   InfoCircleOutlined,
   PlusOutlined,
-  SearchOutlined,
 } from '@ant-design/icons';
 import { FeatureManager, FeatureFlagsTypes, FeatureTypes } from '../../models/featureManager';
 import FeatureFlagService from '../../services/featureFlagService';
@@ -19,16 +17,19 @@ import CreateModal from './components/createModal';
 import Search from 'antd/es/input/Search';
 import HistoryModal from './components/historyModal';
 import TypeTagHelper from '../../shared/Helpers/TypeTagHelper';
+import EditModal from './components/editModal';
 
 type LoadingProps = {
   loading: boolean;
   updateLoading: Map<string, boolean>;
   createLoading: boolean;
+  editLoading: boolean;
 };
 
 export type ModalOpenProps = {
   createModal: boolean;
   historyModal: boolean;
+  editingModal: boolean;
 };
 
 const FeatureManagement = (): JSX.Element => {
@@ -38,13 +39,16 @@ const FeatureManagement = (): JSX.Element => {
   const [modalOpen, setModalOpen] = useState<ModalOpenProps>({
     createModal: false,
     historyModal: false,
+    editingModal: false,
   });
   const [loading, setLoading] = useState<LoadingProps>({
     loading: false,
     updateLoading: new Map<string, boolean>(),
     createLoading: false,
+    editLoading: false,
   });
   const [currentFeatureHistory, setCurrentFeatureHistory] = useState<FeatureManager>();
+  const [currentFeatureEditing, setCurrentFeatureEditing] = useState<FeatureManager>();
 
   const { modal } = App.useApp();
 
@@ -94,19 +98,33 @@ const FeatureManagement = (): JSX.Element => {
     });
   };
 
-  const openFeatureHistory = (featureName: string) => {
-    const feature = features.find((x) => x.name === featureName);
+  const openFeatureHistory = (feature: FeatureManager) => {
     setCurrentFeatureHistory(feature);
     setModalOpen({ ...modalOpen, historyModal: true });
   };
 
-  const onSubmitForm = async (data: FeatureManager) => {
+  const openFeatureEditing = (feature: FeatureManager) => {
+    setCurrentFeatureEditing(feature);
+    setModalOpen({ ...modalOpen, editingModal: true });
+  };
+
+  const onSubmitCreateForm = async (data: FeatureManager) => {
     setLoading({ ...loading, createLoading: true });
     if (await FeatureFlagService.Create(data)) {
       await getFeatureFlags();
       setModalOpen({ ...modalOpen, createModal: false });
     }
     setLoading({ ...loading, createLoading: false });
+  };
+
+  const onSubmitEditingForm = async (data: FeatureManager, featureName: string) => {
+    setLoading({ ...loading, editLoading: true });
+    data.name = featureName;
+    if (await FeatureFlagService.Update(data)) {
+      await getFeatureFlags();
+      setModalOpen({ ...modalOpen, editingModal: false });
+    }
+    setLoading({ ...loading, editLoading: false });
   };
 
   const onFeaturesChange = (newFeatures: FeatureManager[]) => {
@@ -144,7 +162,7 @@ const FeatureManagement = (): JSX.Element => {
         label: 'Edit',
         key: '2',
         icon: <EditOutlined />,
-        onClick: () => {},
+        onClick: () => openFeatureEditing(feature),
       },
       {
         label: 'Delete',
@@ -160,7 +178,7 @@ const FeatureManagement = (): JSX.Element => {
         label: 'History',
         key: '1',
         icon: <HistoryOutlined />,
-        onClick: () => openFeatureHistory(feature.name),
+        onClick: () => openFeatureHistory(feature),
       });
 
     return (
@@ -171,7 +189,7 @@ const FeatureManagement = (): JSX.Element => {
         trigger={['click']}
         onClick={() =>
           !feature.description
-            ? openFeatureHistory(feature.name)
+            ? openFeatureHistory(feature)
             : Modal.info({
                 title: 'Feature Description',
                 content: (
@@ -276,13 +294,20 @@ const FeatureManagement = (): JSX.Element => {
       <CreateModal
         isOpen={modalOpen.createModal}
         setIsOpen={(state: boolean) => setModalOpen({ ...modalOpen, createModal: state })}
-        onSubmitForm={onSubmitForm}
+        onSubmitForm={onSubmitCreateForm}
         isLoading={loading.createLoading}
       />
       <HistoryModal
         isOpen={modalOpen.historyModal}
         setIsOpen={(state: boolean) => setModalOpen({ ...modalOpen, historyModal: state })}
         feature={currentFeatureHistory}
+      />
+      <EditModal
+        isOpen={modalOpen.editingModal}
+        setIsOpen={(state: boolean) => setModalOpen({ ...modalOpen, editingModal: state })}
+        onSubmitForm={(data) => onSubmitEditingForm(data, currentFeatureEditing!.name)}
+        isLoading={loading.editLoading}
+        feature={currentFeatureEditing}
       />
     </BaseContent>
   );
