@@ -1,16 +1,20 @@
 import React, { useEffect, useState } from 'react';
 import BaseContent from '../../shared/Layout/BaseContent';
-import { App, Button, Modal, Space, Switch, Table, Tag, Tooltip } from 'antd';
+import { App, Button, Dropdown, MenuProps, Modal, Space, Switch, Table, Tag, Tooltip } from 'antd';
 import {
   DeleteOutlined,
+  EditFilled,
+  EllipsisOutlined,
   ExclamationCircleOutlined,
+  HistoryOutlined,
   InfoCircleOutlined,
   PlusOutlined,
 } from '@ant-design/icons';
-import { FeatureFlag, FeatureFlagsTypes, FeatureTypes } from '../../models/featureFlag';
+import { FeatureManager, FeatureFlagsTypes, FeatureTypes } from '../../models/featureManager';
 import FeatureFlagService from '../../services/featureFlagService';
 import moment from 'moment';
 import CreateModal from './components/createModal';
+import Search from 'antd/es/input/Search';
 
 type LoadingProps = {
   loading: boolean;
@@ -19,7 +23,9 @@ type LoadingProps = {
 };
 
 const FeatureManagement = (): JSX.Element => {
-  const [featureFlags, setFeatureFlags] = useState<FeatureFlag[]>([]);
+  const [features, setFeatures] = useState<FeatureManager[]>([]);
+  const [filteredFeatures, setFilteredFeatures] = useState<FeatureManager[]>();
+  const [currentSearchValue, setCurrentSearchValue] = useState<string>('');
   const [createModalOpen, setCreateModalOpen] = useState<boolean>(false);
   const [loading, setLoading] = useState<LoadingProps>({
     loading: false,
@@ -35,6 +41,19 @@ const FeatureManagement = (): JSX.Element => {
     if (await FeatureFlagService.Delete(name)) {
       await getFeatureFlags();
       modalState.destroy();
+    }
+  };
+
+  const onSearchFeature = (search: string) => {
+    if (search.length === 0) {
+      setCurrentSearchValue('');
+      setFilteredFeatures(features);
+      return;
+    }
+    if (search.length >= 3) {
+      setCurrentSearchValue(search);
+      const filtered = features.filter((entry) => entry.name.toLowerCase().includes(search));
+      setFilteredFeatures(filtered);
     }
   };
 
@@ -61,7 +80,7 @@ const FeatureManagement = (): JSX.Element => {
     });
   };
 
-  const onSubmitForm = async (data: FeatureFlag) => {
+  const onSubmitForm = async (data: FeatureManager) => {
     setLoading({ ...loading, createLoading: true });
     if (await FeatureFlagService.Create(data)) {
       await getFeatureFlags();
@@ -91,20 +110,28 @@ const FeatureManagement = (): JSX.Element => {
     }
   };
 
+  const onFeaturesChange = (newFeatures: FeatureManager[]) => {
+    if (currentSearchValue.length > 0) onSearchFeature(currentSearchValue);
+    if (currentSearchValue.length === 0) setFilteredFeatures(newFeatures);
+  };
+
   const onValueClick = async (name: string) => {
     setLoading({ ...loading, updateLoading: loading.updateLoading.set(name, true) });
-    const featureFlag = featureFlags.findIndex((x) => x.name === name);
-    const newFeatureFlags = [...featureFlags];
-    newFeatureFlags[featureFlag].enabled = !featureFlags[featureFlag].enabled;
+    const featureFlag = features.findIndex((x) => x.name === name);
+    const newFeatureFlags = [...features];
+    newFeatureFlags[featureFlag].enabled = !features[featureFlag].enabled;
 
-    setFeatureFlags(newFeatureFlags);
+    setFeatures(newFeatureFlags);
+    onFeaturesChange(newFeatureFlags);
+
     const response = await FeatureFlagService.Update(newFeatureFlags[featureFlag]);
 
     if (!response) {
       await new Promise((resolve) => setTimeout(resolve, 2000));
-      const oldFeatureFlags = [...featureFlags];
+      const oldFeatureFlags = [...features];
       oldFeatureFlags[featureFlag].enabled = !oldFeatureFlags[featureFlag].enabled;
-      setFeatureFlags(oldFeatureFlags);
+      setFeatures(oldFeatureFlags);
+      onFeaturesChange(oldFeatureFlags);
       setLoading({ ...loading, updateLoading: loading.updateLoading.set(name, false) });
       return;
     }
@@ -112,14 +139,35 @@ const FeatureManagement = (): JSX.Element => {
     setLoading({ ...loading, updateLoading: loading.updateLoading.set(name, false) });
   };
 
-  const actions = (name: string) => (
-    <Button type="primary" danger onClick={() => confirmDelete(name)}>
-      <Space>
-        <DeleteOutlined className="p-0 m-0" />
-        <span>Delete</span>
-      </Space>
-    </Button>
-  );
+  const actions = (name: string) => {
+    const items: MenuProps['items'] = [
+      {
+        label: 'History',
+        key: '1',
+        icon: <HistoryOutlined />,
+      },
+      {
+        label: 'Delete',
+        key: '2',
+        icon: <DeleteOutlined />,
+        danger: true,
+        onClick: () => confirmDelete(name),
+      },
+    ];
+
+    return (
+      <Dropdown.Button
+        type="default"
+        icon={<EllipsisOutlined className="rotate-90" />}
+        menu={{ items }}
+        trigger={['click']}
+      >
+        <Tooltip title="Edit feature">
+          <EditFilled />
+        </Tooltip>
+      </Dropdown.Button>
+    );
+  };
 
   const tableHeader: any[] = [
     { title: 'Name', key: 'name', dataIndex: 'name' },
@@ -131,7 +179,7 @@ const FeatureManagement = (): JSX.Element => {
     { title: 'Actions', key: 'actions', dataIndex: 'actions' },
   ];
 
-  const tableData = featureFlags?.map((featureFlag) => {
+  const tableData = filteredFeatures?.map((featureFlag) => {
     return {
       key: featureFlag.name,
       name: (
@@ -191,7 +239,8 @@ const FeatureManagement = (): JSX.Element => {
 
   const getFeatureFlags = async () => {
     const data = await FeatureFlagService.GetAll();
-    setFeatureFlags(data);
+    setFeatures(data);
+    onFeaturesChange(data);
   };
 
   useEffect(() => {
@@ -201,7 +250,15 @@ const FeatureManagement = (): JSX.Element => {
 
   return (
     <BaseContent title={titleHeader}>
-      <Table loading={loading.loading} columns={tableHeader} dataSource={tableData} />
+      <Space className="w-full" direction="vertical">
+        <Search
+          className="my-2 w-1/2"
+          onChange={(e) => onSearchFeature(e.target.value.toLowerCase())}
+          placeholder="Search for feature by name"
+          size="large"
+        />
+        <Table loading={loading.loading} columns={tableHeader} dataSource={tableData} />
+      </Space>
       <CreateModal
         isOpen={createModalOpen}
         setIsOpen={setCreateModalOpen}

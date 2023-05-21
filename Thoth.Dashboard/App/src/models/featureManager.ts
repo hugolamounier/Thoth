@@ -1,6 +1,6 @@
 import { Moment } from 'moment';
 
-export type FeatureFlag = {
+export type FeatureManager = {
   name: string;
   type: FeatureTypes;
   subType?: FeatureFlagsTypes;

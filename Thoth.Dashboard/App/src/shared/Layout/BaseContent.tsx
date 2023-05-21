@@ -1,5 +1,6 @@
 import React from 'react';
 import { Content } from 'antd/lib/layout/layout';
+import { Space } from 'antd';
 
 interface BaseContentProps {
   title: React.ReactNode;
@@ -23,8 +24,10 @@ const BaseContent = ({ children, title }: BaseContentProps): JSX.Element => (
         backgroundColor: 'white',
       }}
     >
-      {title}
-      {children}
+      <Space className="w-full" direction="vertical">
+        {title}
+        {children}
+      </Space>
     </div>
   </Content>
 );
