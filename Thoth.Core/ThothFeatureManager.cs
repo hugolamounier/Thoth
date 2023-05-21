@@ -78,6 +78,16 @@ public class ThothFeatureManager : IThothFeatureManager
         return featureFlags;
     }
 
+    public async Task<IEnumerable<FeatureManager>> GetAllDeletedAsync()
+    {
+        var featureFlags = await _dbContext.GetAllDeletedAsync();
+
+        foreach (var featureFlag in featureFlags)
+            _ = await _cacheManager.GetOrCreateAsync(featureFlag.Name, () => Task.FromResult(featureFlag));
+
+        return featureFlags;
+    }
+
     public async Task<bool> AddAsync(FeatureManager featureManager)
     {
         try

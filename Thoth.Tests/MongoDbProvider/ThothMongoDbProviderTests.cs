@@ -12,6 +12,7 @@ public class ThothMongoDbProviderTests : IntegrationTestBase<Program>
 {
     private readonly IThothFeatureManager _thothFeatureManager;
     private readonly IMongoCollection<FeatureManager> _mongoCollection;
+    private readonly IMongoCollection<FeatureManager> _mongoDeletedCollection;
     private readonly string _featureFlagName = "TestDeleteTllExpiresAt";
 
     public ThothMongoDbProviderTests() : base(arguments: new Dictionary<string, string>
@@ -23,6 +24,8 @@ public class ThothMongoDbProviderTests : IntegrationTestBase<Program>
         var mongoClient = ServiceScope.ServiceProvider.GetRequiredService<IMongoClient>();
         _mongoCollection = mongoClient.GetDatabase("thoth")
             .GetCollection<FeatureManager>("thoth");
+        _mongoDeletedCollection = mongoClient.GetDatabase("thoth")
+            .GetCollection<FeatureManager>("thoth_Deleted");
     }
 
     [Fact]
@@ -60,16 +63,21 @@ public class ThothMongoDbProviderTests : IntegrationTestBase<Program>
             .Find(c => c.Name == _featureFlagName)
             .FirstOrDefaultAsync();
 
-        //Assert
-        feature.Should().NotBeNull();
-        feature?.ExpiresAt.Should().NotBeNull().And.Be(feature.DeletedAt + TimeSpan.FromSeconds(2));
+        var featureDeleted = await _mongoDeletedCollection
+            .Find(c => c.Name == _featureFlagName)
+            .FirstOrDefaultAsync();
 
-        while (feature is not null)
+        //Assert
+        feature.Should().BeNull();
+        featureDeleted.Should().NotBeNull();
+        featureDeleted?.ExpiresAt.Should().NotBeNull().And.Be(featureDeleted.DeletedAt + TimeSpan.FromSeconds(2));
+
+        while (featureDeleted is not null)
         {
-            feature = await _mongoCollection
+            featureDeleted = await _mongoDeletedCollection
                 .Find(c => c.Name == _featureFlagName)
                 .FirstOrDefaultAsync();
         }
-        feature.Should().BeNull();
+        featureDeleted.Should().BeNull();
     }
 }

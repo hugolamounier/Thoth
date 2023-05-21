@@ -10,6 +10,7 @@ public interface IDatabase
 {
     Task<FeatureManager> GetAsync(string featureName);
     Task<IEnumerable<FeatureManager>> GetAllAsync();
+    Task<IEnumerable<FeatureManager>> GetAllDeletedAsync();
     Task<bool> AddAsync(FeatureManager featureManager);
     Task<bool> UpdateAsync(FeatureManager featureManager);
     Task<bool> DeleteAsync(string featureName, string auditExtras = "");

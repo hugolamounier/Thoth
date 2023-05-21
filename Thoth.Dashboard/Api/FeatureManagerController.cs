@@ -20,12 +20,23 @@ public class FeatureManagerController
     }
 
     /// <summary>
-    ///     Get all feature flags
+    ///     Get all features
     /// </summary>
     /// <returns></returns>
     public async Task<IResult> GetAll()
     {
         var featureFlags = await _thothFeatureManager.GetAllAsync();
+
+        return Results.Ok(featureFlags);
+    }
+
+    /// <summary>
+    ///     Get all deleted features
+    /// </summary>
+    /// <returns></returns>
+    public async Task<IResult> GetAllDeleted()
+    {
+        var featureFlags = await _thothFeatureManager.GetAllDeletedAsync();
 
         return Results.Ok(featureFlags);
     }

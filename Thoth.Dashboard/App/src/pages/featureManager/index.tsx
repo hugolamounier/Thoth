@@ -32,7 +32,11 @@ export type ModalOpenProps = {
   editingModal: boolean;
 };
 
-const FeatureManagement = (): JSX.Element => {
+type FeatureManagementProps = {
+  listingFeatures: 'active' | 'deleted';
+};
+
+const FeatureManagement = ({ listingFeatures }: FeatureManagementProps): JSX.Element => {
   const [features, setFeatures] = useState<FeatureManager[]>([]);
   const [filteredFeatures, setFilteredFeatures] = useState<FeatureManager[]>();
   const [currentSearchValue, setCurrentSearchValue] = useState<string>('');
@@ -225,7 +229,11 @@ const FeatureManagement = (): JSX.Element => {
     { title: 'State', key: 'enabled', dataIndex: 'enabled' },
     { title: 'Value', key: 'value', dataIndex: 'value' },
     { title: 'Created At', key: 'createdAt', dataIndex: 'createdAt' },
-    { title: 'Updated At', key: 'updatedAt', dataIndex: 'updatedAt' },
+    {
+      title: listingFeatures === 'active' ? 'Updated At' : 'DeletedAt',
+      key: listingFeatures === 'active' ? 'updatedAt' : 'updatedAt',
+      dataIndex: listingFeatures === 'active' ? 'updatedAt' : 'deletedAt',
+    },
     { title: 'Actions', key: 'actions', dataIndex: 'actions' },
   ];
 
@@ -248,6 +256,7 @@ const FeatureManagement = (): JSX.Element => {
       createdAt: moment(feature.createdAt).format('YYYY-MM-DD HH:mm:ss'),
       updatedAt:
         feature.updatedAt !== null ? moment(feature.updatedAt).format('YYYY-MM-DD HH:mm:ss') : '--',
+      deletedAt: moment(feature.deletedAt).format('YYYY-MM-DD HH:mm:ss'),
       actions: actions(feature),
     };
   });
@@ -268,7 +277,11 @@ const FeatureManagement = (): JSX.Element => {
   );
 
   const getFeatureFlags = async () => {
-    const data = await FeatureFlagService.GetAll();
+    let data: FeatureManager[] = [];
+
+    if (listingFeatures === 'active') data = await FeatureFlagService.GetAll();
+    if (listingFeatures === 'deleted') data = await FeatureFlagService.GetAllDeleted();
+
     setFeatures(data);
     onFeaturesChange(data);
   };
@@ -278,6 +291,12 @@ const FeatureManagement = (): JSX.Element => {
     setLoading({ ...loading, loading: true });
     getFeatureFlags().finally(() => setLoading({ ...loading, loading: false }));
   }, []);
+
+  useEffect(() => {
+    Modal.info({}).destroy();
+    setLoading({ ...loading, loading: true });
+    getFeatureFlags().finally(() => setLoading({ ...loading, loading: false }));
+  }, [listingFeatures]);
 
   return (
     <BaseContent title={titleHeader}>

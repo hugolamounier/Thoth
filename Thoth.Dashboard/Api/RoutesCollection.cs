@@ -25,6 +25,8 @@ public static class RoutesCollection
 
             endpoints.MapGet(basePath, async () => await controller.GetAll());
 
+            endpoints.MapGet(basePath + "/Deleted", async () => await controller.GetAllDeleted());
+
             endpoints.MapGet(basePath + "/{name}", async (string name) =>
                 await controller.GetByName(name));
 

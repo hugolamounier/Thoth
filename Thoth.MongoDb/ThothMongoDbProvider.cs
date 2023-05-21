@@ -12,28 +12,32 @@ namespace Thoth.MongoDb;
 public class ThothMongoDbProvider : IDatabase
 {
     private readonly IMongoCollection<FeatureManager> _mongoCollection;
+    private readonly IMongoCollection<FeatureManager> _mongoDeletedCollection;
+    private readonly IMongoDatabase _mongoDatabase;
 
     public ThothMongoDbProvider(IMongoClient mongoClient)
     {
         var conventionPack = new ConventionPack { new IgnoreExtraElementsConvention(true) };
         ConventionRegistry.Register("IgnoreExtraElements", conventionPack, type => type == typeof(FeatureManager));
-        
-        _mongoCollection = mongoClient.GetDatabase(ThothMongoDbOptions.DatabaseName)
-            .GetCollection<FeatureManager>(ThothMongoDbOptions.CollectionName);
+
+        _mongoDatabase = mongoClient.GetDatabase(ThothMongoDbOptions.DatabaseName);
+
+        _mongoCollection = _mongoDatabase.GetCollection<FeatureManager>(ThothMongoDbOptions.CollectionName);
+
+        _mongoDeletedCollection = _mongoDatabase.GetCollection<FeatureManager>($"{ThothMongoDbOptions.CollectionName}_Deleted");
 
         Init();
     }
 
     public async Task<FeatureManager> GetAsync(string featureName)
     {
-        return await _mongoCollection.Find(c => c.Name == featureName &&
-                                                c.DeletedAt == null).FirstOrDefaultAsync();
+        return await _mongoCollection.Find(c => c.Name == featureName).FirstOrDefaultAsync();
     }
 
     public async Task<IEnumerable<FeatureManager>> GetAllAsync()
     {
         var features = await _mongoCollection
-            .Find(f => f.DeletedAt == null)
+            .Find(_ => true)
             .ToListAsync();
 
         var orderedFeatures = features.Select(x =>
@@ -43,6 +47,18 @@ public class ThothMongoDbProvider : IDatabase
         });
 
         return orderedFeatures.OrderByDescending(f => f.CreatedAt);
+    }
+
+    public async Task<IEnumerable<FeatureManager>> GetAllDeletedAsync()
+    {
+        var deletedFeatures = await _mongoDeletedCollection.Find(_ => true).ToListAsync();
+        var orderedFeatures = deletedFeatures.Select(x =>
+        {
+            x.Histories = x.Histories.OrderByDescending(f => f.PeriodEnd).ToList();
+            return x;
+        });
+
+        return orderedFeatures.OrderByDescending(f => f.DeletedAt);
     }
 
     public async Task<bool> AddAsync(FeatureManager featureManager)
@@ -59,22 +75,35 @@ public class ThothMongoDbProvider : IDatabase
 
         featureManager.Histories.Add(featureHistory);
         
-        await _mongoCollection.ReplaceOneAsync(f => f.Name == featureManager.Name &&
-                                                    f.DeletedAt == null, featureManager);
+        await _mongoCollection.ReplaceOneAsync(f => f.Name == featureManager.Name, featureManager);
         return true;
     }
 
     public async Task<bool> DeleteAsync(string featureName, string auditExtras = "")
     {
-        var feature = await GetAsync(featureName);
-        feature.DeletedAt = DateTime.UtcNow;
-        feature.Extras = auditExtras;
+        using var session = await _mongoDatabase.Client.StartSessionAsync();
+        try
+        {
+            session.StartTransaction();
+            var feature = await GetAsync(featureName);
+            feature.DeletedAt = DateTime.UtcNow;
+            feature.Extras = auditExtras;
 
-        if(ThothMongoDbOptions.DeletedFeaturesTtl is not null)
-            feature.ExpiresAt = feature.DeletedAt + ThothMongoDbOptions.DeletedFeaturesTtl;
+            if(ThothMongoDbOptions.DeletedFeaturesTtl is not null)
+                feature.ExpiresAt = feature.DeletedAt + ThothMongoDbOptions.DeletedFeaturesTtl;
 
-        await _mongoCollection.ReplaceOneAsync(f => f.Name == featureName, feature);
-        return true;
+            await _mongoCollection.DeleteOneAsync(f => f.Name == featureName);
+            await _mongoDeletedCollection.InsertOneAsync(feature);
+
+            await session.CommitTransactionAsync();
+
+            return true;
+        }
+        catch
+        {
+            await session.AbortTransactionAsync();
+            return false;
+        }
     }
 
     public async Task<bool> ExistsAsync(string featureName)
@@ -87,8 +116,11 @@ public class ThothMongoDbProvider : IDatabase
         _mongoCollection.Indexes.CreateOne(new CreateIndexModel<FeatureManager>(
             Builders<FeatureManager>.IndexKeys.Ascending(i => i.Name),
             new CreateIndexOptions { Unique = true }));
+
+        _mongoDeletedCollection.Indexes.CreateOne(new CreateIndexModel<FeatureManager>(
+            Builders<FeatureManager>.IndexKeys.Ascending(i => i.Name)));
         
-        _mongoCollection.Indexes.CreateOne(new CreateIndexModel<FeatureManager>(
+        _mongoDeletedCollection.Indexes.CreateOne(new CreateIndexModel<FeatureManager>(
             Builders<FeatureManager>.IndexKeys.Ascending(i => i.ExpiresAt),
             new CreateIndexOptions { ExpireAfter = new TimeSpan(0) }));
     }

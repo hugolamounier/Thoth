@@ -39,6 +39,12 @@ public interface IThothFeatureManager
     Task<IEnumerable<FeatureManager>> GetAllAsync();
 
     /// <summary>
+    ///     Retrieves all deleted features
+    /// </summary>
+    /// <returns></returns>
+    Task<IEnumerable<FeatureManager>> GetAllDeletedAsync();
+
+    /// <summary>
     ///     Creates a new feature
     /// </summary>
     /// <param name="featureManager"></param>

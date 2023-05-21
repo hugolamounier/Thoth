@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Transactions;
 using Microsoft.EntityFrameworkCore;
 using Thoth.Core.Interfaces;
 using Thoth.Core.Models.Entities;
@@ -53,6 +52,38 @@ public class ThothSqlServerProvider<TContext> : IDatabase
 
             return x;
         }).OrderByDescending(x => x.CreatedAt);
+
+        return resultFeatures;
+    }
+
+    public async Task<IEnumerable<FeatureManager>> GetAllDeletedAsync()
+    {
+        var features = await _featureManagers.TemporalAll()
+            .Where(c => c.DeletedAt != null)
+            .OrderByDescending(c => EF.Property<DateTime>(c, "PeriodEnd"))
+            .Select(x => new
+            {
+                Feature = x,
+                ValidFrom = EF.Property<DateTime>(x, "PeriodStart"),
+                ValidTo = EF.Property<DateTime>(x, "PeriodEnd")
+            })
+            .ToListAsync();
+
+        var currentFeatures = features
+            .AsParallel()
+            .Where(x => x.ValidTo == DateTime.MaxValue)
+            .Select(x => x.Feature).ToList();
+
+        var resultFeatures = currentFeatures.AsParallel().Select(x =>
+        {
+            x.Histories = features
+                .AsParallel()
+                .Where(y => y.ValidTo < DateTime.MaxValue && y.Feature.Name == x.Name)
+                .Select(y => new FeatureManagerHistory(y.Feature, y.ValidFrom, y.ValidTo))
+                .ToList();
+
+            return x;
+        }).OrderByDescending(x => x.DeletedAt);
 
         return resultFeatures;
     }
