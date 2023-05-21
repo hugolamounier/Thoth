@@ -38,11 +38,14 @@ public class ThothJwtAudit : IThothManagerAudit
                 continue;
             }
 
-            if (!claimName.StartsWith(ClaimTypeNamespace)) continue;
+            if (claimName.StartsWith(ClaimTypeNamespace))
             {
                 var replacedClaimName = claimName.Replace($"{ClaimTypeNamespace}/", "");
                 info.Add(replacedClaimName, claim.Value);
+                continue;
             }
+
+            info.Add(claimName, claim.Value);
         }
 
         return JsonConvert.SerializeObject(info);
