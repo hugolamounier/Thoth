@@ -23,7 +23,8 @@ public class ThothJwtAuthorizationFilterTests : IntegrationTestBase<Program>
         var token = JwtGenerator.GenerateToken(new List<Claim>
         {
             new(ClaimTypes.NameIdentifier, Guid.NewGuid().ToString()),
-            new(ClaimTypes.Email, "thotest@thotest.thoth")
+            new(ClaimTypes.Email, "thotest@thotest.thoth"),
+            new(ClaimTypes.Role, "Admin")
         });
 
         HttpClient.GetAsync($"/thoth?accessToken={token}").GetAwaiter().GetResult();

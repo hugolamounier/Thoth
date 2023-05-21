@@ -28,7 +28,33 @@ public class ThothSqlServerProvider<TContext> : IDatabase
 
     public async Task<IEnumerable<FeatureManager>> GetAllAsync()
     {
-        return (await _featureManagers.ToListAsync()).AsEnumerable();
+        var features = await _featureManagers.TemporalAll()
+            .OrderByDescending(c => EF.Property<DateTime>(c, "PeriodEnd"))
+            .Select(x => new
+            {
+                Feature = x,
+                ValidFrom = EF.Property<DateTime>(x, "PeriodStart"),
+                ValidTo = EF.Property<DateTime>(x, "PeriodEnd")
+            })
+            .ToListAsync();
+
+        var currentFeatures = features
+            .AsParallel()
+            .Where(x => x.ValidTo == DateTime.MaxValue)
+            .Select(x => x.Feature).ToList();
+
+        var resultFeatures = currentFeatures.AsParallel().Select(x =>
+        {
+            x.Histories = features
+                .AsParallel()
+                .Where(y => y.ValidTo < DateTime.MaxValue && y.Feature.Name == x.Name)
+                .Select(y => new FeatureManagerHistory(y.Feature, y.ValidFrom, y.ValidTo))
+                .ToList();
+
+            return x;
+        }).OrderByDescending(x => x.CreatedAt);
+
+        return resultFeatures;
     }
 
     public async Task<bool> AddAsync(FeatureManager featureManager)

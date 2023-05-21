@@ -15,6 +15,8 @@ import FeatureFlagService from '../../services/featureFlagService';
 import moment from 'moment';
 import CreateModal from './components/createModal';
 import Search from 'antd/es/input/Search';
+import HistoryModal from './components/historyModal';
+import TypeTagHelper from '../../shared/Helpers/TypeTagHelper';
 
 type LoadingProps = {
   loading: boolean;
@@ -22,16 +24,26 @@ type LoadingProps = {
   createLoading: boolean;
 };
 
+export type ModalOpenProps = {
+  createModal: boolean;
+  historyModal: boolean;
+};
+
 const FeatureManagement = (): JSX.Element => {
   const [features, setFeatures] = useState<FeatureManager[]>([]);
   const [filteredFeatures, setFilteredFeatures] = useState<FeatureManager[]>();
   const [currentSearchValue, setCurrentSearchValue] = useState<string>('');
-  const [createModalOpen, setCreateModalOpen] = useState<boolean>(false);
+  const [modalOpen, setModalOpen] = useState<ModalOpenProps>({
+    createModal: false,
+    historyModal: false,
+  });
   const [loading, setLoading] = useState<LoadingProps>({
     loading: false,
     updateLoading: new Map<string, boolean>(),
     createLoading: false,
   });
+  const [currentFeatureHistory, setCurrentFeatureHistory] = useState<FeatureManager>();
+
   const { modal } = App.useApp();
 
   const deleteFlag = async (
@@ -80,34 +92,19 @@ const FeatureManagement = (): JSX.Element => {
     });
   };
 
+  const openFeatureHistory = (featureName: string) => {
+    const feature = features.find((x) => x.name === featureName);
+    setCurrentFeatureHistory(feature);
+    setModalOpen({ ...modalOpen, historyModal: true });
+  };
+
   const onSubmitForm = async (data: FeatureManager) => {
     setLoading({ ...loading, createLoading: true });
     if (await FeatureFlagService.Create(data)) {
       await getFeatureFlags();
-      setCreateModalOpen(false);
+      setModalOpen({ ...modalOpen, createModal: false });
     }
     setLoading({ ...loading, createLoading: false });
-  };
-
-  const tagType = (type: FeatureTypes, subType?: FeatureFlagsTypes) => {
-    switch (type) {
-      case FeatureTypes.EnvironmentVariable:
-        return <Tag color="gold">{FeatureTypes[type]}</Tag>;
-
-      case FeatureTypes.FeatureFlag: {
-        switch (subType) {
-          case FeatureFlagsTypes.Boolean:
-            return <Tag color="green">Feature Flag: {FeatureFlagsTypes[subType]}</Tag>;
-
-          case FeatureFlagsTypes.PercentageFilter:
-            return <Tag color="purple">Feature Flag: {FeatureFlagsTypes[subType]}</Tag>;
-          default:
-            return <Tag color="red">Feature Flag: Unknown</Tag>;
-        }
-      }
-      default:
-        return <Tag color="red">Unknown</Tag>;
-    }
   };
 
   const onFeaturesChange = (newFeatures: FeatureManager[]) => {
@@ -145,6 +142,7 @@ const FeatureManagement = (): JSX.Element => {
         label: 'History',
         key: '1',
         icon: <HistoryOutlined />,
+        onClick: () => openFeatureHistory(name),
       },
       {
         label: 'Delete',
@@ -179,19 +177,19 @@ const FeatureManagement = (): JSX.Element => {
     { title: 'Actions', key: 'actions', dataIndex: 'actions' },
   ];
 
-  const tableData = filteredFeatures?.map((featureFlag) => {
+  const tableData = filteredFeatures?.map((feature) => {
     return {
-      key: featureFlag.name,
+      key: feature.name,
       name: (
         <Space align="center">
-          {featureFlag.name}
-          {featureFlag?.description !== null ? (
+          {feature.name}
+          {feature?.description !== null ? (
             <Tooltip className="pl-1 cursor-pointer" title="Description">
               <InfoCircleOutlined
                 onClick={() =>
                   Modal.info({
-                    title: `${featureFlag.name} - Description`,
-                    content: <div>{featureFlag.description}</div>,
+                    title: `${feature.name} - Description`,
+                    content: <div>{feature.description}</div>,
                     footer: null,
                     closable: true,
                   })
@@ -201,24 +199,22 @@ const FeatureManagement = (): JSX.Element => {
           ) : null}
         </Space>
       ),
-      type: tagType(featureFlag.type, featureFlag.subType),
+      type: TypeTagHelper.TagType(feature.type, feature.subType),
       enabled: (
         <Switch
-          disabled={featureFlag.type === FeatureTypes.EnvironmentVariable}
+          disabled={feature.type === FeatureTypes.EnvironmentVariable}
           checkedChildren="On"
           unCheckedChildren="Off"
-          checked={featureFlag.enabled}
-          loading={loading.updateLoading?.get(featureFlag.name) ?? false}
-          onChange={() => onValueClick(featureFlag.name)}
+          checked={feature.enabled}
+          loading={loading.updateLoading?.get(feature.name) ?? false}
+          onChange={() => onValueClick(feature.name)}
         />
       ),
-      value: featureFlag.value ?? '--',
-      createdAt: moment(featureFlag.createdAt).format('YYYY-MM-DD HH:mm:ss'),
+      value: feature.value ?? '--',
+      createdAt: moment(feature.createdAt).format('YYYY-MM-DD HH:mm:ss'),
       updatedAt:
-        featureFlag.updatedAt !== null
-          ? moment(featureFlag.updatedAt).format('YYYY-MM-DD HH:mm:ss')
-          : '--',
-      actions: actions(featureFlag.name),
+        feature.updatedAt !== null ? moment(feature.updatedAt).format('YYYY-MM-DD HH:mm:ss') : '--',
+      actions: actions(feature.name),
     };
   });
 
@@ -228,7 +224,7 @@ const FeatureManagement = (): JSX.Element => {
       style={{ width: '100%' }}
     >
       <h1 className="text-heading-bold-4 ">Feature Management</h1>
-      <Button type="primary" onClick={() => setCreateModalOpen(true)}>
+      <Button type="primary" onClick={() => setModalOpen({ ...modalOpen, createModal: true })}>
         <Space>
           <PlusOutlined className="p-0 m-0" />
           <span>Create</span>
@@ -260,10 +256,15 @@ const FeatureManagement = (): JSX.Element => {
         <Table loading={loading.loading} columns={tableHeader} dataSource={tableData} />
       </Space>
       <CreateModal
-        isOpen={createModalOpen}
-        setIsOpen={setCreateModalOpen}
+        isOpen={modalOpen.createModal}
+        setIsOpen={(state: boolean) => setModalOpen({ ...modalOpen, createModal: state })}
         onSubmitForm={onSubmitForm}
         isLoading={loading.createLoading}
+      />
+      <HistoryModal
+        isOpen={modalOpen.historyModal}
+        setIsOpen={(state: boolean) => setModalOpen({ ...modalOpen, historyModal: state })}
+        feature={currentFeatureHistory}
       />
     </BaseContent>
   );

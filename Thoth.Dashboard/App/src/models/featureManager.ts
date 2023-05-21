@@ -7,8 +7,16 @@ export type FeatureManager = {
   enabled: boolean;
   value?: string;
   description?: string;
+  histories?: FeatureManagerHistory[];
+  extras?: string;
   createdAt: Moment;
   updatedAt?: Moment;
+  deletedAt?: Moment;
+};
+
+export type FeatureManagerHistory = FeatureManager & {
+  periodStart?: Moment;
+  periodEnd?: Moment;
 };
 
 export enum FeatureFlagsTypes {

@@ -49,6 +49,7 @@ public class FeatureManagerController
     /// <returns></returns>
     public async Task<IResult> Create(FeatureManager featureManager)
     {
+        featureManager.Extras = string.Empty;
         if (await featureManager.IsValidAsync(out var messages) is false)
             return Results.BadRequest(string.Join(Environment.NewLine, messages));
 
@@ -68,6 +69,7 @@ public class FeatureManagerController
     /// <returns></returns>
     public async Task<IResult> Update(FeatureManager featureManager)
     {
+        featureManager.Extras = string.Empty;
         if (await featureManager.IsValidAsync(out var messages) is false)
             return Results.BadRequest(string.Join(Environment.NewLine, messages));
 

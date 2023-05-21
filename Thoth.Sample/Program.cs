@@ -129,7 +129,7 @@ if (builder.Environment.IsEnvironment("Testing"))
                     HttpOnly = true
                 });
                 options.ThothManagerAudit = new ThothJwtAudit(httpContextAccessor,
-                    new[] { ClaimTypes.Email, ClaimTypes.NameIdentifier });
+                    new[] { ClaimTypes.Email, ClaimTypes.NameIdentifier, ClaimTypes.Role });
             }
 
             if (args.Any(x => x.Contains("UseThothJwtAuthorizationWithRoles")))
@@ -157,6 +157,7 @@ if (builder.Environment.IsEnvironment("Testing"))
 else
 {
     // Add services to the container.
+    builder.Services.AddCors();
     builder.Services.AddControllers();
     builder.Services.AddThoth(options =>
     {
@@ -168,6 +169,7 @@ else
     var app = builder.Build();
     using var scope = app.Services.CreateScope();
 
+    app.UseCors(x => x.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin());
     app.UseSwagger();
     app.UseSwaggerUI();
     app.UseHttpsRedirection();

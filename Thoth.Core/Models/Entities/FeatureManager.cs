@@ -10,7 +10,6 @@ namespace Thoth.Core.Models.Entities;
 public class FeatureManager : BaseFeatureManager
 {
     [NotMapped] public List<FeatureManagerHistory> Histories { get; set; } = new();
-    [NotMapped] public DateTime? DeletedAt { get; set; }
     [NotMapped] public DateTime? ExpiresAt { get; set; }
 
     public override Task<bool> IsValidAsync(out List<string> messages)
