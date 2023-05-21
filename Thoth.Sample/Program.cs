@@ -157,7 +157,6 @@ if (builder.Environment.IsEnvironment("Testing"))
 else
 {
     // Add services to the container.
-    builder.Services.AddCors();
     builder.Services.AddControllers();
     builder.Services.AddThoth(options =>
     {
@@ -170,7 +169,6 @@ else
     var app = builder.Build();
     using var scope = app.Services.CreateScope();
 
-    app.UseCors(x => x.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin());
     app.UseSwagger();
     app.UseSwaggerUI();
     app.UseHttpsRedirection();
