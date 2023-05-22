@@ -11,24 +11,24 @@ using Thoth.Tests.Helpers;
 
 namespace Thoth.Tests.SQLServerProvider;
 
-public class ThothJwtAuthorizationFilterWithRolesTests: IntegrationTestBase<Program>
+public class ThothJwtAuthorizationFilterWithRolesTests : IntegrationTestBase<Program>
 {
     private readonly string _token;
-    
+
     public ThothJwtAuthorizationFilterWithRolesTests() : base(arguments: new Dictionary<string, string>
     {
-        {"auth", "UseThothJwtAuthorizationWithRoles"},
-        {"provider", "SQLServerProvider"}
+        { "auth", "UseThothJwtAuthorizationWithRoles" },
+        { "provider", "SQLServerProvider" }
     })
     {
         _token = JwtGenerator.GenerateToken(new List<Claim>
         {
-            new (ClaimTypes.NameIdentifier, Guid.NewGuid().ToString()),
-            new (ClaimTypes.Email, "thotest@thotest.thoth"),
-            new (ClaimTypes.Role, "Admin")
+            new(ClaimTypes.NameIdentifier, Guid.NewGuid().ToString()),
+            new(ClaimTypes.Email, "thotest@thotest.thoth"),
+            new(ClaimTypes.Role, "Admin")
         });
     }
-    
+
     [Theory]
     [MemberData(nameof(CreateValidDataGenerator))]
     public async Task Create_ShouldBeAuthorized(FeatureManager featureManager)
@@ -49,7 +49,7 @@ public class ThothJwtAuthorizationFilterWithRolesTests: IntegrationTestBase<Prog
     {
         //Act
         var response = await HttpClient.GetAsync($"/thoth/?accessToken={_token}");
-        var responseShouldUseCookies = await HttpClient.GetAsync($"/thoth");
+        var responseShouldUseCookies = await HttpClient.GetAsync("/thoth");
 
         //Assert
         response.IsSuccessStatusCode.Should().BeTrue();
@@ -62,12 +62,11 @@ public class ThothJwtAuthorizationFilterWithRolesTests: IntegrationTestBase<Prog
     {
         //Act
         var response = await HttpClient.GetAsync($"/thoth?accessToken={token}");
-        
+
 
         //Assert
         response.IsSuccessStatusCode.Should().BeFalse();
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
-        
     }
 
     public static IEnumerable<object[]> CreateValidDataGenerator()
@@ -97,17 +96,20 @@ public class ThothJwtAuthorizationFilterWithRolesTests: IntegrationTestBase<Prog
 
     public static IEnumerable<object[]> InvalidTokenDataGenerator()
     {
-        yield return new object[] { JwtGenerator.GenerateToken(new List<Claim>
+        yield return new object[]
         {
-            new (ClaimTypes.NameIdentifier, Guid.NewGuid().ToString()),
-            new (ClaimTypes.Email, "thotest@thotest.thoth"),
-            new (ClaimTypes.Role, "User")
-        }, 1, "hhh", "tttt", new SigningCredentials
-        (
-            new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Guid.NewGuid().ToString())),
-            SecurityAlgorithms.HmacSha256Signature
-        ))};
+            JwtGenerator.GenerateToken(new List<Claim>
+            {
+                new(ClaimTypes.NameIdentifier, Guid.NewGuid().ToString()),
+                new(ClaimTypes.Email, "thotest@thotest.thoth"),
+                new(ClaimTypes.Role, "User")
+            }, 1, "hhh", "tttt", new SigningCredentials
+            (
+                new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Guid.NewGuid().ToString())),
+                SecurityAlgorithms.HmacSha256Signature
+            ))
+        };
 
-        yield return new object[] {""};
+        yield return new object[] { "" };
     }
 }

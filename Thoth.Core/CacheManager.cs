@@ -19,21 +19,21 @@ public class CacheManager
         _memoryCache = memoryCache;
     }
 
-    public Task<FeatureManager?> GetOrCreateAsync(object cacheKey, Func<Task<FeatureManager?>> action)
+    public async Task<FeatureManager?> GetOrCreateAsync(object cacheKey, Func<Task<FeatureManager?>> action)
     {
         if (_options.EnableCaching is false)
-            return action.Invoke();
+            return await action.Invoke();
 
-        return _memoryCache.GetOrCreateAsync(cacheKey, cacheEntry =>
+        return await _memoryCache.GetOrCreateAsync(cacheKey, async cacheEntry =>
         {
             cacheEntry.AbsoluteExpirationRelativeToNow = _options.CacheExpiration;
             cacheEntry.SlidingExpiration = _options.CacheSlidingExpiration;
 
-            return action.Invoke();
+            return await action.Invoke();
         });
     }
 
-    public FeatureManager? GetIfExistsAsync(object cacheKey)
+    public FeatureManager? GetIfExists(object cacheKey)
     {
         if (_options.EnableCaching is false)
             return null;
@@ -43,12 +43,12 @@ public class CacheManager
         return cacheKeyExists ? cachedValue : null;
     }
 
-    public void UpdateAsync(object cacheKey, FeatureManager featureManager)
+    public void Update(object cacheKey, FeatureManager featureManager)
     {
         if (_options.EnableCaching is false)
             return;
 
-        var cachedValue = GetIfExistsAsync(cacheKey);
+        var cachedValue = GetIfExists(cacheKey);
 
         if (cachedValue != null)
             _memoryCache.Remove(cacheKey);

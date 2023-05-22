@@ -1,42 +1,42 @@
 using System;
-using System.Linq;
-using System.Security.Claims;
-using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
 using Thoth.Core.Interfaces;
-using Thoth.Core.Models;
 using Thoth.Core.Models.Entities;
 
 namespace Thoth.Dashboard.Api;
 
-public class FeatureFlagController
+public class FeatureManagerController
 {
-    private readonly IThothFeatureManager _thothFeatureManager;
     private readonly ThothDashboardOptions _dashboardOptions;
-    private readonly ClaimsPrincipal? _user;
-    private readonly ILogger<FeatureFlagController> _logger;
+    private readonly IThothFeatureManager _thothFeatureManager;
 
-    public FeatureFlagController(
+    public FeatureManagerController(
         IThothFeatureManager thothFeatureManager,
-        ILogger<FeatureFlagController> logger,
-        HttpContext httpContext,
         ThothDashboardOptions dashboardOptions)
     {
         _thothFeatureManager = thothFeatureManager;
-        _user = httpContext.User;
-        _logger = logger;
         _dashboardOptions = dashboardOptions;
     }
 
     /// <summary>
-    ///     Get all feature flags
+    ///     Get all features
     /// </summary>
     /// <returns></returns>
     public async Task<IResult> GetAll()
     {
         var featureFlags = await _thothFeatureManager.GetAllAsync();
+
+        return Results.Ok(featureFlags);
+    }
+
+    /// <summary>
+    ///     Get all deleted features
+    /// </summary>
+    /// <returns></returns>
+    public async Task<IResult> GetAllDeleted()
+    {
+        var featureFlags = await _thothFeatureManager.GetAllDeletedAsync();
 
         return Results.Ok(featureFlags);
     }
@@ -60,15 +60,15 @@ public class FeatureFlagController
     /// <returns></returns>
     public async Task<IResult> Create(FeatureManager featureManager)
     {
+        featureManager.Extras = string.Empty;
         if (await featureManager.IsValidAsync(out var messages) is false)
             return Results.BadRequest(string.Join(Environment.NewLine, messages));
 
+        if (_dashboardOptions.ThothManagerAudit is not null)
+            featureManager.Extras = _dashboardOptions.ThothManagerAudit.AddAuditExtras();
+
         if (!await _thothFeatureManager.AddAsync(featureManager))
             return Results.BadRequest();
-
-        _logger.LogInformation("{Message}. {ClaimInfo}",
-            string.Format(Messages.INFO_ADDED_FEATURE_FLAG, featureManager.Name, featureManager.Enabled.ToString(),
-                featureManager.Value), AddUserInfoToLog());
 
         return Results.StatusCode(201);
     }
@@ -80,15 +80,15 @@ public class FeatureFlagController
     /// <returns></returns>
     public async Task<IResult> Update(FeatureManager featureManager)
     {
+        featureManager.Extras = string.Empty;
         if (await featureManager.IsValidAsync(out var messages) is false)
             return Results.BadRequest(string.Join(Environment.NewLine, messages));
 
+        if (_dashboardOptions.ThothManagerAudit is not null)
+            featureManager.Extras = _dashboardOptions.ThothManagerAudit.AddAuditExtras();
+
         if (!await _thothFeatureManager.UpdateAsync(featureManager))
             return Results.BadRequest();
-
-        _logger.LogInformation("{Message}. {ClaimInfo}",
-            string.Format(Messages.INFO_UPDATED_FEATURE_FLAG, featureManager.Name, featureManager.Enabled.ToString(), featureManager.Value),
-            AddUserInfoToLog());
 
         return Results.Ok();
     }
@@ -100,31 +100,14 @@ public class FeatureFlagController
     /// <returns></returns>
     public async Task<IResult> Delete(string name)
     {
-        if (!await _thothFeatureManager.DeleteAsync(name))
+        var extras = string.Empty;
+
+        if (_dashboardOptions.ThothManagerAudit is not null)
+            extras = _dashboardOptions.ThothManagerAudit.AddAuditExtras();
+
+        if (!await _thothFeatureManager.DeleteAsync(name, extras))
             return Results.BadRequest();
 
-        _logger.LogInformation("{Message}. {ClaimInfo}",
-            string.Format(Messages.INFO_DELETED_FEATURE_FLAG, name), AddUserInfoToLog());
-
         return Results.Ok();
-    }
-
-    private string AddUserInfoToLog()
-    {
-        if (!_dashboardOptions.ClaimsToRegisterOnLog.Any())
-            return string.Empty;
-
-        var info = new StringBuilder();
-
-        foreach (var claimName in _dashboardOptions.ClaimsToRegisterOnLog)
-        {
-            var claim = _user?.Claims.FirstOrDefault(x => x.Type == claimName);
-            if(claim is not null)
-                info.Append($"'{claimName}': '{claim.Value}'; ");
-        }
-
-        return string.IsNullOrWhiteSpace(info.ToString()) ? 
-            string.Empty : 
-            string.Format(Messages.INFO_ACTION_MADE_BY_USER_WITH_CLAIMS, info);
     }
 }

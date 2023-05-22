@@ -1,16 +1,14 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import './index.css';
 import BaseLayout from './shared/Layout/BaseLayout';
-import FeatureManagement from './pages/featureFlags';
 import { App as AppAntd } from 'antd';
+import { AppContext } from './shared/Contexts/AppContext';
 
 function App() {
+  const { currentPage } = useContext(AppContext);
   return (
     <AppAntd>
-      <BaseLayout>
-        {/*<AppRoutes />*/}
-        <FeatureManagement />
-      </BaseLayout>
+      <BaseLayout>{currentPage}</BaseLayout>
     </AppAntd>
   );
 }

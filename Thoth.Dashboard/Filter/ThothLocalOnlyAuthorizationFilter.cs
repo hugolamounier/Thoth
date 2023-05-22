@@ -13,6 +13,7 @@ public class ThothLocalOnlyAuthorizationFilter : IThothDashboardAuthorizationFil
 
         return Task.FromResult(!string.IsNullOrEmpty(thothDashboardContext.Request.RemoteIpAddress) &&
                                (thothDashboardContext.Request.RemoteIpAddress is "127.0.0.1" or "::1" ||
-                                thothDashboardContext.Request.RemoteIpAddress == thothDashboardContext.Request.LocalIpAddress));
+                                thothDashboardContext.Request.RemoteIpAddress ==
+                                thothDashboardContext.Request.LocalIpAddress));
     }
 }

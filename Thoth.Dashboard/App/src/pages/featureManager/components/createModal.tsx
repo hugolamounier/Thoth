@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useForm } from 'antd/lib/form/Form';
-import { FeatureFlag, FeatureFlagsTypes, FeatureTypes } from '../../../models/featureFlag';
+import { FeatureManager, FeatureFlagsTypes, FeatureTypes } from '../../../models/featureManager';
 import { Form, Input, Modal, Select, Space, Switch } from 'antd';
 import { FileAddOutlined } from '@ant-design/icons';
 import TextArea from 'antd/lib/input/TextArea';
@@ -13,7 +13,7 @@ interface CreateModalInterface {
 }
 
 const CreateModal = ({ isOpen, setIsOpen, onSubmitForm, isLoading }: CreateModalInterface) => {
-  const [addFeatureFlagForm] = useForm<FeatureFlag>();
+  const [addFeatureFlagForm] = useForm<FeatureManager>();
   const [typeSelect, setTypeSelect] = useState<FeatureTypes | undefined>(undefined);
   const [subTypeSelect, setSubTypeSelect] = useState<FeatureFlagsTypes | undefined>(undefined);
 

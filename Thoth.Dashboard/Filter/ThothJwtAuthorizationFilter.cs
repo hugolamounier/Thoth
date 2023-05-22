@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
@@ -9,14 +8,14 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace Thoth.Dashboard.Filter;
 
-public class ThothJwtAuthorizationFilter: IThothDashboardAuthorizationFilter
+public class ThothJwtAuthorizationFilter : IThothDashboardAuthorizationFilter
 {
-    private readonly TokenValidationParameters _tokenValidationParameters;
-    private readonly string _tokenQueryParamName;
-    private readonly string? _roleClaimName;
     private readonly IEnumerable<string>? _allowedRoles;
-    private readonly string _dashboardRootPath;
     private readonly CookieOptions? _cookieOptions;
+    private readonly string _dashboardRootPath;
+    private readonly string? _roleClaimName;
+    private readonly string _tokenQueryParamName;
+    private readonly TokenValidationParameters _tokenValidationParameters;
 
     public ThothJwtAuthorizationFilter(
         TokenValidationParameters tokenValidationParameters,
@@ -66,7 +65,7 @@ public class ThothJwtAuthorizationFilter: IThothDashboardAuthorizationFilter
     {
         if (string.IsNullOrEmpty(jwtToken))
             return Task.FromResult(false);
-        
+
         var tokenHandler = new JwtSecurityTokenHandler();
         ClaimsPrincipal? jwtSecurityToken;
 
@@ -90,7 +89,7 @@ public class ThothJwtAuthorizationFilter: IThothDashboardAuthorizationFilter
             return Task.FromResult(isAuthenticated);
 
         return Task.FromResult(isAuthenticated && jwtSecurityToken.Claims.Any(t => t.Type == _roleClaimName &&
-                                                                               _allowedRoles.Contains(t.Value)));
+            _allowedRoles.Contains(t.Value)));
     }
 
     private void SetCookie(string? jwtToken, HttpContext httpContext)

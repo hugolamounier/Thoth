@@ -16,13 +16,14 @@ namespace Thoth.Dashboard;
 [ExcludeFromCodeCoverage]
 public static class ApplicationBuilderExtensions
 {
-    public static IApplicationBuilder UseThothDashboard(
+    public static void UseThothDashboard(
         this IApplicationBuilder app,
         Action<ThothDashboardOptions>? setupAction = null)
     {
         using var scope = app.ApplicationServices.CreateScope();
-        var options = (ThothDashboardOptions?) scope.ServiceProvider.GetRequiredService<IOptions<ThothDashboardOptions>>().Value;
-        var thothOptions = (ThothOptions?) scope.ServiceProvider.GetRequiredService<IOptions<ThothOptions>>().Value;
+        var options =
+            (ThothDashboardOptions?)scope.ServiceProvider.GetRequiredService<IOptions<ThothDashboardOptions>>().Value;
+        var thothOptions = (ThothOptions?)scope.ServiceProvider.GetRequiredService<IOptions<ThothOptions>>().Value;
 
         options ??= new ThothDashboardOptions();
         setupAction?.Invoke(options);
@@ -43,14 +44,14 @@ public static class ApplicationBuilderExtensions
             {
                 spa.Options.DefaultPageStaticFileOptions = new StaticFileOptions
                 {
-                    FileProvider = new EmbeddedFileProvider(typeof(ThothDashboardOptions).Assembly, "Thoth.Dashboard.wwwroot")
+                    FileProvider = new EmbeddedFileProvider(typeof(ThothDashboardOptions).Assembly,
+                        "Thoth.Dashboard.wwwroot")
                 };
                 spa.Options.SourcePath = "wwwroot";
             });
         });
 
         app.UseMiddleware<ThothExceptionMiddleware>();
-
-        return app.InjectThothDashboardRoutes(scope, options);
+        app.InjectThothDashboardRoutes(options);
     }
 }

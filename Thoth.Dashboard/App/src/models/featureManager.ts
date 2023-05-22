@@ -1,14 +1,22 @@
 import { Moment } from 'moment';
 
-export type FeatureFlag = {
+export type FeatureManager = {
   name: string;
   type: FeatureTypes;
   subType?: FeatureFlagsTypes;
   enabled: boolean;
   value?: string;
   description?: string;
+  histories?: FeatureManagerHistory[];
+  extras?: string;
   createdAt: Moment;
   updatedAt?: Moment;
+  deletedAt?: Moment;
+};
+
+export type FeatureManagerHistory = FeatureManager & {
+  periodStart?: Moment;
+  periodEnd?: Moment;
 };
 
 export enum FeatureFlagsTypes {

@@ -12,16 +12,13 @@ namespace Thoth.Tests.MongoDbProvider;
 
 public class SampleControllerTests : IntegrationTestBase<Program>
 {
-    private readonly IThothFeatureManager _thothFeatureManager;
     private static readonly Mock<ILogger<ThothFeatureManager>> Logger = new();
+    private readonly IThothFeatureManager _thothFeatureManager;
 
-    public SampleControllerTests(): base(arguments: new Dictionary<string, string>
+    public SampleControllerTests() : base(arguments: new Dictionary<string, string>
     {
-        {"provider", "MongoDbProvider"}
-    }, serviceDelegate: services =>
-    {
-        services.AddScoped<ILogger<ThothFeatureManager>>(_ => Logger.Object);
-    })
+        { "provider", "MongoDbProvider" }
+    }, serviceDelegate: services => { services.AddScoped<ILogger<ThothFeatureManager>>(_ => Logger.Object); })
     {
         _thothFeatureManager = ServiceScope.ServiceProvider.GetRequiredService<IThothFeatureManager>();
     }
@@ -37,7 +34,7 @@ public class SampleControllerTests : IntegrationTestBase<Program>
             SubType = FeatureFlagsTypes.Boolean,
             Enabled = true
         };
-        
+
         await _thothFeatureManager.AddAsync(newFeatureFlag);
 
         //Act
@@ -48,7 +45,7 @@ public class SampleControllerTests : IntegrationTestBase<Program>
         var content = await response.Content.ReadAsStringAsync();
         content.Should().Be("Feature Enabled");
     }
-    
+
     [Fact]
     public async Task GetSample_WhenPercentageFilterType_ShouldReturnEnabled_Success()
     {
@@ -61,7 +58,7 @@ public class SampleControllerTests : IntegrationTestBase<Program>
             Enabled = true,
             Value = "50"
         };
-        
+
         await _thothFeatureManager.AddAsync(newFeatureFlag);
 
         //Act
@@ -85,14 +82,15 @@ public class SampleControllerTests : IntegrationTestBase<Program>
 
             validationTasks.Remove(finishedTask);
         }
-        
+
         validationResult.Should().Be("Feature Enabled");
     }
-    
+
     [Theory]
-    [InlineData(false, "Feature Disabled")] 
+    [InlineData(false, "Feature Disabled")]
     [InlineData(true, "Feature Enabled")]
-    public async Task GetSample_WhenPercentageFilterType_ShouldReturnDisabled_Success(bool isActive, string validationMessage)
+    public async Task GetSample_WhenPercentageFilterType_ShouldReturnDisabled_Success(bool isActive,
+        string validationMessage)
     {
         //Arrange
         var newFeatureFlag = new FeatureManager
@@ -103,7 +101,7 @@ public class SampleControllerTests : IntegrationTestBase<Program>
             Enabled = isActive,
             Value = "100"
         };
-        
+
         await _thothFeatureManager.AddAsync(newFeatureFlag);
 
         //Act
@@ -142,7 +140,8 @@ public class SampleControllerTests : IntegrationTestBase<Program>
                 It.Is<LogLevel>(l => l == LogLevel.Warning),
                 It.IsAny<EventId>(),
                 It.Is<It.IsAnyType>((v, t) => v.ToString()!
-                    .Contains("When using 'PercentageFilter' flag type, 'Value' must be defined and be greater than zero (0) for the feature:")),
+                    .Contains(
+                        "When using 'PercentageFilter' flag type, 'Value' must be defined and be greater than zero (0) for the feature:")),
                 It.IsAny<Exception>(),
                 It.Is<Func<It.IsAnyType, Exception, string>>((v, t) => true)!), Times.Once);
     }

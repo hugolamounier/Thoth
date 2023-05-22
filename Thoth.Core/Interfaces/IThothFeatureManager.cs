@@ -39,6 +39,12 @@ public interface IThothFeatureManager
     Task<IEnumerable<FeatureManager>> GetAllAsync();
 
     /// <summary>
+    ///     Retrieves all deleted features
+    /// </summary>
+    /// <returns></returns>
+    Task<IEnumerable<FeatureManager>> GetAllDeletedAsync();
+
+    /// <summary>
     ///     Creates a new feature
     /// </summary>
     /// <param name="featureManager"></param>
@@ -57,7 +63,8 @@ public interface IThothFeatureManager
     ///     Deletes an existing feature
     /// </summary>
     /// <param name="featureName"></param>
+    /// <param name="auditExtras"></param>
     /// <returns></returns>
     /// <exception cref="ThothException"></exception>
-    Task<bool> DeleteAsync(string featureName);
+    Task<bool> DeleteAsync(string featureName, string auditExtras = "");
 }

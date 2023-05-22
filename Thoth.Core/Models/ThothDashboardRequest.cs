@@ -8,8 +8,10 @@ public class ThothDashboardRequest
 {
     private readonly HttpContext _httpContext;
 
-    public ThothDashboardRequest([NotNull] HttpContext context) =>
-        _httpContext = context ?? throw new ArgumentNullException(nameof (context));
+    public ThothDashboardRequest([NotNull] HttpContext context)
+    {
+        _httpContext = context ?? throw new ArgumentNullException(nameof(context));
+    }
 
     public string Method => _httpContext.Request.Method;
 

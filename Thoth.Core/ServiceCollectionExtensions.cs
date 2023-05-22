@@ -16,7 +16,7 @@ namespace Thoth.Core;
 [ExcludeFromCodeCoverage]
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddThoth(this IServiceCollection services, Action<ThothOptions> setupAction)
+    public static void AddThoth(this IServiceCollection services, Action<ThothOptions> setupAction)
     {
         if (services == null)
             throw new ArgumentNullException(nameof(services));
@@ -30,21 +30,17 @@ public static class ServiceCollectionExtensions
         services.AddOptions();
         services.Configure(setupAction);
 
-        if (options.DatabaseProvider == null)
-            throw new ArgumentException(Messages.ERROR_DATABASE_PROVIDER);
+        options.Extensions.ForEach(extension => extension(services));
 
         services.AddHttpContextAccessor();
         services.TryAddSingleton<IMemoryCache, MemoryCache>();
         services.TryAddSingleton<CacheManager>();
-        services.TryAddSingleton<IThothFeatureManager, ThothFeatureManager>();
+        services.TryAddScoped<IThothFeatureManager, ThothFeatureManager>();
 
         if (options.EnableThothApi)
-        {
             services.AddSpaStaticFiles();
-            return services;
-        }
 
-        var appPartManager = (ApplicationPartManager) services
+        var appPartManager = (ApplicationPartManager)services
             .FirstOrDefault(a => a.ServiceType == typeof(ApplicationPartManager))
             ?.ImplementationInstance!;
         var dashboardAppPart = appPartManager?.ApplicationParts
@@ -52,7 +48,5 @@ public static class ServiceCollectionExtensions
 
         if (dashboardAppPart != null)
             appPartManager.ApplicationParts.Remove(dashboardAppPart);
-
-        return services;
     }
 }

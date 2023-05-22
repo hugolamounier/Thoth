@@ -1,9 +1,7 @@
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Thoth.Dashboard.Filter;
 
 namespace Thoth.Dashboard;
 
@@ -13,7 +11,8 @@ public class ThothAuthorizationMiddleware
     private readonly RequestDelegate _next;
     private readonly ThothDashboardOptions _options;
 
-    public ThothAuthorizationMiddleware(RequestDelegate next, ThothDashboardOptions options, IWebHostEnvironment environment)
+    public ThothAuthorizationMiddleware(RequestDelegate next, ThothDashboardOptions options,
+        IWebHostEnvironment environment)
     {
         _next = next ?? throw new ArgumentNullException(nameof(next));
         _options = options;
@@ -32,11 +31,9 @@ public class ThothAuthorizationMiddleware
             return;
         }
 
-        foreach (var filter in _options.Authorization)
+        if (_options.Authorization is not null &&
+            await _options.Authorization.AuthorizeAsync(thothContext) is false)
         {
-            if (await filter.AuthorizeAsync(thothContext))
-                continue;
-
             httpContext.Response.StatusCode = StatusCodes.Status403Forbidden;
             return;
         }

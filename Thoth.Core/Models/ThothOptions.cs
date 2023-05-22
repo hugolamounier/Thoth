@@ -1,15 +1,11 @@
 using System;
-using Thoth.Core.Interfaces;
+using System.Collections.Generic;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Thoth.Core.Models;
 
 public class ThothOptions
 {
-    /// <summary>
-    ///     Defines the database provider that will be used to store data
-    /// </summary>
-    public Lazy<IDatabase> DatabaseProvider { get; set; }
-
     /// <summary>
     ///     Whether feature flags should be cached, enabled by default
     /// </summary>
@@ -31,10 +27,12 @@ public class ThothOptions
     ///     Distributed applications should set shorten durations.
     /// </summary>
     public TimeSpan CacheSlidingExpiration { get; set; } = TimeSpan.FromDays(1);
-    
+
     /// <summary>
     ///     Defines if the Thoth Api should be exposed.
     ///     This is required true when using Dashboard.
     /// </summary>
     public bool EnableThothApi { get; set; } = true;
+
+    public List<Action<IServiceCollection>> Extensions { get; } = new();
 }

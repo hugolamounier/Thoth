@@ -1,18 +1,44 @@
-import React, { ReactNode } from 'react';
+import React, { ReactNode, useContext, useEffect } from 'react';
 import { UnorderedListOutlined } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
 import { Layout, Menu, theme } from 'antd';
+import { AppContext } from '../Contexts/AppContext';
+import FeatureManager from '../../pages/featureManager';
+import _ from 'lodash';
 
 const { Header, Sider } = Layout;
 
-const items2: MenuProps['items'] = [
-  { key: 1, label: 'Feature Management', icon: <UnorderedListOutlined /> },
-];
-
 const BaseLayout = ({ children }: { children: ReactNode }): JSX.Element => {
+  const { currentPage, setCurrentPage } = useContext(AppContext);
   const {
     token: { colorBgContainer },
   } = theme.useToken();
+
+  const items2: MenuProps['items'] = [
+    {
+      key: 1,
+      label: 'Feature Management',
+      icon: <UnorderedListOutlined />,
+      children: [
+        {
+          key: 'activeFeatures',
+          label: 'Active Features',
+          onClick: () => {
+            const key = _.uniqueId();
+            setCurrentPage(<FeatureManager key={key} listingFeatures="active" />);
+          },
+        },
+        {
+          key: 'deletedFeatures',
+          label: 'Deleted Features',
+          onClick: () => {
+            const key = _.uniqueId();
+            setCurrentPage(<FeatureManager key={key} listingFeatures="deleted" />);
+          },
+        },
+      ],
+    },
+  ];
 
   return (
     <Layout style={{ height: '100vh' }}>
@@ -24,7 +50,8 @@ const BaseLayout = ({ children }: { children: ReactNode }): JSX.Element => {
           <Menu
             className="pt-4 px-2"
             mode="inline"
-            defaultSelectedKeys={['1']}
+            defaultSelectedKeys={['activeFeatures']}
+            defaultOpenKeys={['1']}
             style={{ height: '100%', borderRight: 0 }}
             items={items2}
           />

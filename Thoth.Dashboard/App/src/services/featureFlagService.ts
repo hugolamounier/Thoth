@@ -1,12 +1,12 @@
 import apiService from './axiosInstance';
 import { notification } from 'antd';
-import { FeatureFlag } from '../models/featureFlag';
+import { FeatureManager } from '../models/featureManager';
 
 export default class FeatureFlagService {
-  public static async GetAll(): Promise<FeatureFlag[]> {
+  public static async GetAll(): Promise<FeatureManager[]> {
     try {
       const { data } = await apiService.get('/thoth-api/FeatureFlag');
-      return await Promise.resolve(data);
+      return data;
     } catch {
       notification.error({
         message: 'We failed you...',
@@ -16,7 +16,20 @@ export default class FeatureFlagService {
     }
   }
 
-  public static async Create(featureFlag: FeatureFlag): Promise<boolean> {
+  public static async GetAllDeleted(): Promise<FeatureManager[]> {
+    try {
+      const { data } = await apiService.get('/thoth-api/FeatureFlag/Deleted');
+      return data;
+    } catch {
+      notification.error({
+        message: 'We failed you...',
+        description: 'We could not retrieve the information you requested, please try again.',
+      });
+      return Promise.reject();
+    }
+  }
+
+  public static async Create(featureFlag: FeatureManager): Promise<boolean> {
     try {
       const { status } = await apiService.post(`/thoth-api/FeatureFlag`, featureFlag);
 
@@ -44,7 +57,7 @@ export default class FeatureFlagService {
     }
   }
 
-  public static async Update(featureFlag: FeatureFlag): Promise<boolean> {
+  public static async Update(featureFlag: FeatureManager): Promise<boolean> {
     try {
       const { status } = await apiService.put(`/thoth-api/FeatureFlag`, featureFlag);
 

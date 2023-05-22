@@ -10,7 +10,7 @@ using Thoth.Core.Models.Enums;
 
 namespace Thoth.Core;
 
-public class ThothFeatureManager: IThothFeatureManager
+public class ThothFeatureManager : IThothFeatureManager
 {
     private readonly CacheManager _cacheManager;
     private readonly IDatabase _dbContext;
@@ -20,11 +20,12 @@ public class ThothFeatureManager: IThothFeatureManager
     public ThothFeatureManager(
         CacheManager cacheManager,
         ILogger<ThothFeatureManager> logger,
-        IOptions<ThothOptions> thothOptions)
+        IOptions<ThothOptions> thothOptions,
+        IDatabase dbContext)
     {
         _cacheManager = cacheManager;
         _logger = logger;
-        _dbContext = thothOptions.Value.DatabaseProvider.Value;
+        _dbContext = dbContext;
         _thothOptions = thothOptions.Value;
     }
 
@@ -53,9 +54,10 @@ public class ThothFeatureManager: IThothFeatureManager
         var feature = await GetAsync(featureName);
 
         if (feature.Type is not FeatureTypes.EnvironmentVariable)
-            throw new ThothException(string.Format(Messages.ERROR_WRONG_FEATURE_TYPE, featureName, "EnvironmentVariable"));
+            throw new ThothException(string.Format(Messages.ERROR_WRONG_FEATURE_TYPE, featureName,
+                "EnvironmentVariable"));
 
-        return (T) Convert.ChangeType(feature.Value, typeof(T));
+        return (T)Convert.ChangeType(feature.Value, typeof(T));
     }
 
     public async Task<FeatureManager> GetAsync(string featureName)
@@ -76,12 +78,18 @@ public class ThothFeatureManager: IThothFeatureManager
         return featureFlags;
     }
 
+    public async Task<IEnumerable<FeatureManager>> GetAllDeletedAsync()
+    {
+        return await _dbContext.GetAllDeletedAsync();
+    }
+
     public async Task<bool> AddAsync(FeatureManager featureManager)
     {
         try
         {
             if (await CheckIfExistsAsync(featureManager.Name))
-                throw new ThothException(string.Format(Messages.ERROR_FEATURE_FLAG_ALREADY_EXISTS, featureManager.Name));
+                throw new ThothException(string.Format(Messages.ERROR_FEATURE_FLAG_ALREADY_EXISTS,
+                    featureManager.Name));
 
             var insertResult = await _dbContext.AddAsync(featureManager);
 
@@ -110,26 +118,27 @@ public class ThothFeatureManager: IThothFeatureManager
             var updateResult = await _dbContext.UpdateAsync(featureManager);
 
             if (updateResult)
-                _cacheManager.UpdateAsync(featureManager.Name, featureManager);
+                _cacheManager.Update(featureManager.Name, featureManager);
 
             return updateResult;
         }
         catch (Exception e)
         {
-            _logger.LogError("{Message}: {Exception}", string.Format(Messages.ERROR_WHILE_UPDATING_FEATURE_FLAG, featureManager.Name),
+            _logger.LogError("{Message}: {Exception}",
+                string.Format(Messages.ERROR_WHILE_UPDATING_FEATURE_FLAG, featureManager.Name),
                 e.InnerException?.Message ?? e.Message);
             throw;
         }
     }
 
-    public async Task<bool> DeleteAsync(string featureName)
+    public async Task<bool> DeleteAsync(string featureName, string auditExtras = "")
     {
         try
         {
             if (!await CheckIfExistsAsync(featureName))
                 throw new ThothException(string.Format(Messages.ERROR_FEATURE_FLAG_NOT_EXISTS, featureName));
 
-            var deleteResult = await _dbContext.DeleteAsync(featureName);
+            var deleteResult = await _dbContext.DeleteAsync(featureName, auditExtras);
 
             if (deleteResult)
                 _cacheManager.Remove(featureName);
@@ -138,7 +147,8 @@ public class ThothFeatureManager: IThothFeatureManager
         }
         catch (Exception e)
         {
-            _logger.LogError("{Message}: {Exception}", string.Format(Messages.ERROR_WHILE_DELETING_FEATURE_FLAG, featureName),
+            _logger.LogError("{Message}: {Exception}",
+                string.Format(Messages.ERROR_WHILE_DELETING_FEATURE_FLAG, featureName),
                 e.InnerException?.Message ?? e.Message);
             throw;
         }
@@ -146,7 +156,7 @@ public class ThothFeatureManager: IThothFeatureManager
 
     private async Task<bool> CheckIfExistsAsync(string featureName)
     {
-        var cachedValue = _cacheManager.GetIfExistsAsync(featureName);
+        var cachedValue = _cacheManager.GetIfExists(featureName);
         if (cachedValue != null)
             return true;
 
