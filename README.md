@@ -44,7 +44,7 @@ using Thoth.SQLServer;
 
 builder.Services.AddThoth(options =>
 {
-    options.DatabaseProvider = new Lazy<IDatabase>(() => new ThothSqlServerProvider(builder.Configuration.GetConnectionString("SqlContext")) ); // Set database provider
+    options.UseEntityFramework<TDbContext>(); // Set database provider
     options.ShouldReturnFalseWhenNotExists = true; // Defines if the default value to a non-existent feature should be false or throw
     options.EnableCaching = true; // Whether Thoth should use caching strategies to improve performance. Optional.
     options.CacheExpiration = TimeSpan.FromDays(7); // Defines for how long feature flags are going to be cached in memory. Optional.
