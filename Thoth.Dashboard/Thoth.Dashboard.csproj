@@ -3,7 +3,7 @@
     <PropertyGroup>
         <TargetFramework>net6.0</TargetFramework>
         <Nullable>enable</Nullable>
-        <Description>Thoth feature flag mangament dashboard.</Description>
+        <Description>Thoth feature flag management dashboard.</Description>
         <LangVersion>10.0</LangVersion>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <PackageReadmeFile>README.md</PackageReadmeFile>
