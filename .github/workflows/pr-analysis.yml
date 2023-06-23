@@ -18,4 +18,4 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           docker-compose up -d
-          ./Scripts/start-sonarcloud.sh ${{ secrets.SONAR_TOKEN }} ${{ github.sha }}
+          ./Scripts/start-sonarcloud.sh ${{ secrets.SONAR_TOKEN }} ${{ github.event.pull_request.head.sha }}
