@@ -1,7 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
     <PropertyGroup>
-        <TargetFramework>net6.0</TargetFramework>
+        <TargetFramework>net8.0</TargetFramework>
         <Nullable>enable</Nullable>
         <Description>Thoth feature flag mangament dashboard.</Description>
         <LangVersion>10.0</LangVersion>
@@ -16,7 +15,7 @@
         <RootNamespace>Thoth.Dashboard</RootNamespace>
         <IsPackable>true</IsPackable>
         <PackageIcon>icon-64.png</PackageIcon>
-        <Version>4.0.0</Version>
+        <Version>8.0.0</Version>
     </PropertyGroup>
 
     <ItemGroup>
@@ -37,13 +36,10 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.2.2" />
-        <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
-        <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.2.0" />
         <PackageReference Include="Microsoft.AspNetCore.SpaServices" Version="3.1.32" />
-        <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="6.0.16" />
+        <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="8.0.10" />
         <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.2.0" />
-        <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.28.1" />
+        <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.1.2" />
     </ItemGroup>
 
     <ItemGroup>
